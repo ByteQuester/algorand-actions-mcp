@@ -10,6 +10,7 @@ This repo emphasizes clarity over complexity: a few small scripts, a simple envi
 - Account summary script (against local algod or a public Indexer)
 - One-command node status check (catchup progress, rounds)
 - Ready to integrate with remote MCP for expanded capabilities
+- Static web UI (no build tools): index.html + vanilla JS wired to public endpoints
 
 ## Requirements
 
@@ -36,6 +37,17 @@ This repo emphasizes clarity over complexity: a few small scripts, a simple envi
    ```
 
 4. Account summary
+5. Open the static UI
+   ```bash
+   # Option A: serve locally with Python
+   cd web && python3 -m http.server 8088
+   # then open http://localhost:8088/
+
+   # Option B: open file directly (may be restricted by browser CORS)
+   # open web/index.html
+   ```
+   - Override endpoints via query params:
+     - `?indexer=https://mainnet-idx.algonode.cloud&nfd=https://api.nf.domains`
    ```bash
    ./scripts/account_summary.sh "ADDRESS_OR_NFD"
    # Uses INDEXER_URL if set; otherwise falls back to local algod
@@ -48,6 +60,11 @@ This scaffold includes the Algorand Remote MCP server as a git submodule under `
 - Algorand Remote MCP: [algorand-remote-mcp](https://github.com/ByteQuester/algorand-remote-mcp)
 
 You can deploy the Worker later (e.g., with Wrangler). For a quick portfolio demo, the included scripts are sufficient.
+
+## Deploying the static UI
+
+- Any static host works (GitHub Pages, Cloudflare Pages, Netlify, S3+CloudFront).
+- Publish the `web/` directory as-is. No build step required.
 
 ## Environment
 
