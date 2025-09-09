@@ -32,6 +32,19 @@
         <pre id="nfdOut" class="out"></pre>
       </section>
 
+      <section class="card" id="nodeHealthCard">
+        <h2>Node Health</h2>
+        <div id="nodeHealth">
+          <div class="muted">Loading node_status.json...</div>
+        </div>
+      </section>
+
+      <section class="card" id="recentBlocksCard">
+        <h2>Recent Blocks</h2>
+        <canvas id="blocksChart" width="880" height="200" aria-label="Recent block tx counts" role="img"></canvas>
+        <div class="hint">Shows transaction counts from <code>web/data/recent_blocks.json</code> if available.</div>
+      </section>
+
       <footer>
         <span class="muted">Endpoints:</span>
         <code id="endpoints"></code>

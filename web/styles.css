@@ -14,3 +14,13 @@ button:hover { filter: brightness(1.05); }
 footer { margin-top: 24px; font-size: 12px; color: #8fa3bb; }
 
 
+/* Node Health key-values */
+.kv { display: grid; grid-template-columns: 180px 1fr; gap: 6px 12px; }
+.kv dt { color: #93a4b7; }
+.kv dd { margin: 0; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+/* Chart canvas */
+#recentBlocksCard { overflow-x: auto; }
+#blocksChart { display: block; width: 100%; max-width: 100%; border: 1px solid #1b2430; border-radius: 8px; background: #0d1318; }
+
+
