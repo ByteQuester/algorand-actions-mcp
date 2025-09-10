@@ -20,3 +20,5 @@ fi
 "$GOAL" node status -d "$DATA_DIR"
 
 
+
+
