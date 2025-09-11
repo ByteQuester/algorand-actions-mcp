@@ -112,7 +112,8 @@ export class AlgorandActionsMCP extends McpAgent<Env, State, Props> {
           let stxnBase64: string;
           try {
             const unsignedObj = msgpack.decode(unsignedBytes) as any;
-            const stxnBytes = msgpack.encode({ txn: unsignedObj });
+            const emptySig = new Uint8Array(64); // empty Ed25519 signature
+            const stxnBytes = msgpack.encode({ sig: emptySig, txn: unsignedObj });
             stxnBase64 = Buffer.from(stxnBytes).toString("base64");
           } catch (_e) {
             // If decodeObj fails, assume caller already provided an stxn blob
