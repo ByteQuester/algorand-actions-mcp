@@ -148,12 +148,18 @@ export default {
       return new Response(JSON.stringify({ status: "ok", mode, network }), { status: 200, headers: { "content-type": "application/json" } });
     }
 
+    if (url.pathname === "/capabilities") {
+      const tools = ["build_payment_tx", "simulate_raw_tx", "submit_signed_tx"];
+      return new Response(JSON.stringify({ tools, network }), { status: 200, headers: { "content-type": "application/json" } });
+    }
+
     if (url.pathname === "/sse" || url.pathname === "/sse/message" || url.pathname === "/mcp") {
       // Gate mainnet usage
       if (network === "mainnet" && !allowMainnet) {
         return new Response(JSON.stringify({ error: "mainnet disabled" }), { status: 403, headers: { "content-type": "application/json" } });
       }
-      return AlgorandActionsMCP.mount("/sse", { binding: "AlgorandActionsMCP" }).fetch(request, env as any, ctx);
+      // Use SSE transport to ensure streaming behavior
+      return AlgorandActionsMCP.serveSSE("/sse", { binding: "AlgorandActionsMCP" }).fetch(request, env as any, ctx);
     }
 
     return new Response("Not found", { status: 404 });
