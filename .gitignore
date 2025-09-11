@@ -184,3 +184,5 @@ package-lock.json
 # .agentic-ignore
 .cursorignore
 .geminiignore
+.gemini/
+gha-creds-*.json

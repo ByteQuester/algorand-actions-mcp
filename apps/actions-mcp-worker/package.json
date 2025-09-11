@@ -1,5 +1,5 @@
 {
-  "name": "@bytequester/algorand-actions-mcp",
+  "name": "@algorand-showcase/actions-mcp-worker",
   "version": "0.1.1",
   "private": false,
   "type": "module",
@@ -14,21 +14,37 @@
     "dev": "wrangler dev --config wrangler.jsonc --port 8788",
     "deploy": "wrangler deploy --config wrangler.jsonc --minify"
   },
-  "keywords": ["algorand", "mcp", "cloudflare-workers", "simulate", "transactions"],
-  "engines": { "node": ">=18" },
-  "files": ["src", "wrangler.jsonc", "README.md", "LICENSE", "docs"],
-  "publishConfig": { "access": "public" },
+  "keywords": [
+    "algorand",
+    "mcp",
+    "cloudflare-workers",
+    "simulate",
+    "transactions"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "src",
+    "wrangler.jsonc",
+    "README.md",
+    "LICENSE",
+    "docs"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
+    "@algorand-showcase/algorand-clients": "workspace:*",
+    "@algorand-showcase/config": "workspace:*",
+    "@algorand-showcase/mcp-core": "workspace:*",
+    "@algorand-showcase/types": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.0.0",
-    "algosdk": "^2.7.0",
-    "zod": "^3.23.8",
     "agents": "^0.0.95",
-    "algo-msgpack-with-bigint": "^2.1.1"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "typescript": "^5.6.2",
     "wrangler": "^4.25.0"
   }
 }
-
-

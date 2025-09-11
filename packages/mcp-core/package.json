@@ -1,0 +1,29 @@
+{
+  "name": "@algorand-showcase/mcp-core",
+  "version": "0.1.0",
+  "description": "Common MCP server patterns and utilities",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@algorand-showcase/types": "workspace:*",
+    "@algorand-showcase/config": "workspace:*",
+    "zod": "^3.23.8"
+  }
+}
