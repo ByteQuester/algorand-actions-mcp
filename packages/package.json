@@ -1,0 +1,21 @@
+{
+  "name": "@algorand-showcase/packages",
+  "version": "0.1.0",
+  "description": "Shared packages for Algorand MCP Workers",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "pnpm -r run build",
+    "clean": "pnpm -r run clean",
+    "type-check": "pnpm -r run type-check"
+  },
+  "workspaces": [
+    "types",
+    "config", 
+    "algorand-clients",
+    "mcp-core"
+  ],
+  "devDependencies": {
+    "typescript": "^5.6.2"
+  }
+}

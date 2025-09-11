@@ -1,3 +1,0 @@
-[submodule "vendors/algorand-remote-mcp"]
-	path = vendors/algorand-remote-mcp
-	url = https://github.com/ByteQuester/algorand-remote-mcp
