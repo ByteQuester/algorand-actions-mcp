@@ -1,6 +1,7 @@
 import { McpAgent } from "agents/mcp";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import algosdk from "algosdk";
+import * as msgpack from "algo-msgpack-with-bigint";
 import { z } from "zod";
 
 type Env = {
@@ -110,8 +111,8 @@ export class AlgorandActionsMCP extends McpAgent<Env, State, Props> {
           // This avoids relying on Transaction#get_obj_for_encoding and works in Workers runtime
           let stxnBase64: string;
           try {
-            const unsignedObj = algosdk.decodeObj(unsignedBytes);
-            const stxnBytes = algosdk.encodeObj({ txn: unsignedObj });
+            const unsignedObj = msgpack.decode(unsignedBytes) as any;
+            const stxnBytes = msgpack.encode({ txn: unsignedObj });
             stxnBase64 = Buffer.from(stxnBytes).toString("base64");
           } catch (_e) {
             // If decodeObj fails, assume caller already provided an stxn blob

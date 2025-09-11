@@ -10,11 +10,13 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
     "algosdk": "^2.7.0",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "agents": "^0.0.95",
+    "algo-msgpack-with-bigint": "^2.1.1"
   },
   "devDependencies": {
     "typescript": "^5.6.2",
-    "wrangler": "^3.74.0"
+    "wrangler": "^4.25.0"
   }
 }
 
