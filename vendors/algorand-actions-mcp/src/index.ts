@@ -106,15 +106,15 @@ export class AlgorandActionsMCP extends McpAgent<Env, State, Props> {
           const client = new algosdk.Algodv2("", algodUrl, "");
           const unsignedBytes = Buffer.from(unsignedTxnBase64, "base64");
 
-          // Try to decode as an unsigned txn; if that works, wrap as a SignedTransaction with empty sigs
+          // Decode msgpack object directly and wrap into a SignedTransaction structure { txn: <obj> }
+          // This avoids relying on Transaction#get_obj_for_encoding and works in Workers runtime
           let stxnBase64: string;
           try {
-            const unsignedTxn = algosdk.decodeUnsignedTransaction(unsignedBytes);
-            const txnObj = unsignedTxn.get_obj_for_encoding();
-            const stxnBytes = algosdk.encodeObj({ txn: txnObj });
+            const unsignedObj = algosdk.decodeObj(unsignedBytes);
+            const stxnBytes = algosdk.encodeObj({ txn: unsignedObj });
             stxnBase64 = Buffer.from(stxnBytes).toString("base64");
           } catch (_e) {
-            // If it wasn't an unsigned txn, assume the caller already provided an stxn blob
+            // If decodeObj fails, assume caller already provided an stxn blob
             stxnBase64 = unsignedTxnBase64;
           }
 
