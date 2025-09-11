@@ -57,4 +57,7 @@ Notes:
 - No key custody. We only build, simulate, and broadcast.
 - Mainnet requires toggling `ALLOW_MAINNET=true` and `ALGORAND_NETWORK=mainnet` plus an explicit client confirmation.
 
+#### Debugging log
+- See `DEBUGGING.md` for a detailed, chronological log of issues, payloads, and fixes while bringing up simulation.
+
 

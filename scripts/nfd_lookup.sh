@@ -22,3 +22,4 @@ curl -fsSL "$NFD_API_URL/nfd/$NAME?view=full" | jq . || curl -fsSL "$NFD_API_URL
 
 
 
+

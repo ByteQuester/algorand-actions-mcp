@@ -107,51 +107,98 @@ export class AlgorandActionsMCP extends McpAgent<Env, State, Props> {
           const client = new algosdk.Algodv2("", algodUrl, "");
           const unsignedBytes = Buffer.from(unsignedTxnBase64, "base64");
 
-          // Decode msgpack object directly and wrap into a SignedTransaction structure { txn: <obj> }
-          // This avoids relying on Transaction#get_obj_for_encoding and works in Workers runtime
-          let stxnBase64: string;
+          // Build candidate SignedTxn encodings:
+          // A) Minimal SignedTxn object with only txn (sig omitted)
+          // B) SignedTxn object with zeroed sig bytes (64) via encodeObj
+          // C) SignedTxn bytes via algosdk.encodeSignedTransaction(txnInstance, zeroSig)
+          let stxnBase64_A: string | null = null;
+          let stxnBase64_B: string | null = null;
+          let stxnBase64_C: string | null = null;
+          let decodeType = "unknown";
           try {
             const unsignedObj = msgpack.decode(unsignedBytes) as any;
-            // Build a Transaction instance from the decoded object, then wrap with an empty signature
-            const txnInstance = algosdk.Transaction.from_obj_for_encoding(unsignedObj as any);
-            const emptySig = new Uint8Array(64); // empty Ed25519 signature
-            const stxnBytes = algosdk.encodeSignedTransaction(txnInstance, emptySig);
-            stxnBase64 = Buffer.from(stxnBytes).toString("base64");
+            decodeType = Array.isArray(unsignedObj) ? "array" : typeof unsignedObj;
+            // Preferred path: SDK helper to encode unsigned txn for simulate, then call simulateRawTransactions
+            try {
+              const txnInstancePreferred = algosdk.Transaction.from_obj_for_encoding(unsignedObj as any);
+              const simulateBytesPreferred = algosdk.encodeUnsignedSimulateTransaction(txnInstancePreferred);
+              const simPreferred = await client.simulateRawTransactions(simulateBytesPreferred).do();
+              const feePreferred = simPreferred?.txnGroups?.[0]?.txnResults?.[0]?.txnResult?.txn?.fee;
+              return { content: [{ type: "text", text: JSON.stringify({ ok: true, fee: feePreferred, raw: simPreferred, used: { shape: "sdk", impl: "encodeUnsignedSimulateTransaction+simulateRaw" } }) }] };
+            } catch (_preferErr) {
+              // Fall through to manual constructions
+            }
+            // A) Minimal signed transaction: { txn: <unsigned obj> }
+            const minimalSigned = { txn: unsignedObj } as any;
+            const stxnBytesA = algosdk.encodeObj(minimalSigned) as Uint8Array;
+            stxnBase64_A = Buffer.from(stxnBytesA).toString("base64");
+            // B) With zeroed signature
+            try {
+              const withZeroSig = { txn: unsignedObj, sig: new Uint8Array(64) } as any;
+              const stxnBytesB = algosdk.encodeObj(withZeroSig) as Uint8Array;
+              stxnBase64_B = Buffer.from(stxnBytesB).toString("base64");
+            } catch (_ignored) {}
+            // C) Use SDK to reconstruct Transaction and encode signed txn
+            try {
+              const txnInstance = algosdk.Transaction.from_obj_for_encoding(unsignedObj as any);
+              const zeroSig = new Uint8Array(64);
+              const stxnBytesC = (algosdk as any).encodeSignedTransaction(txnInstance, zeroSig) as Uint8Array;
+              stxnBase64_C = Buffer.from(stxnBytesC).toString("base64");
+            } catch (_ignored2) {}
           } catch (_e) {
-            // If decodeObj fails, assume caller already provided an stxn blob
-            stxnBase64 = unsignedTxnBase64;
+            // If decode fails, assume caller already provided a SignedTxn blob
+            stxnBase64_A = unsignedTxnBase64;
           }
-
-          // Build SimulateRequest JSON (Algod expects JSON, not msgpack here)
-          const req = {
-            "txn-groups": [
-              {
-                txns: [
-                  {
-                    txn: stxnBase64,
-                  },
-                ],
-              },
-            ],
-            "allow-empty-signatures": true,
-            "allow-more-hash-failures": true,
-            // Debug marker to verify version
-            _impl: "fetch+encodeSignedTransaction"
-          } as any;
 
           const endpoint = (algodUrl.endsWith('/') ? algodUrl.slice(0, -1) : algodUrl) + '/v2/transactions/simulate';
-          const resp = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'content-type': 'application/json' },
-            body: JSON.stringify(req)
-          });
-          if (!resp.ok) {
-            const text = await resp.text();
-            return { content: [{ type: 'text', text: JSON.stringify({ ok: false, status: resp.status, message: text }) }] };
+
+          async function trySim(shape: "txn-groups", stxnB64: string, impl: string) {
+            const stxnBytes = Buffer.from(stxnB64, "base64");
+            const stxnObj = algosdk.decodeObj(stxnBytes) as any;
+            const body = {
+              "txn-groups": [
+                {
+                  txns: [stxnObj],
+                },
+              ],
+              "allow-empty-signatures": true,
+              "allow-more-hash-failures": true,
+              _impl: impl,
+            } as any;
+            const resp = await fetch(endpoint, {
+              method: 'POST',
+              headers: { 'content-type': 'application/json' },
+              body: JSON.stringify(body),
+            });
+            return resp;
           }
-          const sim = await resp.json();
-          const fee = sim?.txnGroups?.[0]?.txnResults?.[0]?.txnResult?.txn?.fee;
-          return { content: [{ type: "text", text: JSON.stringify({ ok: true, fee, suggestedParams: undefined, raw: sim }) }] };
+
+          const attempts: Array<{ shape: "txn-groups"; stxn?: string; impl: string }> = [];
+          if (stxnBase64_A) {
+            attempts.push({ shape: "txn-groups", stxn: stxnBase64_A, impl: `A-minimal-signed (decoded:${decodeType})` });
+          }
+          if (stxnBase64_B) {
+            attempts.push({ shape: "txn-groups", stxn: stxnBase64_B, impl: `B-zero-sig (decoded:${decodeType})` });
+          }
+          if (stxnBase64_C) {
+            attempts.push({ shape: "txn-groups", stxn: stxnBase64_C, impl: `C-encodeSignedTransaction (decoded:${decodeType})` });
+          }
+          
+
+          let lastErrorText = "";
+          for (const a of attempts) {
+            const resp = await trySim(a.shape, a.stxn!, a.impl);
+            if (resp.ok) {
+              const sim = await resp.json();
+              const fee = sim?.txnGroups?.[0]?.txnResults?.[0]?.txnResult?.txn?.fee;
+              return { content: [{ type: "text", text: JSON.stringify({ ok: true, fee, raw: sim, used: { shape: a.shape, impl: a.impl } }) }] };
+            } else {
+              const text = await resp.text();
+              lastErrorText = `status=${resp.status} shape=${a.shape} impl=${a.impl} body=${text}`;
+            }
+          }
+
+          return { content: [{ type: 'text', text: JSON.stringify({ ok: false, message: lastErrorText || 'all attempts failed' }) }] };
         } catch (e: any) {
           return { content: [{ type: "text", text: JSON.stringify({ ok: false, message: e?.message || "simulation failed" }) }] };
         }
