@@ -112,8 +112,10 @@ export class AlgorandActionsMCP extends McpAgent<Env, State, Props> {
           let stxnBase64: string;
           try {
             const unsignedObj = msgpack.decode(unsignedBytes) as any;
+            // Build a Transaction instance from the decoded object, then wrap with an empty signature
+            const txnInstance = algosdk.Transaction.from_obj_for_encoding(unsignedObj as any);
             const emptySig = new Uint8Array(64); // empty Ed25519 signature
-            const stxnBytes = msgpack.encode({ sig: emptySig, txn: unsignedObj });
+            const stxnBytes = algosdk.encodeSignedTransaction(txnInstance, emptySig);
             stxnBase64 = Buffer.from(stxnBytes).toString("base64");
           } catch (_e) {
             // If decodeObj fails, assume caller already provided an stxn blob
@@ -133,6 +135,8 @@ export class AlgorandActionsMCP extends McpAgent<Env, State, Props> {
             ],
             "allow-empty-signatures": true,
             "allow-more-hash-failures": true,
+            // Debug marker to verify version
+            _impl: "fetch+encodeSignedTransaction"
           } as any;
 
           const endpoint = (algodUrl.endsWith('/') ? algodUrl.slice(0, -1) : algodUrl) + '/v2/transactions/simulate';
