@@ -61,7 +61,8 @@ This scaffold includes the Algorand Remote MCP server as a git submodule under `
 
 - Algorand Remote MCP: [algorand-remote-mcp](https://github.com/ByteQuester/algorand-remote-mcp)
 
-You can deploy the Worker later (e.g., with Wrangler). For a quick portfolio demo, the included scripts are sufficient.
+You can deploy the Worker later (e.g., with Wrangler). 
+The included scripts are sufficient for a quick demo.
 
 ## Deploying the static UI
 
