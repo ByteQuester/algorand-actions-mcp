@@ -1,6 +1,8 @@
 # Algorand NFD + Account Explorer (MCP Showcase)
 
-A lightweight, portfolio-friendly showcase that surfaces Algorand account and NFD (Algorand Name Service) data, and is scaffolded to integrate with the Algorand Remote MCP server.
+
+A lightweight and secure Model Context Protocol (MCP) designed to surface Algorand account data and NFD (Algorand Name Service) information. This MCP is scaffolded for integration with the Algorand Remote MCP server and serves as a complementary counterpart to the read-only [Algorand Remote MCP](https://github.com/ByteQuester/algorand-remote-mcp.git). While the read-only MCP is restricted to exposing on-chain data, this implementation adds scoped write and interaction capabilities, though limited to a curated set of tools for safety and simplicity. Used together, the two protocols provide a secure, extensible, and more complete framework for interacting with the Algorand ecosystem.
+
 
 This repo emphasizes clarity over complexity: a few small scripts, a simple environment file, and ready-to-use commands that work with a local node or public endpoints. It pairs well with the remote MCP server to expose rich tools for AI agents.
 
