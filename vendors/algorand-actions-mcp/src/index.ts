@@ -135,7 +135,17 @@ export class AlgorandActionsMCP extends McpAgent<Env, State, Props> {
             "allow-more-hash-failures": true,
           } as any;
 
-          const sim = await (client as any).simulateTransactions(req).do();
+          const endpoint = (algodUrl.endsWith('/') ? algodUrl.slice(0, -1) : algodUrl) + '/v2/transactions/simulate';
+          const resp = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify(req)
+          });
+          if (!resp.ok) {
+            const text = await resp.text();
+            return { content: [{ type: 'text', text: JSON.stringify({ ok: false, status: resp.status, message: text }) }] };
+          }
+          const sim = await resp.json();
           const fee = sim?.txnGroups?.[0]?.txnResults?.[0]?.txnResult?.txn?.fee;
           return { content: [{ type: "text", text: JSON.stringify({ ok: true, fee, suggestedParams: undefined, raw: sim }) }] };
         } catch (e: any) {
