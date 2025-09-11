@@ -1,0 +1,21 @@
+{
+  "name": "algorand-actions-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --config wrangler.jsonc --port 8788",
+    "deploy": "wrangler deploy --config wrangler.jsonc --minify"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "algosdk": "^2.7.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.2",
+    "wrangler": "^3.74.0"
+  }
+}
+
+

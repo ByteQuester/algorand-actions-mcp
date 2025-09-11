@@ -1,0 +1,25 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "algorand-actions-mcp",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-03-10",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "durable_objects": {
+    "bindings": [
+      { "class_name": "AlgorandActionsMCP", "name": "AlgorandActionsMCP" }
+    ]
+  },
+  "migrations": [
+    { "new_sqlite_classes": ["AlgorandActionsMCP"], "tag": "v1" }
+  ],
+  "vars": {
+    "ALGORAND_NETWORK": "testnet",
+    "ALGORAND_ALGOD": "https://testnet-api.algonode.cloud",
+    "ALGORAND_INDEXER": "https://testnet-idx.algonode.cloud",
+    "READ_ONLY": "false",
+    "ALLOW_MAINNET": "false"
+  }
+}
+
+
