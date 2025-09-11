@@ -104,11 +104,38 @@ export class AlgorandActionsMCP extends McpAgent<Env, State, Props> {
       async ({ unsignedTxnBase64 }) => {
         try {
           const client = new algosdk.Algodv2("", algodUrl, "");
-          const bytes = Buffer.from(unsignedTxnBase64, "base64");
-          // Encode as array for simulateRawTransactions
-          const sim = await (client as any).simulateRawTransactions([bytes]).do();
+          const unsignedBytes = Buffer.from(unsignedTxnBase64, "base64");
+
+          // Try to decode as an unsigned txn; if that works, wrap as a SignedTransaction with empty sigs
+          let stxnBase64: string;
+          try {
+            const unsignedTxn = algosdk.decodeUnsignedTransaction(unsignedBytes);
+            const txnObj = unsignedTxn.get_obj_for_encoding();
+            const stxnBytes = algosdk.encodeObj({ txn: txnObj });
+            stxnBase64 = Buffer.from(stxnBytes).toString("base64");
+          } catch (_e) {
+            // If it wasn't an unsigned txn, assume the caller already provided an stxn blob
+            stxnBase64 = unsignedTxnBase64;
+          }
+
+          // Build SimulateRequest JSON (Algod expects JSON, not msgpack here)
+          const req = {
+            "txn-groups": [
+              {
+                txns: [
+                  {
+                    txn: stxnBase64,
+                  },
+                ],
+              },
+            ],
+            "allow-empty-signatures": true,
+            "allow-more-hash-failures": true,
+          } as any;
+
+          const sim = await (client as any).simulateTransactions(req).do();
           const fee = sim?.txnGroups?.[0]?.txnResults?.[0]?.txnResult?.txn?.fee;
-          return { content: [{ type: "text", text: JSON.stringify({ ok: true, fee, suggestedParams: undefined }) }] };
+          return { content: [{ type: "text", text: JSON.stringify({ ok: true, fee, suggestedParams: undefined, raw: sim }) }] };
         } catch (e: any) {
           return { content: [{ type: "text", text: JSON.stringify({ ok: false, message: e?.message || "simulation failed" }) }] };
         }
