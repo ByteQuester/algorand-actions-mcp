@@ -53,6 +53,19 @@ npx wrangler dev --config wrangler.jsonc --port 8788
 { "tool": "submit_signed_tx", "args": { "signedTxnBase64": "<signed bytes base64>" } }
 ```
 
+#### SSE quick test
+- Open SSE and copy the session endpoint:
+```bash
+curl -sN https://algorand-actions-mcp.mehrdad-touraji.workers.dev/sse
+```
+- POST to the session endpoint returned above with JSON-RPC 2.0 messages for steps 1 and 2.
+
+#### Simulation implementation notes
+- The worker now uses `algosdk.encodeUnsignedSimulateTransaction(txn)` and calls `algod.simulateRawTransactions(bytes)`.
+- For HTTP JSON simulate, it uses `txn-groups` and embeds a decoded SignedTxn object (not base64 strings).
+- `stxns` request shape is not used (not supported by Algonode).
+- If simulation fails, responses include `used.shape/impl` and provider body for diagnostics.
+
 Notes:
 - No key custody. We only build, simulate, and broadcast.
 - Mainnet requires toggling `ALLOW_MAINNET=true` and `ALGORAND_NETWORK=mainnet` plus an explicit client confirmation.

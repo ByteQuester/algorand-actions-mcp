@@ -99,4 +99,14 @@ curl -s -X POST -H 'Content-Type: application/json' \
 - All tool calls are JSON-RPC 2.0 via `tools/call`.
 - Keep SSE session open; POSTs return 202 and stream results on SSE.
 
+#### Resolution — Simulation
+- Implementation now prefers the SDK path:
+  - Decode unsigned bytes → `Transaction.from_obj_for_encoding`
+  - Encode for simulate via `algosdk.encodeUnsignedSimulateTransaction(txn)`
+  - Call `algod.simulateRawTransactions(bytes)`
+- When posting JSON to `/v2/transactions/simulate`, use:
+  - `txn-groups: [{ txns: [ <SignedTxn object> ] }]` where `<SignedTxn object>` is produced by `algosdk.decodeObj(bytes)`
+- Do not use `stxns` with Algonode; it is not accepted.
+- Diagnostic fields included in responses: `used.shape` and `used.impl`.
+
 
