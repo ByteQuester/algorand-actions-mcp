@@ -2,9 +2,9 @@
  * Configuration loading utilities
  */
 import type { NetworkConfig, MCPConfig, AppConfig, BaseEnv, AlgorandNetwork } from '@algorand-showcase/types';
-import { createNetworkConfig } from './network';
-import { parseItemsPerPage, shouldEnableReadOnlyMode, isTrue } from './validation';
-import { NetworkConfigSchema, MCPConfigSchema, AppConfigSchema } from './schemas';
+import { createNetworkConfig } from './network.js';
+import { parseItemsPerPage, shouldEnableReadOnlyMode, isTrue } from './validation.js';
+import { NetworkConfigSchema, MCPConfigSchema, AppConfigSchema } from './schemas.js';
 
 /**
  * Load and validate network configuration

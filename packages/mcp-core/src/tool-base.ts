@@ -3,7 +3,7 @@
  */
 import { z } from 'zod';
 import type { MCPToolResult } from '@algorand-showcase/types';
-import { ResponseProcessor } from './response-processor';
+import { ResponseProcessor } from './response-processor.js';
 
 /**
  * Base configuration for MCP tools

@@ -41,6 +41,9 @@ importers:
       agents:
         specifier: ^0.0.95
         version: 0.0.95(@cloudflare/workers-types@4.20250911.0)(react@19.1.1)
+      ws:
+        specifier: ^8.14.2
+        version: 8.18.0
       zod:
         specifier: ^3.25.76
         version: 3.25.76
@@ -90,6 +93,9 @@ importers:
       qrcode:
         specifier: ^1.5.4
         version: 1.5.4
+      ws:
+        specifier: ^8.14.2
+        version: 8.18.0
       zod:
         specifier: ^4.1.7
         version: 4.1.7

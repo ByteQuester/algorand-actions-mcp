@@ -1,0 +1,169 @@
+{{- $workerType := .Values.worker.type -}}
+{{- $workerName := .Values.worker.name -}}
+{{- $serviceName := include "mcp-server.fullname" . -}}
+
+🎉 {{ title $workerType }} MCP Worker has been deployed!
+
+📊 Deployment Information:
+==========================
+Release Name: {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+Worker Type: {{ $workerType }}
+Worker Name: {{ $workerName }}
+Replicas: {{ .Values.replicaCount }}
+Environment: {{ .Values.env.NODE_ENV }}
+
+📡 Service Information:
+======================
+Service Name: {{ $serviceName }}
+Service Type: {{ .Values.service.type }}
+Service Port: {{ .Values.service.port }}
+
+{{- if .Values.ingress.enabled }}
+🌐 Ingress Information:
+======================
+{{- range .Values.ingress.hosts }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}{{ range .paths }}{{ .path }}{{ end }}
+{{- end }}
+{{- end }}
+
+🔗 Available Endpoints:
+======================
+{{- if .Values.ingress.enabled }}
+{{- range .Values.ingress.hosts }}
+  • Health Check: http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}/health
+  • API Documentation: http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}/docs
+  • Metrics: http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}/metrics
+  {{- if eq $workerType "actions" }}
+  • Tools List: http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}/tools/list
+  • Build Payment: http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}/tools/build_payment
+  • Simulate Transaction: http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}/tools/simulate
+  • Submit Transaction: http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}/tools/submit
+  {{- else if eq $workerType "remote" }}
+  • Tools List: http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}/tools/list
+  • Account Info: http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}/api/account
+  • Transaction Info: http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}/api/transaction
+  • Asset Info: http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}/api/asset
+  • Block Info: http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}/api/block
+  • Search Transactions: http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}/api/search/transactions
+  {{- end }}
+{{- end }}
+{{- else }}
+  Use kubectl port-forward to access the service:
+  kubectl port-forward svc/{{ $serviceName }} 8080:{{ .Values.service.port }} -n {{ .Release.Namespace }}
+
+  Then access:
+  • Health Check: http://localhost:8080/health
+  • API Documentation: http://localhost:8080/docs
+  • Metrics: http://localhost:8080/metrics
+  {{- if eq $workerType "actions" }}
+  • Tools List: http://localhost:8080/tools/list
+  {{- else if eq $workerType "remote" }}
+  • Tools List: http://localhost:8080/tools/list
+  • Account Info: http://localhost:8080/api/account
+  {{- end }}
+{{- end }}
+
+🔍 Monitoring:
+==============
+{{- if .Values.serviceMonitor.enabled }}
+✅ Prometheus ServiceMonitor is enabled
+   Metrics will be scraped from: {{ .Values.serviceMonitor.path }}
+   Scrape interval: {{ .Values.serviceMonitor.interval }}
+{{- else }}
+⚠️  Prometheus ServiceMonitor is disabled
+   Enable it by setting serviceMonitor.enabled=true
+{{- end }}
+
+📈 Autoscaling:
+===============
+{{- if .Values.autoscaling.enabled }}
+✅ Horizontal Pod Autoscaler is enabled
+   Min replicas: {{ .Values.autoscaling.minReplicas }}
+   Max replicas: {{ .Values.autoscaling.maxReplicas }}
+   CPU target: {{ .Values.autoscaling.targetCPUUtilizationPercentage }}%
+   {{- if .Values.autoscaling.targetMemoryUtilizationPercentage }}
+   Memory target: {{ .Values.autoscaling.targetMemoryUtilizationPercentage }}%
+   {{- end }}
+{{- else }}
+⚠️  Autoscaling is disabled
+   Enable it by setting autoscaling.enabled=true
+{{- end }}
+
+🛡️ Security:
+=============
+{{- if .Values.networkPolicy.enabled }}
+✅ NetworkPolicy is enabled - network traffic is restricted
+{{- else }}
+⚠️  NetworkPolicy is disabled - consider enabling for production
+{{- end }}
+
+{{- if .Values.podDisruptionBudget.enabled }}
+✅ PodDisruptionBudget is enabled
+{{- if .Values.podDisruptionBudget.minAvailable }}
+   Min available: {{ .Values.podDisruptionBudget.minAvailable }}
+{{- end }}
+{{- if .Values.podDisruptionBudget.maxUnavailable }}
+   Max unavailable: {{ .Values.podDisruptionBudget.maxUnavailable }}
+{{- end }}
+{{- else }}
+⚠️  PodDisruptionBudget is disabled - consider enabling for production
+{{- end }}
+
+🔧 Useful Commands:
+==================
+# Check deployment status
+kubectl get deployment {{ $serviceName }} -n {{ .Release.Namespace }}
+
+# View pod logs
+kubectl logs -f deployment/{{ $serviceName }} -n {{ .Release.Namespace }}
+
+# Check pod status
+kubectl get pods -l app.kubernetes.io/instance={{ .Release.Name }} -n {{ .Release.Namespace }}
+
+# Port forward for local access
+kubectl port-forward svc/{{ $serviceName }} 8080:{{ .Values.service.port }} -n {{ .Release.Namespace }}
+
+# View Helm release status
+helm status {{ .Release.Name }} -n {{ .Release.Namespace }}
+
+# View Helm release history
+helm history {{ .Release.Name }} -n {{ .Release.Namespace }}
+
+# Upgrade the release
+helm upgrade {{ .Release.Name }} ./charts/mcp-server -f {{ .Values.env.NODE_ENV }}/{{ $workerType }}-mcp-values.yaml -n {{ .Release.Namespace }}
+
+{{- if eq .Values.env.NODE_ENV "development" }}
+
+🛠️ Development Tips:
+====================
+• Debug logging is enabled for detailed troubleshooting
+• Probes have relaxed timeouts for easier debugging
+• CORS is configured to allow requests from any origin
+• Resource limits are low for local development
+
+{{- else if eq .Values.env.NODE_ENV "staging" }}
+
+🧪 Staging Environment:
+=======================
+• This is a pre-production environment for testing
+• TLS is enabled with Let's Encrypt staging certificates
+• Moderate resource allocation and autoscaling
+• Network policies are enabled for security testing
+
+{{- else if eq .Values.env.NODE_ENV "production" }}
+
+🚀 Production Environment:
+==========================
+• This is a production deployment with strict security
+• TLS is enabled with Let's Encrypt production certificates
+• High resource allocation and aggressive autoscaling
+• Full network policies and security constraints are active
+• Monitor the application closely for performance and security
+
+{{- end }}
+
+For more information, visit:
+📚 Documentation: https://github.com/username/algorand-showcase/blob/main/docs/K8S.md
+🐛 Issues: https://github.com/username/algorand-showcase/issues
+📞 Support: algorand-mcp@example.com

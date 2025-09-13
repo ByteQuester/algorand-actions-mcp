@@ -1,42 +1,45 @@
-import { McpAgent } from "agents/mcp";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { ExtendedEnv, State, Props } from "@algorand-showcase/types";
+import { ExtendedEnv } from "@algorand-showcase/types";
 import { ResponseProcessor } from "@algorand-showcase/mcp-core";
-import OAuthProvider from "./oauth-provider";
-import { OauthHandler } from "./oauth-handler";
+import OAuthProvider from "./oauth-provider.js";
+import { OauthHandler } from "./oauth-handler.js";
+import { RemoteHttpAdapter } from "./http-adapter.js";
+
+// ExecutionContext type for Cloudflare Workers
+interface ExecutionContext {
+  waitUntil(promise: Promise<any>): void;
+  passThroughOnException(): void;
+}
 
 // Define our MCP agent with tools
-export class AlgorandRemoteMCP extends McpAgent<ExtendedEnv, State, Props> {
+export class AlgorandRemoteMCP {
 	server = new McpServer({
 		name: "Algorand Remote MCP",
 		version: "1.2.0",
 	});
 
-	// Initialize state with default values
-	initialState: State = {
+	private env: ExtendedEnv;
+	private state: Record<string, unknown> = {
 		items_per_page: 10
-
 	};
+
+	constructor(env: ExtendedEnv) {
+		this.env = env;
+	}
 
 	// Initialization function that sets up tools and resources
 	async init() {
 		// Configure ResponseProcessor with pagination settings
 		console.log("Initializing Algorand Remote MCP...");
-		const itemsPerPage = this.state?.items_per_page || 10;
+		const itemsPerPage = (this.state?.items_per_page as number) || 10;
 		ResponseProcessor.setItemsPerPage(itemsPerPage);
 
-		// Determine READ_ONLY mode: explicit flag or missing required secrets
-		const explicitReadOnly = this.env && (this.env.READ_ONLY === true || this.env.READ_ONLY === 'true' || (this.env as any).READ_ONLY === '1');
-		const secretsMissing = !(this.env as any)?.HCV_WORKER || !(this.env as any)?.HCV_WORKER_URL || !(this.env as any)?.VAULT_ENTITIES || !(this.env as any)?.VAULT_OIDC_ACCESSOR || !(this.env as any)?.GOOGLE_CLIENT_ID || !(this.env as any)?.GOOGLE_CLIENT_SECRET || !(this.env as any)?.COOKIE_ENCRYPTION_KEY;
-		const isReadOnly = !!explicitReadOnly || !!secretsMissing;
+		// Set to read-only mode for now
+		const isReadOnly = true;
 
 		if (isReadOnly) {
 			console.log('MCP running in READ_ONLY mode');
-			// Provide public, read-only defaults
-			if (!this.env.ALGORAND_ALGOD) this.env.ALGORAND_ALGOD = 'https://mainnet-api.algonode.cloud';
-			if (!this.env.ALGORAND_INDEXER) this.env.ALGORAND_INDEXER = 'https://mainnet-idx.algonode.cloud';
-			if (!(this.env as any).ALGORAND_TOKEN) (this.env as any).ALGORAND_TOKEN = '';
 			this.registerReadOnlyStubs();
 			return;
 		}
@@ -47,7 +50,7 @@ export class AlgorandRemoteMCP extends McpAgent<ExtendedEnv, State, Props> {
 	 */
 	private registerReadOnlyStubs() {
 		const unavailableResponse = (message?: string) => {
-			return ResponseProcessor.processResponse({ error: message || 'unavailable in read-only mode' });
+			return { content: [{ type: "text" as const, text: message || 'unavailable in read-only mode' }] };
 		};
 
 		// Signing and submission
@@ -76,36 +79,60 @@ export class AlgorandRemoteMCP extends McpAgent<ExtendedEnv, State, Props> {
 }
 
 export default {
-	fetch(request: Request, env: ExtendedEnv, ctx: ExecutionContext) {
+	async fetch(request: Request, env: ExtendedEnv, ctx: ExecutionContext) {
+		const url = new URL(request.url);
 		const explicitReadOnly = env && (env.READ_ONLY === true || env.READ_ONLY === 'true' || (env as any).READ_ONLY === '1');
 		const secretsMissing = !(env as any)?.HCV_WORKER || !(env as any)?.HCV_WORKER_URL || !(env as any)?.VAULT_ENTITIES || !(env as any)?.VAULT_OIDC_ACCESSOR || !(env as any)?.GOOGLE_CLIENT_ID || !(env as any)?.GOOGLE_CLIENT_SECRET || !(env as any)?.COOKIE_ENCRYPTION_KEY;
 		const isReadOnly = !!explicitReadOnly || !!secretsMissing;
+		
+		// HTTP REST API endpoints (available in both modes)
+		if (url.pathname.startsWith("/api/") || url.pathname === "/tools/list" || url.pathname === "/metrics" || url.pathname === "/openapi.json" || url.pathname === "/docs" || url.pathname === "/swagger") {
+			const httpAdapter = new RemoteHttpAdapter(env);
+			return httpAdapter.handleRequest(request, env);
+		}
+		
 		if (isReadOnly) {
 			console.log('MCP running in READ_ONLY mode');
 			if (!env.ALGORAND_ALGOD) (env as any).ALGORAND_ALGOD = 'https://mainnet-api.algonode.cloud';
 			if (!env.ALGORAND_INDEXER) (env as any).ALGORAND_INDEXER = 'https://mainnet-idx.algonode.cloud';
 			if (!(env as any).ALGORAND_TOKEN) (env as any).ALGORAND_TOKEN = '';
-			const url = new URL(request.url);
+			
 			if (url.pathname === "/health") {
 				return new Response(JSON.stringify({ status: "ok", mode: "READ_ONLY" }), { status: 200, headers: { 'content-type': 'application/json' } });
 			}
 			if (url.pathname === "/sse" || url.pathname === "/sse/message") {
-				return AlgorandRemoteMCP.serveSSE("/sse", {
-					binding: "AlgorandRemoteMCP",
-				}).fetch(request, env, ctx);
+				// Create and initialize MCP server instance
+				const mcpInstance = new AlgorandRemoteMCP(env);
+				await mcpInstance.init();
+				// For now, return a placeholder - we need to implement proper MCP transport
+				return new Response(JSON.stringify({ message: "MCP SSE endpoint - transport implementation needed" }), {
+					status: 501,
+					headers: { "content-type": "application/json" }
+				});
 			}
 			if (url.pathname === "/mcp") {
-				return AlgorandRemoteMCP.serve("/mcp", {
-					binding: "AlgorandRemoteMCP",
-				}).fetch(request, env, ctx);
+				// Create and initialize MCP server instance
+				const mcpInstance = new AlgorandRemoteMCP(env);
+				await mcpInstance.init();
+				// For now, return a placeholder - we need to implement proper MCP transport
+				return new Response(JSON.stringify({ message: "MCP endpoint - transport implementation needed" }), {
+					status: 501,
+					headers: { "content-type": "application/json" }
+				});
 			}
 			return new Response("Not found", { status: 404 });
 		}
 
+		// OAuth mode with full functionality
+		// For now, disable OAuth mode until proper transport is implemented
+		return new Response(JSON.stringify({ message: "OAuth mode temporarily disabled - transport implementation needed" }), {
+			status: 501,
+			headers: { "content-type": "application/json" }
+		});
+
+		/* TODO: Implement proper OAuth mode
 		const provider = new OAuthProvider({
-			apiHandler: AlgorandRemoteMCP.mount("/sse", {
-				binding: "AlgorandRemoteMCP"
-			}) as any,
+			apiHandler: "placeholder", // Need to implement proper handler
 			apiRoute: "/sse",
 			authorizeEndpoint: "/authorize",
 			clientRegistrationEndpoint: "/register",
@@ -113,5 +140,6 @@ export default {
 			tokenEndpoint: "/token",
 		});
 		return provider.fetch(request, env as any, ctx);
+		*/
 	},
 };

@@ -8,7 +8,7 @@
 		"resolveJsonModule": true,
 		"allowJs": true,
 		"checkJs": false,
-		"noEmit": true,
+		"outDir": "dist",
 		"isolatedModules": true,
 		"allowSyntheticDefaultImports": true,
 		"forceConsistentCasingInFileNames": true,

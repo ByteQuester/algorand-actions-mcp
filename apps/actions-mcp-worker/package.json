@@ -11,6 +11,7 @@
   "license": "MIT",
   "homepage": "https://github.com/bytequester/algorand-actions-mcp#readme",
   "scripts": {
+    "build": "tsc",
     "dev": "wrangler dev --config wrangler.jsonc --port 8788",
     "deploy": "wrangler deploy --config wrangler.jsonc --minify"
   },
@@ -41,6 +42,7 @@
     "@algorand-showcase/types": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.0.0",
     "agents": "^0.0.95",
+    "ws": "^8.14.2",
     "zod": "^3.25.76"
   },
   "devDependencies": {

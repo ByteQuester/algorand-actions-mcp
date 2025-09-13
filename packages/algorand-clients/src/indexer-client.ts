@@ -3,7 +3,7 @@
  */
 import algosdk from 'algosdk';
 import type { AlgorandAccountInfo } from '@algorand-showcase/types';
-import type { AlgorandClientConfig, ClientAsyncResult } from './types';
+import type { AlgorandClientConfig, ClientAsyncResult } from './types.js';
 
 /**
  * Search parameters for transactions

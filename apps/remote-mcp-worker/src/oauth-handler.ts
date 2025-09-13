@@ -1,4 +1,4 @@
-import type { AuthRequest, OAuthHelpers } from "./oauth-provider";
+import type { AuthRequest, OAuthHelpers } from "./oauth-provider.js";
 import { Hono } from "hono";
 import {getLogo} from "./logoUrl.js";
 
@@ -9,8 +9,8 @@ import {
 	redirectToProvider,
 	revokeUpstreamToken,
 	fetchUpstreamAuthToken,
-} from "./workers-oauth-utils";
-import { type Props, Env } from "./types";
+} from "./workers-oauth-utils.js";
+import { type Props, Env } from "./types.js";
 import { auth } from "@modelcontextprotocol/sdk/client/auth.js";
 
 // Extend the Env type to include our OAuth configuration

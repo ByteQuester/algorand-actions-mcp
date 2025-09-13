@@ -2,7 +2,7 @@
  * Network configuration management
  */
 import type { NetworkConfig, AlgorandNetwork, BaseEnv, Result } from '@algorand-showcase/types';
-import { parseNetwork, validateNetworkConfig, getDefaultUrls } from './validation';
+import { parseNetwork, validateNetworkConfig, getDefaultUrls } from './validation.js';
 
 /**
  * Create network configuration from environment

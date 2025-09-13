@@ -1,4 +1,13 @@
-import { WorkerEntrypoint } from 'cloudflare:workers';
+// WorkerEntrypoint equivalent for Node.js compatibility
+class WorkerEntrypoint {
+  constructor(ctx?: any, env?: any) {
+    // Node.js compatible implementation
+  }
+
+  fetch?(request: Request, env?: any, ctx?: any): Response | Promise<Response> {
+    throw new Error('fetch method must be implemented');
+  }
+}
 
 // Types
 

@@ -14,7 +14,7 @@ import type {
   PaymentTransactionParams,
   SimulationOptions,
   ClientAsyncResult 
-} from './types';
+} from './types.js';
 
 /**
  * Algod client wrapper with retry logic and common operations
@@ -213,6 +213,42 @@ export class AlgodClientWrapper {
       return {
         success: false,
         error: error instanceof Error ? error : new Error('Failed to compile TEAL')
+      };
+    }
+  }
+
+  /**
+   * Get block information by round
+   */
+  async getBlock(round: number): ClientAsyncResult<any> {
+    try {
+      const block = await this.client.block(round).do();
+      return {
+        success: true,
+        data: block
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error : new Error('Failed to get block')
+      };
+    }
+  }
+
+  /**
+   * Get node status
+   */
+  async getStatus(): ClientAsyncResult<any> {
+    try {
+      const status = await this.client.status().do();
+      return {
+        success: true,
+        data: status
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error : new Error('Failed to get node status')
       };
     }
   }

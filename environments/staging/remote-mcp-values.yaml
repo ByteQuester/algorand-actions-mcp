@@ -1,0 +1,280 @@
+# Staging environment values for Remote MCP Worker
+# Pre-production environment with moderate resource allocation
+
+# Worker identification
+worker:
+  type: "remote"
+  name: "remote-mcp-staging"
+
+# Staging image settings (versioned tags for stability)
+image:
+  repository: "algorand-remote-mcp"
+  tag: "staging"
+  pullPolicy: IfNotPresent
+
+# Two replicas for staging high availability
+replicaCount: 2
+
+# Staging environment variables
+env:
+  NODE_ENV: "staging"
+  LOG_LEVEL: "info"
+  PORT: "8080"
+
+# Staging-specific configuration
+configMap:
+  ALGORAND_NETWORK: "mainnet"
+  ALGORAND_ALGOD: "https://mainnet-api.algonode.cloud"
+  ALGORAND_INDEXER: "https://mainnet-idx.algonode.cloud"
+  READ_ONLY: "true"  # Read-only mode for staging safety
+  ENABLE_METRICS: "true"
+  LOG_FORMAT: "json"
+  CORS_ENABLED: "true"
+  CORS_ORIGIN: "https://staging.algorand-mcp.io"
+  ITEMS_PER_PAGE: "25"
+  QUERY_TIMEOUT: "20000"
+  CACHE_TTL: "300"
+  REQUEST_TIMEOUT: "25000"
+  MAX_REQUEST_SIZE: "5mb"
+  RATE_LIMIT_ENABLED: "true"
+  RATE_LIMIT_REQUESTS: "200"
+  RATE_LIMIT_WINDOW: "900000"  # 15 minutes
+
+# Staging secrets (OAuth can be enabled for testing, but typically read-only)
+secret:
+  ALGORAND_TOKEN: ""  # Set via external secret
+  # OAuth secrets for staging testing (optional)
+  HCV_WORKER: ""
+  HCV_WORKER_URL: ""
+  VAULT_ENTITIES: ""
+  VAULT_OIDC_ACCESSOR: ""
+  GOOGLE_CLIENT_ID: ""
+  GOOGLE_CLIENT_SECRET: ""
+  COOKIE_ENCRYPTION_KEY: ""
+
+# Moderate resource allocation for staging
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+# Enable autoscaling for staging
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+
+# Pod disruption budget for staging availability
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+# Staging ingress with TLS
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rate-limit: "200"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"
+  hosts:
+    - host: remote-mcp-staging.algorand-mcp.io
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: remote-mcp-staging-tls
+      hosts:
+        - remote-mcp-staging.algorand-mcp.io
+
+# Staging service configuration
+service:
+  type: ClusterIP
+  port: 80
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+
+# Production-like probes for staging
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+# Startup probe for staging
+startupProbe:
+  enabled: true
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 0
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 10
+
+# Staging annotations
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8080"
+  prometheus.io/path: "/metrics"
+  environment: "staging"
+  fluentd.active: "true"
+  mode: "read-only"
+
+# Staging-specific labels
+common:
+  labels:
+    environment: staging
+    team: algorand-mcp
+    version: staging
+    monitoring: enabled
+    mode: read-only
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+    scheduler.alpha.kubernetes.io/preferred-max-skew: "1"
+
+# Network policy for staging security
+networkPolicy:
+  enabled: true
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            name: ingress-nginx
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            name: monitoring
+  egress:
+    - to: []  # Allow all egress for external API calls
+      ports:
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 80
+
+# Enable ServiceMonitor for staging metrics
+serviceMonitor:
+  enabled: true
+  interval: 30s
+  path: /metrics
+  labels:
+    environment: staging
+    team: algorand-mcp
+
+# Staging priority class
+priorityClassName: "system-cluster-critical"
+
+# Staging affinity for high availability
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: environment
+          operator: In
+          values:
+          - staging
+          - production
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchExpressions:
+        - key: app.kubernetes.io/name
+          operator: In
+          values:
+          - mcp-server
+      topologyKey: kubernetes.io/hostname
+
+# Extra environment variables for staging observability
+extraEnvVars:
+  - name: POD_NAME
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.name
+  - name: NODE_NAME
+    valueFrom:
+      fieldRef:
+        fieldPath: spec.nodeName
+  - name: NAMESPACE
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.namespace
+
+# Staging-specific volumes with caching
+volumes:
+  - name: logs
+    emptyDir:
+      sizeLimit: 1Gi
+  - name: metrics
+    emptyDir: {}
+  - name: query-cache
+    emptyDir:
+      sizeLimit: 500Mi
+
+volumeMounts:
+  - name: logs
+    mountPath: /app/logs
+  - name: metrics
+    mountPath: /app/metrics
+  - name: query-cache
+    mountPath: /app/cache
+
+# Rolling update strategy for staging
+updateStrategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 1
+    maxSurge: 1
+
+# Topology spread constraints for staging
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: DoNotSchedule
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: mcp-server
+        worker.mcp/type: remote
+
+# Service account with necessary permissions
+serviceAccount:
+  create: true
+  annotations:
+    eks.amazonaws.com/role-arn: "arn:aws:iam::123456789012:role/staging-remote-mcp-role"

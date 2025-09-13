@@ -1,0 +1,219 @@
+# Development environment values for Remote MCP Worker
+# Override default values for development deployment
+
+# Worker identification
+worker:
+  type: "remote"
+  name: "remote-mcp-dev"
+
+# Development image settings
+image:
+  repository: "algorand-remote-mcp"
+  tag: "latest"
+  pullPolicy: Always
+
+# Single replica for development
+replicaCount: 1
+
+# Development environment variables
+env:
+  NODE_ENV: "development"
+  LOG_LEVEL: "debug"
+  PORT: "8080"
+
+# Development-specific configuration
+configMap:
+  ALGORAND_NETWORK: "mainnet"
+  ALGORAND_ALGOD: "https://mainnet-api.algonode.cloud"
+  ALGORAND_INDEXER: "https://mainnet-idx.algonode.cloud"
+  READ_ONLY: "true"  # Always read-only in development for safety
+  ENABLE_METRICS: "true"
+  LOG_FORMAT: "pretty"
+  DEBUG: "mcp:*"
+  CORS_ENABLED: "true"
+  CORS_ORIGIN: "*"
+  ITEMS_PER_PAGE: "10"
+  QUERY_TIMEOUT: "15000"
+  CACHE_TTL: "60"
+
+# Secrets for development (OAuth disabled, read-only mode)
+secret:
+  ALGORAND_TOKEN: ""
+  # OAuth secrets left empty to ensure read-only mode
+  HCV_WORKER: ""
+  HCV_WORKER_URL: ""
+  VAULT_ENTITIES: ""
+  VAULT_OIDC_ACCESSOR: ""
+  GOOGLE_CLIENT_ID: ""
+  GOOGLE_CLIENT_SECRET: ""
+  COOKIE_ENCRYPTION_KEY: ""
+
+# Lower resource requirements for development
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
+
+# Disable autoscaling for development
+autoscaling:
+  enabled: false
+
+# Enable ingress for development
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "Content-Type, Authorization"
+  hosts:
+    - host: remote-mcp-dev.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+# Development service configuration
+service:
+  type: ClusterIP
+  port: 80
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+
+# Relaxed probes for development
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 30
+  timeoutSeconds: 5
+  failureThreshold: 5
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 3
+  failureThreshold: 5
+
+# Enable startup probe for development debugging
+startupProbe:
+  enabled: true
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 0
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 12
+
+# Development annotations
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8080"
+  prometheus.io/path: "/metrics"
+  environment: "development"
+  debugging: "enabled"
+  mode: "read-only"
+
+# No pod disruption budget for development
+podDisruptionBudget:
+  enabled: false
+
+# Development-specific labels
+common:
+  labels:
+    environment: development
+    team: algorand-mcp
+    version: dev
+    mode: read-only
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+
+# No network policy restrictions for development
+networkPolicy:
+  enabled: false
+
+# Enable ServiceMonitor for development metrics
+serviceMonitor:
+  enabled: true
+  interval: 15s
+  path: /metrics
+  labels:
+    environment: development
+
+# Tolerations for development nodes
+tolerations:
+  - key: "development"
+    operator: "Equal"
+    value: "true"
+    effect: "NoSchedule"
+
+# Node selector for development
+nodeSelector:
+  environment: development
+
+# No priority class for development
+priorityClassName: ""
+
+# Development affinity rules (prefer development nodes)
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      preference:
+        matchExpressions:
+        - key: environment
+          operator: In
+          values:
+          - development
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 50
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: In
+            values:
+            - mcp-server
+        topologyKey: kubernetes.io/hostname
+
+# Extra environment variables for development
+extraEnvVars:
+  - name: POD_NAME
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.name
+  - name: NODE_NAME
+    valueFrom:
+      fieldRef:
+        fieldPath: spec.nodeName
+  - name: POD_IP
+    valueFrom:
+      fieldRef:
+        fieldPath: status.podIP
+
+# Development-specific volumes for debugging
+volumes:
+  - name: debug-logs
+    emptyDir: {}
+  - name: query-cache
+    emptyDir: {}
+
+volumeMounts:
+  - name: debug-logs
+    mountPath: /app/logs
+  - name: query-cache
+    mountPath: /app/cache
+
+# Update strategy for development (recreate for faster deployment)
+updateStrategy:
+  type: Recreate

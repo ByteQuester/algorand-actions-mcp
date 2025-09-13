@@ -1,6 +1,6 @@
 // workers-oauth-utils.ts
 
-import type { AuthRequest, ClientInfo } from "./oauth-provider"; // Adjust path if necessary
+import type { AuthRequest, ClientInfo } from "./oauth-provider.js"; // Adjust path if necessary
 import { type Context } from "hono";
 const COOKIE_NAME = "mcp-approved-clients";
 const ONE_YEAR_IN_SECONDS = 31536000;
@@ -179,7 +179,7 @@ export interface ApprovalCheckResult {
   /** Whether the client ID has been approved */
   approved: boolean;
   /** The preferred provider for this client, if available */
-  provider: string;
+  provider: string | null;
 }
 
 /**
