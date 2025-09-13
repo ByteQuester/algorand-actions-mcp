@@ -1,174 +1,566 @@
-# Algorand MCP Workers - Production-Ready Showcase
+# Algorand MCP Workers
 
-A comprehensive Model Context Protocol (MCP) implementation for Algorand blockchain interaction, featuring **dual deployment options**: Cloudflare Workers and Kubernetes with complete production-ready infrastructure.
+[![CI](https://github.com/ByteQuester/algorand-showcase/actions/workflows/ci.yml/badge.svg)](https://github.com/ByteQuester/algorand-showcase/actions/workflows/ci.yml)
+[![Docker Build](https://github.com/ByteQuester/algorand-showcase/actions/workflows/docker-build.yml/badge.svg)](https://github.com/ByteQuester/algorand-showcase/actions/workflows/docker-build.yml)
+[![Security](https://github.com/ByteQuester/algorand-showcase/actions/workflows/security.yml/badge.svg)](https://github.com/ByteQuester/algorand-showcase/actions/workflows/security.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![GitHub release](https://img.shields.io/github/v/release/ByteQuester/algorand-showcase)](https://github.com/ByteQuester/algorand-showcase/releases)
+[![GitHub stars](https://img.shields.io/github/stars/ByteQuester/algorand-showcase?style=flat)](https://github.com/ByteQuester/algorand-showcase/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/ByteQuester/algorand-showcase?style=flat)](https://github.com/ByteQuester/algorand-showcase/network)
+[![GitHub issues](https://img.shields.io/github/issues/ByteQuester/algorand-showcase)](https://github.com/ByteQuester/algorand-showcase/issues)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/ByteQuester/algorand-showcase)](https://github.com/ByteQuester/algorand-showcase/pulls)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.6+-blue.svg)](https://www.typescriptlang.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-Ready-326ce5.svg)](https://kubernetes.io/)
+[![Algorand](https://img.shields.io/badge/Algorand-Blockchain-orange.svg)](https://algorand.com/)
+[![MCP](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/)
 
-## 🌟 Key Features
+> **Production-ready Model Context Protocol (MCP) servers for seamless Algorand blockchain integration with AI agents like Claude.**
 
-### **Dual MCP Workers**
-- **Actions MCP Worker**: Transaction building, simulation, and submission
-- **Remote MCP Worker**: Blockchain data access and account querying
+Transform how AI agents interact with the Algorand blockchain through standardized, production-grade MCP servers. This repository provides complete infrastructure for transaction operations and blockchain data access, deployable on both Cloudflare Workers and Kubernetes.
 
-### **Deployment Options**
-- 🔷 **Cloudflare Workers** - Serverless edge deployment
-- ☸️ **Kubernetes** - Container orchestration with Helm charts
-- 🐳 **Docker** - Local development and testing
+## ✨ What Makes This Special?
 
-### **Production Features**
-- ✅ HTTP REST API with OpenAPI/Swagger documentation
-- ✅ Server-Sent Events (SSE) for real-time communication
-- ✅ Multi-environment support (dev/staging/production)
-- ✅ Comprehensive monitoring and health checks
-- ✅ Security hardening and network policies
-- ✅ Horizontal Pod Autoscaling
-- ✅ CI/CD pipeline with GitHub Actions
+🤖 **AI-Native Design**: Built from the ground up for AI agents using the Model Context Protocol (MCP) standard
+🚀 **Production-Ready**: Complete infrastructure with monitoring, security, and scalability
+🔄 **Dual Deployment**: Choose between serverless Cloudflare Workers or containerized Kubernetes
+⚡ **Real-Time Communication**: Server-Sent Events (SSE) support for live blockchain updates
+📊 **Comprehensive Tooling**: From transaction building to account analytics
 
-## 🚀 Quick Start
+## 🛠️ Core Components
 
-### Option 1: Docker (Recommended for Development)
+### **Actions MCP Worker** - Transaction Operations
+Build, simulate, and submit Algorand transactions with enterprise-grade reliability.
+
+**Features:**
+- 📝 Transaction building with parameter validation
+- 🧪 Transaction simulation and testing
+- 🚀 Secure transaction submission to testnet/mainnet
+- 📊 Real-time transaction status monitoring
+- 🔐 Multi-signature transaction support
+
+### **Remote MCP Worker** - Blockchain Data Access
+Query Algorand blockchain data with optimized performance and caching.
+
+**Features:**
+- 👤 Account information and balance tracking
+- 📈 Transaction history and analytics
+- 🪙 Asset information and metadata
+- ⛓️ Block data and network statistics
+- 🔍 Advanced search and filtering capabilities
+
+## 🚀 Deployment Options
+
+| Method | Use Case | Complexity | Scaling |
+|--------|----------|------------|---------|
+| 🐳 **Docker** | Local development, testing | Low | Manual |
+| ☁️ **Cloudflare Workers** | Global edge deployment | Medium | Automatic |
+| ☸️ **Kubernetes** | Enterprise production | High | Auto-scaling |
+
+## ⚡ Quick Start
+
+### Prerequisites
+- Node.js 18+ and pnpm
+- Docker and Docker Compose (for local development)
+- kubectl and Helm (for Kubernetes deployment)
+
+### 🐳 Option 1: Docker (5-minute setup)
+Perfect for development and testing:
+
 ```bash
-# Complete setup and start
+# Clone the repository
+git clone https://github.com/ByteQuester/algorand-showcase.git
+cd algorand-showcase
+
+# One-command setup and start
 make quick-start
 
-# Or step by step
-make install build docker-build docker-up
+# Access the services
+# Actions MCP Worker: http://localhost:8788/docs
+# Remote MCP Worker:  http://localhost:8789/docs
 ```
 
-### Option 2: Kubernetes
-```bash
-# Deploy to development environment
-cd environments
-./deploy.sh -e development -w all
+### ☁️ Option 2: Cloudflare Workers
+Deploy globally in minutes:
 
-# Deploy to production
-./validate.sh && ./deploy.sh -e production -w all
-```
-
-### Option 3: Cloudflare Workers
 ```bash
+# Install dependencies
+pnpm install
+
 # Deploy Actions MCP Worker
 cd apps/actions-mcp-worker
-npm run deploy
+pnpm run deploy
 
 # Deploy Remote MCP Worker
 cd apps/remote-mcp-worker
-npm run deploy
+pnpm run deploy
 ```
 
-## 📚 Architecture Overview
+### ☸️ Option 3: Kubernetes
+Production-grade deployment:
+
+```bash
+# Validate configuration
+cd environments && ./validate.sh
+
+# Deploy to development
+./deploy.sh -e development -w all
+
+# Deploy to production
+./deploy.sh -e production -w all
+```
+
+## 🧪 Test Your Installation
+
+```bash
+# Test Actions MCP Worker (transaction building)
+curl -X POST http://localhost:8788/tools/build_payment \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sender": "SENDER_ADDRESS",
+    "receiver": "RECEIVER_ADDRESS",
+    "amount": 1000000
+  }'
+
+# Test Remote MCP Worker (account data)
+curl -X POST http://localhost:8789/api/account \
+  -H "Content-Type: application/json" \
+  -d '{"address": "ACCOUNT_ADDRESS"}'
+```
+
+## 🏗️ Architecture Overview
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        Client Applications                       │
-│                     (Claude, Custom Apps)                       │
+│                    AI Agents & Applications                      │
+│         (Claude, GPT, Custom Apps, Web Interfaces)              │
 └─────────────────┬───────────────────────────┬───────────────────┘
                   │                           │
-                  │ HTTP REST API             │ SSE/MCP Protocol
+                  │ HTTP REST API             │ Server-Sent Events
+                  │ MCP Protocol              │ Real-time Updates
                   │                           │
 ┌─────────────────▼───────────────┐  ┌───────▼───────────────────┐
 │      Actions MCP Worker         │  │     Remote MCP Worker     │
 │                                 │  │                           │
+│ 🔧 Transaction Operations       │  │ 📊 Blockchain Data Access │
 │ • Build Payment Transactions    │  │ • Account Information     │
-│ • Simulate Transactions         │  │ • Transaction History     │
-│ • Submit Signed Transactions    │  │ • Asset Information       │
-│ • Testnet/Mainnet Support       │  │ • Block Data             │
+│ • Simulate Before Submit        │  │ • Transaction History     │
+│ • Multi-sig Support            │  │ • Asset Metadata          │
+│ • Error Handling & Retry       │  │ • Block Explorer Data     │
+│ • Rate Limiting                 │  │ • Search & Analytics      │
 └─────────────────┬───────────────┘  └───────┬───────────────────┘
                   │                          │
                   └─────┬────────────────────┘
                         │
               ┌─────────▼─────────┐
               │  Algorand Network │
-              │   (Testnet/Mainnet) │
+              │                   │
+              │ ⚡ Testnet        │
+              │ 🌐 Mainnet        │
+              │ 🔗 AlgoNode APIs  │
               └───────────────────┘
 ```
 
-## 🔗 API Endpoints
+### Key Design Principles
 
-### Actions MCP Worker
-- **Base URL**: `http://localhost:8788` (Docker) or your deployed URL
-- **Documentation**: `/docs` - Interactive Swagger UI
-- **Health Check**: `/health` - Service health status
-- **Metrics**: `/metrics` - Prometheus metrics
+- **🔌 Modular**: Each worker focuses on specific functionality
+- **🔄 Stateless**: Horizontally scalable without session dependencies
+- **🛡️ Secure**: Multi-layer security with rate limiting and validation
+- **📈 Observable**: Complete monitoring and logging infrastructure
+- **🚀 Fast**: Optimized for low-latency blockchain operations
 
-**Available Tools**:
-- `POST /tools/build_payment` - Build unsigned payment transactions
-- `POST /tools/simulate` - Simulate raw transactions
-- `POST /tools/submit` - Submit signed transactions
-- `GET /tools/list` - List all available tools
+## 📖 API Documentation
 
-### Remote MCP Worker
-- **Base URL**: `http://localhost:8789` (Docker) or your deployed URL
-- **Documentation**: `/docs` - Interactive Swagger UI
-- **Health Check**: `/health` - Service health status
-- **Metrics**: `/metrics` - Prometheus metrics
+### Actions MCP Worker - Transaction Operations
 
-**Available APIs**:
-- `POST /api/account` - Get account information
-- `POST /api/transaction` - Get transaction details
-- `POST /api/asset` - Get asset information
-- `POST /api/block` - Get block information
-- `POST /api/search/transactions` - Search transactions
+**Base URL**: `http://localhost:8788` (Docker) or your deployed URL
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/docs` | GET | 📖 Interactive Swagger/OpenAPI documentation |
+| `/health` | GET | ❤️ Service health check and status |
+| `/metrics` | GET | 📊 Prometheus metrics for monitoring |
+| `/tools/list` | GET | 📋 List all available MCP tools |
+| `/tools/build_payment` | POST | 💰 Build unsigned payment transactions |
+| `/tools/simulate` | POST | 🧪 Simulate transactions before submission |
+| `/tools/submit` | POST | 🚀 Submit signed transactions to network |
+
+### Remote MCP Worker - Blockchain Data Access
+
+**Base URL**: `http://localhost:8789` (Docker) or your deployed URL
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/docs` | GET | 📖 Interactive API documentation |
+| `/health` | GET | ❤️ Service health and network status |
+| `/metrics` | GET | 📊 Performance and usage metrics |
+| `/api/account` | POST | 👤 Get account information and balances |
+| `/api/transaction` | POST | 📋 Get transaction details and status |
+| `/api/asset` | POST | 🪙 Get asset information and metadata |
+| `/api/block` | POST | ⛓️ Get block information and contents |
+| `/api/search/transactions` | POST | 🔍 Search transactions with filters |
+
+### Example API Usage
+
+```bash
+# Build a payment transaction
+curl -X POST http://localhost:8788/tools/build_payment \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sender": "7ZUECA7HFLZTXENRV24SHLU4AVPUTMTTDUFUBNBD64C73F3UHRTHAIOF6Q",
+    "receiver": "GD64YIY3TWGDMCNPP553DZPPR6LDUSFQOIJVFDPPXWEG3FVOJCCDBBHU5A",
+    "amount": 1000000,
+    "note": "Test payment"
+  }'
+
+# Get account information
+curl -X POST http://localhost:8789/api/account \
+  -H "Content-Type: application/json" \
+  -d '{
+    "address": "7ZUECA7HFLZTXENRV24SHLU4AVPUTMTTDUFUBNBD64C73F3UHRTHAIOF6Q"
+  }'
+```
 
 ## 📁 Project Structure
 
 ```
 algorand-showcase/
-├── apps/                           # MCP Worker applications
-│   ├── actions-mcp-worker/         # Transaction operations
-│   │   ├── src/http-adapter.ts     # HTTP REST adapter
-│   │   ├── server.js              # Node.js server wrapper
-│   │   └── Dockerfile             # Container configuration
-│   └── remote-mcp-worker/          # Blockchain data access
-│       ├── src/http-adapter.ts     # HTTP REST adapter
-│       ├── server.js              # Node.js server wrapper
-│       └── Dockerfile             # Container configuration
-├── packages/                       # Shared libraries
-│   ├── mcp-core/                  # MCP utilities & OpenAPI generator
+├── 🏢 apps/                        # MCP Worker Applications
+│   ├── actions-mcp-worker/         # 🔧 Transaction Operations
+│   │   ├── src/
+│   │   │   ├── index.ts           # Core MCP server implementation
+│   │   │   ├── http-adapter.ts    # HTTP REST API wrapper
+│   │   │   └── tools/             # MCP tools (build, simulate, submit)
+│   │   ├── server.js              # Node.js production server
+│   │   ├── Dockerfile             # Multi-stage container build
+│   │   └── wrangler.toml          # Cloudflare Workers config
+│   └── remote-mcp-worker/          # 📊 Blockchain Data Access
+│       ├── src/
+│       │   ├── index.ts           # Core MCP server implementation
+│       │   ├── http-adapter.ts    # HTTP REST API wrapper
+│       │   ├── tools/             # MCP tools (account, transaction, etc.)
+│       │   └── oauth-*.ts         # OAuth authentication handlers
+│       ├── server.js              # Node.js production server
+│       ├── Dockerfile             # Multi-stage container build
+│       └── wrangler.toml          # Cloudflare Workers config
+├── 📦 packages/                    # Shared Libraries
+│   ├── mcp-core/                  # Core MCP utilities
+│   │   ├── src/tool-base.ts       # Base class for MCP tools
+│   │   └── src/openapi-generator.ts # Auto-generate API docs
 │   ├── algorand-clients/          # Algorand SDK wrappers
+│   │   ├── src/algod-client.ts    # Algod client with retries
+│   │   └── src/indexer-client.ts  # Indexer client with caching
 │   ├── config/                    # Configuration management
+│   │   ├── src/network.ts         # Network configurations
+│   │   └── src/loader.ts          # Environment-based config
 │   └── types/                     # TypeScript definitions
-├── environments/                   # Kubernetes deployment
-│   ├── charts/mcp-server/         # Helm chart templates
-│   ├── development/               # Dev environment values
-│   ├── staging/                   # Staging environment values
-│   ├── production/                # Production environment values
-│   ├── deploy.sh                  # Automated deployment
-│   └── validate.sh                # Configuration validation
-├── scripts/                       # Utility scripts
-├── docs/                          # Documentation
-└── docker-compose.yml             # Local development setup
+├── ☸️ environments/                # Kubernetes Infrastructure
+│   ├── charts/mcp-server/         # Helm chart for MCP workers
+│   │   ├── templates/             # K8s resource templates
+│   │   └── values.yaml            # Default configuration
+│   ├── development/               # Dev environment overrides
+│   ├── staging/                   # Staging environment overrides
+│   ├── production/                # Production environment overrides
+│   ├── deploy.sh                  # 🚀 Automated deployment script
+│   └── validate.sh                # ✅ Configuration validation
+├── 🔧 scripts/                     # Development & Operations
+│   ├── dev-setup.sh               # Local development setup
+│   ├── build-docker.sh            # Docker build automation
+│   └── test-containers.sh         # Container testing
+├── 📚 docs/                        # Documentation
+│   ├── DOCKER.md                  # Docker deployment guide
+│   └── K8S_SCOPE.md               # Kubernetes implementation
+├── 🐳 docker-compose.yml           # Local development orchestration
+├── 📋 Makefile                     # Build and deployment automation
+└── 🔒 .github/                     # CI/CD and community templates
+    ├── workflows/                 # GitHub Actions
+    └── ISSUE_TEMPLATE/            # Issue templates
 ```
-   - Override endpoints via query params:
-     - `?indexer=https://mainnet-idx.algonode.cloud&nfd=https://api.nf.domains`
-   ```bash
-   ./scripts/account_summary.sh "ADDRESS_OR_NFD"
-   # Uses INDEXER_URL if set; otherwise falls back to local algod
-   ```
+## ⚙️ Configuration
 
-## Remote MCP (optional)
+### Environment Variables
 
-This scaffold includes the Algorand Remote MCP server as a git submodule under `vendors/algorand-remote-mcp`. It exposes a comprehensive toolset (Indexer/algod/NFD/TEAL/tx ops). See the project for details:
+| Variable | Description | Default | Required |
+|----------|-------------|---------|-----------|
+| `ALGOD_ADDR` | Algorand node API endpoint | `https://testnet-api.algonode.cloud` | No |
+| `ALGOD_TOKEN` | Algorand node API token | `""` | No |
+| `INDEXER_URL` | Algorand indexer endpoint | `https://testnet-idx.algonode.cloud` | No |
+| `NFD_API_URL` | NFD (Name Service) API | `https://api.nf.domains` | No |
+| `NETWORK` | Network type | `testnet` | No |
+| `LOG_LEVEL` | Logging level | `info` | No |
+| `RATE_LIMIT_REQUESTS` | Rate limit per minute | `100` | No |
+| `ENABLE_CORS` | Enable CORS headers | `true` | No |
 
-- Algorand Remote MCP: [algorand-remote-mcp](https://github.com/ByteQuester/algorand-remote-mcp)
+### Network Configurations
 
-You can deploy the Worker later (e.g., with Wrangler). 
-The included scripts are sufficient for a quick demo.
+The system supports multiple Algorand networks with automatic endpoint selection:
 
-## Deploying the static UI
+```typescript
+// Testnet (default)
+ALGOD_ADDR=https://testnet-api.algonode.cloud
+INDEXER_URL=https://testnet-idx.algonode.cloud
 
-- Any static host works (GitHub Pages, Cloudflare Pages, Netlify, S3+CloudFront).
-- Publish the `web/` directory as-is. No build step required.
+// Mainnet
+ALGOD_ADDR=https://mainnet-api.algonode.cloud
+INDEXER_URL=https://mainnet-idx.algonode.cloud
 
-## Environment
+// Local development
+ALGOD_ADDR=http://localhost:4001
+INDEXER_URL=http://localhost:8980
+```
 
-See `.env.example` for defaults. Common settings:
+## 🔍 Use Cases & Examples
 
-- `ALGOD_ADDR` (default `http://127.0.0.1:8080`)
-- `ALGOD_TOKEN_FILE` (default `/var/lib/algorand/algod.token`)
-- `INDEXER_URL` (e.g. `https://mainnet-idx.algonode.cloud`)
-- `NFD_API_URL` (default `https://api.nf.domains`)
+### 1. AI Agent Transaction Building
+```python
+# Claude AI Agent using MCP
+import mcp
 
-## License
+# Build a payment transaction
+response = await mcp.call_tool("build_payment", {
+    "sender": "SENDER_ADDRESS",
+    "receiver": "RECEIVER_ADDRESS",
+    "amount": 1000000,
+    "note": "AI-generated payment"
+})
+```
 
-MIT
+### 2. Portfolio Management
+```bash
+# Get account portfolio
+curl -X POST http://localhost:8789/api/account \
+  -d '{"address": "PORTFOLIO_ADDRESS"}' | \
+  jq '.assets[] | select(.amount > 0)'
+```
+
+### 3. Transaction Monitoring
+```javascript
+// Real-time transaction updates via SSE
+const events = new EventSource('/api/transactions/stream?account=ADDRESS');
+events.onmessage = (event) => {
+    const transaction = JSON.parse(event.data);
+    console.log('New transaction:', transaction);
+};
+```
+
+### 4. Multi-signature Workflows
+```bash
+# Build multi-sig transaction
+curl -X POST http://localhost:8788/tools/build_payment \
+  -d '{
+    "sender": "MULTISIG_ADDRESS",
+    "receiver": "RECEIVER_ADDRESS",
+    "amount": 5000000,
+    "multisig": {
+      "version": 1,
+      "threshold": 2,
+      "addresses": ["ADDR1", "ADDR2", "ADDR3"]
+    }
+  }'
+```
+
+## 🚀 Production Deployment
+
+### Kubernetes Production Checklist
+
+- [ ] **Environment Validation**: Run `./environments/validate.sh`
+- [ ] **Resource Limits**: Configure appropriate CPU/memory limits
+- [ ] **Monitoring**: Deploy Prometheus and Grafana dashboards
+- [ ] **Security**: Enable NetworkPolicies and Pod Security Standards
+- [ ] **Backup**: Configure persistent volume backups
+- [ ] **Scaling**: Set up HorizontalPodAutoscaler
+- [ ] **SSL/TLS**: Configure Let's Encrypt or custom certificates
+- [ ] **Logging**: Deploy centralized logging (ELK/Fluentd)
+
+### Cloudflare Workers Production
+
+- [ ] **Custom Domain**: Configure custom domain routing
+- [ ] **Rate Limiting**: Set appropriate rate limits
+- [ ] **Environment Variables**: Configure production secrets
+- [ ] **Analytics**: Enable Cloudflare Analytics
+- [ ] **Caching**: Configure cache headers
+- [ ] **KV Storage**: Set up KV for session management
+
+## 🤝 Contributing
+
+We welcome contributions from developers of all skill levels! Whether you're fixing bugs, adding features, improving documentation, or helping with community support, your contributions make this project better.
+
+### Ways to Contribute
+
+🐛 **Report Bugs** - Found an issue? [Create a bug report](https://github.com/ByteQuester/algorand-showcase/issues/new?template=bug_report.yml)
+✨ **Suggest Features** - Have an idea? [Submit a feature request](https://github.com/ByteQuester/algorand-showcase/issues/new?template=feature_request.yml)
+📖 **Improve Docs** - Help make our documentation clearer and more comprehensive
+💻 **Write Code** - Fix bugs, implement features, or improve performance
+🧪 **Write Tests** - Help us maintain quality with better test coverage
+🎯 **Review PRs** - Help review pull requests and provide feedback
+
+### Quick Start for Contributors
+
+1. **Fork** the repository and **star** it ⭐
+2. **Clone** your fork: `git clone https://github.com/your-username/algorand-showcase.git`
+3. **Install** dependencies: `pnpm install`
+4. **Create** a feature branch: `git checkout -b feature/amazing-feature`
+5. **Make** your changes and **test** them: `pnpm test`
+6. **Submit** a Pull Request with a clear description
+
+**First time contributing?** Look for issues labeled [`good first issue`](https://github.com/ByteQuester/algorand-showcase/labels/good%20first%20issue) to get started!
+
+📚 **Read our [Contributing Guide](CONTRIBUTING.md)** for detailed guidelines, coding standards, and development setup.
+
+### Development Commands
+
+```bash
+# Install dependencies
+pnpm install
+
+# Build all packages
+pnpm build
+
+# Run tests
+pnpm test
+
+# Lint code
+pnpm lint
+
+# Type checking
+pnpm typecheck
+
+# Local development
+make dev
+
+# Docker development
+make docker-up
+```
+
+## 📊 Monitoring & Observability
+
+### Health Checks
+- **Actions Worker**: `GET /health` - Transaction service status
+- **Remote Worker**: `GET /health` - Blockchain data service status
+
+### Metrics (Prometheus)
+- **Request latency**: `http_request_duration_seconds`
+- **Request count**: `http_requests_total`
+- **Error rate**: `http_requests_errors_total`
+- **Algorand API calls**: `algorand_api_calls_total`
+
+### Logging
+All services use structured JSON logging with configurable levels:
+- `ERROR`: Critical errors requiring immediate attention
+- `WARN`: Important issues that don't stop operation
+- `INFO`: General operational information
+- `DEBUG`: Detailed debugging information (development only)
+
+## 🛡️ Security
+
+### Security Features
+- **Rate Limiting**: Configurable per-endpoint rate limiting
+- **Input Validation**: Comprehensive request validation
+- **CORS Protection**: Configurable CORS policies
+- **Network Policies**: Kubernetes network segmentation
+- **Container Security**: Non-root containers, read-only filesystems
+
+### Vulnerability Reporting
+Please report security vulnerabilities to [security@example.com](mailto:security@example.com) or see our [Security Policy](SECURITY.md).
+
+## 🆘 Troubleshooting
+
+### Common Issues
+
+#### Docker Issues
+```bash
+# Container won't start
+docker-compose logs actions-mcp-worker
+docker-compose logs remote-mcp-worker
+
+# Port conflicts
+docker-compose down && docker-compose up
+```
+
+#### Kubernetes Issues
+```bash
+# Pod status
+kubectl get pods -n mcp-workers
+
+# Pod logs
+kubectl logs -n mcp-workers deployment/actions-mcp-worker
+
+# Service endpoints
+kubectl get endpoints -n mcp-workers
+```
+
+#### Algorand Connection Issues
+```bash
+# Test algod connection
+curl -H "X-Algo-API-Token: $ALGOD_TOKEN" $ALGOD_ADDR/v2/status
+
+# Test indexer connection
+curl $INDEXER_URL/health
+```
+
+## 📚 Additional Resources
+
+- [Model Context Protocol Specification](https://modelcontextprotocol.io/)
+- [Algorand Developer Documentation](https://developer.algorand.org/)
+- [Docker Deployment Guide](docs/DOCKER.md)
+- [Kubernetes Implementation](docs/K8S_SCOPE.md)
+- [API Documentation](http://localhost:8788/docs) (when running locally)
+
+## 👥 Community
+
+### Join Our Growing Community
+
+We're building a vibrant community of developers, AI researchers, and blockchain enthusiasts who are passionate about bridging AI and blockchain technology.
+
+**🌟 GitHub Community**
+- ⭐ [Star the repository](https://github.com/ByteQuester/algorand-showcase) to show your support
+- 🔔 [Watch releases](https://github.com/ByteQuester/algorand-showcase/subscription) to stay updated
+- 💬 [Join Discussions](https://github.com/ByteQuester/algorand-showcase/discussions) for Q&A and feature ideas
+- 🐛 [Report Issues](https://github.com/ByteQuester/algorand-showcase/issues) to help improve the project
+
+**📢 Stay Connected**
+- 📰 Follow our [release notes](https://github.com/ByteQuester/algorand-showcase/releases) for updates
+- 🎯 Check out [good first issues](https://github.com/ByteQuester/algorand-showcase/labels/good%20first%20issue) to get started contributing
+- 📚 Read our [blog posts](https://github.com/ByteQuester/algorand-showcase/wiki) about MCP and Algorand integration
+
+**🤝 Community Guidelines**
+
+We're committed to fostering a welcoming and inclusive community. Please read our:
+- 📋 [Code of Conduct](CODE_OF_CONDUCT.md) - Community standards and behavior
+- 🔒 [Security Policy](SECURITY.md) - Responsible disclosure and security practices
+- 🤝 [Contributing Guide](CONTRIBUTING.md) - How to contribute effectively
+
+### Community Stats
+
+[![GitHub stars](https://img.shields.io/github/stars/ByteQuester/algorand-showcase?style=social)](https://github.com/ByteQuester/algorand-showcase/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/ByteQuester/algorand-showcase?style=social)](https://github.com/ByteQuester/algorand-showcase/network)
+[![GitHub watchers](https://img.shields.io/github/watchers/ByteQuester/algorand-showcase?style=social)](https://github.com/ByteQuester/algorand-showcase/watchers)
+
+## 🌟 Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=ByteQuester/algorand-showcase&type=Date)](https://star-history.com/#ByteQuester/algorand-showcase&Date)
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [Algorand Foundation](https://algorand.org/) for the amazing blockchain platform
+- [Model Context Protocol](https://modelcontextprotocol.io/) for the AI agent integration standard
+- [Cloudflare](https://cloudflare.com/) for the serverless platform
+- All contributors who make this project possible
+
+---
+
+<div align="center">
+  <p>Made with ❤️ for the Algorand and AI community</p>
+  <p>
+    <a href="https://github.com/ByteQuester/algorand-showcase">⭐ Star us on GitHub</a> •
+    <a href="https://github.com/ByteQuester/algorand-showcase/issues">🐛 Report Issues</a> •
+    <a href="https://github.com/ByteQuester/algorand-showcase/discussions">💬 Discussions</a>
+  </p>
+</div>
 
 

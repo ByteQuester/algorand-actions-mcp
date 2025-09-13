@@ -1,0 +1,17 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 GitHub Discussions
+    url: https://github.com/ByteQuester/algorand-showcase/discussions
+    about: Ask questions, share ideas, and discuss with the community
+  - name: 📖 Documentation
+    url: https://github.com/ByteQuester/algorand-showcase#readme
+    about: Read the project documentation and guides
+  - name: 🚀 Quick Start Guide
+    url: https://github.com/ByteQuester/algorand-showcase#-quick-start
+    about: Get started with Algorand MCP Workers in minutes
+  - name: 🔧 Troubleshooting
+    url: https://github.com/ByteQuester/algorand-showcase#-troubleshooting
+    about: Common issues and their solutions
+  - name: 🤝 Contributing Guide
+    url: https://github.com/ByteQuester/algorand-showcase/blob/main/CONTRIBUTING.md
+    about: Learn how to contribute to the project

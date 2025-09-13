@@ -1,0 +1,201 @@
+name: 💡 Feature Request
+description: Suggest an idea for Algorand MCP Workers
+title: "[Feature]: "
+labels: ["enhancement", "needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for suggesting a new feature! Your ideas help make Algorand MCP Workers better for everyone.
+
+  - type: checkboxes
+    id: prerequisites
+    attributes:
+      label: Prerequisites
+      description: Please confirm the following before submitting a feature request
+      options:
+        - label: I have searched existing issues and discussions to ensure this feature hasn't been requested yet
+          required: true
+        - label: I have read the project roadmap and documentation
+          required: true
+        - label: This feature aligns with the project's goals (AI-blockchain integration via MCP)
+          required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which component would this feature affect?
+      options:
+        - Actions MCP Worker (Transaction Operations)
+        - Remote MCP Worker (Blockchain Data Access)
+        - Shared Packages (mcp-core, algorand-clients, etc.)
+        - Kubernetes Deployment
+        - Docker/Cloudflare Workers Deployment
+        - Documentation
+        - Developer Experience
+        - CI/CD and Testing
+        - Community and Governance
+    validations:
+      required: true
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Feature Type
+      description: What type of feature is this?
+      options:
+        - New MCP Tool
+        - API Enhancement
+        - Performance Improvement
+        - Developer Experience
+        - Documentation
+        - Infrastructure/DevOps
+        - Security Enhancement
+        - Monitoring/Observability
+        - Integration with External Service
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve? What's the current limitation?
+      placeholder: |
+        Describe the current limitation or pain point that this feature would address.
+
+        Examples:
+        - "Currently, there's no way to..."
+        - "It's difficult to..."
+        - "Users frequently ask for..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the feature you'd like to see implemented
+      placeholder: |
+        A clear and detailed description of what you want to happen.
+
+        Include:
+        - How would users interact with this feature?
+        - What would the API look like?
+        - How would it integrate with existing functionality?
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: Use Cases
+      description: Provide specific use cases for this feature
+      placeholder: |
+        List 2-3 specific scenarios where this feature would be useful:
+
+        1. As an AI agent developer, I want to... so that...
+        2. As a blockchain application, I need to... because...
+        3. When building DeFi integrations, it would be helpful to...
+    validations:
+      required: true
+
+  - type: textarea
+    id: api-design
+    attributes:
+      label: API Design (if applicable)
+      description: If this involves new APIs or tools, describe the interface
+      placeholder: |
+        If this feature involves new MCP tools or HTTP endpoints, describe:
+
+        ```typescript
+        // Example MCP Tool interface
+        interface NewToolParams {
+          param1: string;
+          param2: number;
+        }
+
+        interface NewToolResult {
+          result: SomeType;
+        }
+        ```
+
+        ```bash
+        # Example HTTP endpoint
+        POST /tools/new_feature
+        {
+          "param1": "value",
+          "param2": 123
+        }
+        ```
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Describe alternative solutions or workarounds you've considered
+      placeholder: |
+        What other approaches could solve this problem?
+        Are there existing tools or methods that partially address this?
+        Why is the proposed solution better than alternatives?
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to you?
+      options:
+        - Critical - Blocking our adoption/usage
+        - High - Would significantly improve our workflow
+        - Medium - Nice to have, would be useful
+        - Low - Minor improvement
+    validations:
+      required: true
+
+  - type: dropdown
+    id: complexity
+    attributes:
+      label: Implementation Complexity (if known)
+      description: If you have technical knowledge, estimate the complexity
+      options:
+        - Low - Simple addition, minimal changes
+        - Medium - Moderate changes, some new code
+        - High - Significant changes, new architecture
+        - Unknown - Not sure about implementation details
+
+  - type: checkboxes
+    id: implementation
+    attributes:
+      label: Implementation
+      description: Are you willing to help implement this feature?
+      options:
+        - label: I would like to implement this feature myself
+        - label: I can help with testing and feedback
+        - label: I can help with documentation
+        - label: I can provide domain expertise
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context, links, or examples about the feature request
+      placeholder: |
+        - Links to relevant documentation or examples
+        - Screenshots or mockups (if applicable)
+        - Related issues or discussions
+        - External tools or libraries that could be helpful
+        - Timeline considerations
+
+  - type: checkboxes
+    id: breaking
+    attributes:
+      label: Breaking Changes
+      description: Would this feature require breaking changes?
+      options:
+        - label: This feature might require breaking changes to existing APIs
+        - label: This feature should be backward compatible
+        - label: I'm not sure about backward compatibility implications

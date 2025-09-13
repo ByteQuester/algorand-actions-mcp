@@ -1,0 +1,145 @@
+name: ❓ Question
+description: Ask a question about Algorand MCP Workers
+title: "[Question]: "
+labels: ["question", "needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have a question about Algorand MCP Workers? We're here to help!
+
+        **Note:** For general discussions and community Q&A, consider using [GitHub Discussions](https://github.com/ByteQuester/algorand-showcase/discussions) instead.
+
+  - type: checkboxes
+    id: prerequisites
+    attributes:
+      label: Prerequisites
+      description: Please confirm you've done the following
+      options:
+        - label: I have searched existing issues and discussions for similar questions
+          required: true
+        - label: I have read the README and relevant documentation
+          required: true
+        - label: I have checked the troubleshooting guide
+          required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Question Category
+      description: What area does your question relate to?
+      options:
+        - Getting Started / Setup
+        - MCP Protocol Integration
+        - Algorand Blockchain Integration
+        - Transaction Operations
+        - Blockchain Data Access
+        - Deployment (Docker/Kubernetes/Cloudflare)
+        - Configuration and Environment
+        - API Usage and Examples
+        - Performance and Scaling
+        - Security and Best Practices
+        - Troubleshooting
+        - Contributing and Development
+        - Architecture and Design
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: What would you like to know?
+      placeholder: |
+        Please be as specific as possible. Include:
+        - What you're trying to achieve
+        - What specific aspect you're confused about
+        - Any relevant background or context
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Provide additional context about your situation
+      placeholder: |
+        Help us understand your use case:
+        - What are you building?
+        - How are you planning to use Algorand MCP Workers?
+        - What's your experience level with MCP, Algorand, or similar tools?
+        - Are you working on a specific project or just exploring?
+
+  - type: textarea
+    id: attempted
+    attributes:
+      label: What Have You Tried?
+      description: What have you already attempted or researched?
+      placeholder: |
+        This helps us avoid suggesting things you've already tried:
+        - Documentation sections you've read
+        - Code examples you've tested
+        - Error messages you've encountered
+        - Similar tools or approaches you've considered
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment (if relevant)
+      description: What environment are you working with?
+      options:
+        - Not applicable
+        - Local Development
+        - Docker
+        - Kubernetes
+        - Cloudflare Workers
+        - Production deployment
+        - Other
+
+  - type: input
+    id: algorand-network
+    attributes:
+      label: Algorand Network (if relevant)
+      description: Which Algorand network are you working with?
+      placeholder: "e.g., testnet, mainnet, local development"
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Code Examples (if applicable)
+      description: Share any relevant code snippets or configuration
+      placeholder: |
+        If your question involves code or configuration, please share relevant snippets:
+
+        ```typescript
+        // Your code here
+        ```
+
+        Remember to remove sensitive information like private keys or API tokens!
+      render: typescript
+
+  - type: textarea
+    id: expected-outcome
+    attributes:
+      label: Expected Outcome
+      description: What would you like to achieve or what result are you expecting?
+      placeholder: |
+        Describe what success looks like for your use case:
+        - What should the end result be?
+        - How do you want your system to behave?
+        - What specific functionality do you need?
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Information
+      description: Any other details that might be helpful
+      placeholder: |
+        - Links to relevant documentation or resources
+        - Screenshots or diagrams (if applicable)
+        - Deadline or timeline considerations
+        - Team size or project scope
+        - Any constraints or limitations you're working with
