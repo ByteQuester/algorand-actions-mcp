@@ -1,0 +1,174 @@
+{
+  "test_start": "2025-09-14T21:55:58.364251",
+  "test_address": "MYZFY5XANQ3HN2YCS2XNOQIWL5PANXL35EV3YKBN5R5A6Y4TT43ZU3WZYM",
+  "test_sequence": [
+    {
+      "step": 1,
+      "action": "Query Real Testnet Account",
+      "success": true,
+      "response_time_ms": 290,
+      "balance_algos": 10.0,
+      "balance_microalgos": 10000000,
+      "endpoint_used": "/api/account [VERIFIED WORKING]",
+      "is_real_data": true,
+      "raw_response_keys": [
+        "success",
+        "account_info",
+        "endpoint_used",
+        "method",
+        "balance_algos",
+        "raw_response",
+        "real_blockchain_data"
+      ]
+    },
+    {
+      "step": 2,
+      "action": "Get Transaction History",
+      "success": true,
+      "response_time_ms": 114,
+      "transaction_count": 1,
+      "endpoint_used": "/api/search/transactions [VERIFIED WORKING]",
+      "is_real_data": true,
+      "sample_transactions": [
+        {
+          "id": "U5TVH2R4Q4SEO4AE2F5S...",
+          "type": "pay",
+          "round": 55540769,
+          "amount_microalgos": 10000000
+        }
+      ]
+    },
+    {
+      "step": 3,
+      "action": "Process Loan with Real Data",
+      "success": true,
+      "loan_amount_algo": 3.0,
+      "loan_amount_microalgos": 3000000,
+      "lender_balance_algo": 10.0,
+      "borrower_balance_algo": 10.0,
+      "risk_score": 10,
+      "collateral_ratio": 3.33,
+      "loan_approved": true,
+      "interest_rate": 5.0,
+      "risk_factors": {
+        "lender_liquidity": true,
+        "borrower_collateral_ratio": 3.3333333333333335,
+        "both_accounts_real_data": true
+      },
+      "using_real_data": true
+    },
+    {
+      "step": 4,
+      "action": "Build Actual Transaction",
+      "success": true,
+      "response_time_ms": 174,
+      "unsigned_txn_length": 280,
+      "endpoint_used": "/tools/build_payment [VERIFIED WORKING]",
+      "is_real_transaction": true,
+      "from_address": "MYZFY5XANQ3HN2YCS2XNOQIWL5PANXL35EV3YKBN5R5A6Y4TT43ZU3WZYM",
+      "to_address": "CRMMBMPQ7VZISVJCHBCR2T4OUZ5634FXP6BX3BLOBVXB6ZK44IF6CGMLPI",
+      "amount_microalgos": 3000000
+    }
+  ],
+  "success_criteria": {
+    "real_algo_balances": true,
+    "actual_transaction_data": true,
+    "zero_simulation_warnings": true,
+    "complete_loan_workflow": true
+  },
+  "raw_blockchain_responses": {
+    "account_info": {
+      "success": true,
+      "account_info": "AccountInfo(address='MYZFY5XANQ3HN2YCS2XNOQIWL5PANXL35EV3YKBN5R5A6Y4TT43ZU3WZYM', algo_balance=10000000, assets=[], min_balance=100000, status='active')",
+      "endpoint_used": "/api/account [VERIFIED WORKING]",
+      "method": "POST",
+      "balance_algos": 10.0,
+      "raw_response": {
+        "success": true,
+        "account": {
+          "address": "MYZFY5XANQ3HN2YCS2XNOQIWL5PANXL35EV3YKBN5R5A6Y4TT43ZU3WZYM",
+          "amount": 10000000
+        }
+      },
+      "real_blockchain_data": true
+    },
+    "transactions": {
+      "success": true,
+      "transactions": [
+        {
+          "close-rewards": 0,
+          "closing-amount": 0,
+          "confirmed-round": 55540769,
+          "fee": 1000,
+          "first-valid": 55540767,
+          "genesis-hash": "SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=",
+          "genesis-id": "testnet-v1.0",
+          "id": "U5TVH2R4Q4SEO4AE2F5SY5WQCUY7G675VCRZGDHREMQK6RVONRTQ",
+          "intra-round-offset": 0,
+          "last-valid": 55541767,
+          "payment-transaction": {
+            "amount": 10000000,
+            "close-amount": 0,
+            "receiver": "MYZFY5XANQ3HN2YCS2XNOQIWL5PANXL35EV3YKBN5R5A6Y4TT43ZU3WZYM"
+          },
+          "receiver-rewards": 0,
+          "round-time": 1757852484,
+          "sender": "GD64YIY3TWGDMCNPP553DZPPR6LDUSFQOIJVFDPPXWEG3FVOJCCDBBHU5A",
+          "sender-rewards": 0,
+          "signature": {
+            "sig": "IzKCqf7rxBY/aajusHnzwjMWOjWVyygRJJKzMTVpzxpvnSLfN6PSJRJN1oDClaj5N/zz0/yHGA/qrTr2Jr4yCA=="
+          },
+          "tx-type": "pay"
+        }
+      ],
+      "count": 1,
+      "endpoint_used": "/api/search/transactions [VERIFIED WORKING]",
+      "method": "POST",
+      "raw_response": {
+        "success": true,
+        "transactions": [
+          {
+            "close-rewards": 0,
+            "closing-amount": 0,
+            "confirmed-round": 55540769,
+            "fee": 1000,
+            "first-valid": 55540767,
+            "genesis-hash": "SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=",
+            "genesis-id": "testnet-v1.0",
+            "id": "U5TVH2R4Q4SEO4AE2F5SY5WQCUY7G675VCRZGDHREMQK6RVONRTQ",
+            "intra-round-offset": 0,
+            "last-valid": 55541767,
+            "payment-transaction": {
+              "amount": 10000000,
+              "close-amount": 0,
+              "receiver": "MYZFY5XANQ3HN2YCS2XNOQIWL5PANXL35EV3YKBN5R5A6Y4TT43ZU3WZYM"
+            },
+            "receiver-rewards": 0,
+            "round-time": 1757852484,
+            "sender": "GD64YIY3TWGDMCNPP553DZPPR6LDUSFQOIJVFDPPXWEG3FVOJCCDBBHU5A",
+            "sender-rewards": 0,
+            "signature": {
+              "sig": "IzKCqf7rxBY/aajusHnzwjMWOjWVyygRJJKzMTVpzxpvnSLfN6PSJRJN1oDClaj5N/zz0/yHGA/qrTr2Jr4yCA=="
+            },
+            "tx-type": "pay"
+          }
+        ]
+      },
+      "real_blockchain_data": true
+    },
+    "transaction_build": {
+      "success": true,
+      "unsigned_txn_base64": "iqNhbXTOAC3GwKNmZWXNA+iiZnbOA0+uj6NnZW6sdGVzdG5ldC12MS4womdoxCBIY7UYpLPITsgQ8i1PEIHLD3HwWaesIN7GL39w5Qk6IqJsds4DT7J3pG5vdGXEHlJlYWwgTUNQIEludGVncmF0aW9uIFRlc3QgTG9hbqNyY3bEIBRYwLHw/XKJVSI4RR1PjqZ77fC3f4N9hW4Nbh9lXOILo3NuZMQgZjJcduBsNnbrApau10EWX14G3XvpK7woLex6D2OTnzekdHlwZaNwYXk=",
+      "endpoint_used": "/tools/build_payment [VERIFIED WORKING]",
+      "method": "POST",
+      "raw_response": {
+        "success": true,
+        "unsignedTxnBase64": "iqNhbXTOAC3GwKNmZWXNA+iiZnbOA0+uj6NnZW6sdGVzdG5ldC12MS4womdoxCBIY7UYpLPITsgQ8i1PEIHLD3HwWaesIN7GL39w5Qk6IqJsds4DT7J3pG5vdGXEHlJlYWwgTUNQIEludGVncmF0aW9uIFRlc3QgTG9hbqNyY3bEIBRYwLHw/XKJVSI4RR1PjqZ77fC3f4N9hW4Nbh9lXOILo3NuZMQgZjJcduBsNnbrApau10EWX14G3XvpK7woLex6D2OTnzekdHlwZaNwYXk="
+      },
+      "real_blockchain_data": true
+    }
+  },
+  "test_end": "2025-09-14T21:55:59.173680",
+  "overall_success": true,
+  "zero_simulations_confirmed": true
+}

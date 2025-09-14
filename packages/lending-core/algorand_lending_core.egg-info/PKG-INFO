@@ -1,0 +1,332 @@
+Metadata-Version: 2.4
+Name: algorand-lending-core
+Version: 1.0.0
+Summary: Pure business logic for Algorand A2A lending
+Home-page: https://github.com/algorand/lending-core
+Author: Agent 2 - Lending API Team
+Author-email: agent2@algorand-showcase.com
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Office/Business :: Financial :: Investment
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: pytest-asyncio; extra == "dev"
+Requires-Dist: black; extra == "dev"
+Requires-Dist: isort; extra == "dev"
+Requires-Dist: mypy; extra == "dev"
+Provides-Extra: algorand
+Requires-Dist: py-algorand-sdk>=2.0.0; extra == "algorand"
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: provides-extra
+Dynamic: requires-python
+Dynamic: summary
+
+# Algorand Lending Core
+
+Pure business logic for Agent-to-Agent (A2A) lending on Algorand blockchain.
+
+## 🎯 What This Package Does
+
+**This is a VENDORABLE package** containing pure lending business logic with NO configuration dependencies.
+
+- ✅ **Pure Business Logic** - No hardcoded configs, no environment variables
+- ✅ **Dependency Injection** - All external dependencies injected via constructor
+- ✅ **Framework Agnostic** - Use with FastAPI, Django, Flask, or any framework
+- ✅ **Blockchain Agnostic** - Blockchain provider injected via protocol interface
+- ✅ **Production Ready** - Clean separation of concerns
+
+## 🚀 Quick Start
+
+### Installation
+
+```bash
+pip install algorand-lending-core
+```
+
+### Basic Usage
+
+```python
+from lending_core import LendingEngine, LoanRequest, CollateralType
+
+# 1. Create your blockchain provider (dependency injection)
+class MyBlockchainProvider:
+    async def get_account_balance(self, address: str):
+        # Your blockchain integration here
+        return {"algo_balance_micro": 50_000_000}
+
+    async def create_transaction(self, **kwargs):
+        # Your transaction logic here
+        return {"transaction_id": "ABC123"}
+
+# 2. Initialize lending engine with injected dependencies
+blockchain_provider = MyBlockchainProvider()
+config = {
+    "agents": {
+        "negotiation": {"strategy": "conservative"},
+        "liquidity": {"min_liquidity_threshold": 1_000_000},
+        "execution": {"auto_execute": False}
+    }
+}
+
+lending_engine = LendingEngine(blockchain_provider, config)
+
+# 3. Process loan requests
+loan_request = LoanRequest(
+    borrower_address="BORROWER_ADDRESS_HERE",
+    lender_address="LENDER_ADDRESS_HERE",
+    amount_micro_algos=5_000_000,  # 5 ALGO
+    duration_days=30,
+    max_interest_rate=8.0,
+    collateral_type=CollateralType.ALGO
+)
+
+result = await lending_engine.process_loan_request(loan_request)
+
+if result.is_successful:
+    print(f"Loan approved: {result.loan_id}")
+    print(f"Terms: {result.terms}")
+else:
+    print(f"Loan failed: {result.error_message}")
+```
+
+## 🏗️ Architecture
+
+### Clean Separation of Concerns
+
+```
+┌─────────────────┐
+│  Your App       │  ← FastAPI, Django, etc.
+│  (Framework)    │
+└─────────┬───────┘
+          │
+┌─────────▼───────┐
+│  lending-core   │  ← This package (pure logic)
+│  (Business)     │
+└─────────┬───────┘
+          │
+┌─────────▼───────┐
+│  Your Provider  │  ← Blockchain client, database, etc.
+│  (Infrastructure)│
+└─────────────────┘
+```
+
+### Core Components
+
+1. **LendingEngine** - Main orchestrator for loan processing
+2. **Agents** - Specialized processors (negotiation, liquidity, execution)
+3. **Models** - Pure data models with business validation
+4. **Protocols** - Interfaces for dependency injection
+
+## 🔧 Dependency Injection Examples
+
+### FastAPI Integration
+
+```python
+from fastapi import FastAPI, Depends
+from lending_core import LendingEngine
+
+def create_lending_engine() -> LendingEngine:
+    # Configure based on your environment
+    blockchain_provider = AlgorandProvider(
+        algod_url=os.getenv("ALGOD_URL"),
+        indexer_url=os.getenv("INDEXER_URL")
+    )
+
+    config = {
+        "agents": {
+            "negotiation": {"strategy": "market_based"},
+            "liquidity": {"sources": ["internal", "external"]},
+            "execution": {"atomic_groups": True}
+        }
+    }
+
+    return LendingEngine(blockchain_provider, config)
+
+app = FastAPI()
+
+@app.post("/loans/request")
+async def create_loan(
+    request: LoanRequest,
+    engine: LendingEngine = Depends(create_lending_engine)
+):
+    return await engine.process_loan_request(request)
+```
+
+### Django Integration
+
+```python
+# settings.py
+LENDING_CONFIG = {
+    "agents": {
+        "negotiation": {"strategy": "conservative"},
+        "liquidity": {"min_threshold": 1000000},
+    }
+}
+
+# views.py
+from django.conf import settings
+from lending_core import LendingEngine
+
+def get_lending_engine():
+    blockchain_provider = DjangoBlocchainProvider()
+    return LendingEngine(blockchain_provider, settings.LENDING_CONFIG)
+```
+
+### Testing
+
+```python
+import pytest
+from lending_core import LendingEngine
+
+class MockBlockchainProvider:
+    async def get_account_balance(self, address: str):
+        return {"algo_balance_micro": 100_000_000}
+
+@pytest.mark.asyncio
+async def test_loan_processing():
+    engine = LendingEngine(MockBlockchainProvider(), {})
+
+    request = LoanRequest(
+        borrower_address="TEST_BORROWER",
+        amount_micro_algos=1_000_000,
+        duration_days=30,
+        max_interest_rate=5.0,
+        collateral_type=CollateralType.ALGO
+    )
+
+    result = await engine.process_loan_request(request)
+    assert result.is_successful
+```
+
+## 🔒 Security & Best Practices
+
+### What This Package Does NOT Include
+
+❌ **No Production Configuration** - You provide configs
+❌ **No Environment Variables** - All injected via constructor
+❌ **No Hardcoded URLs** - Your blockchain provider handles connections
+❌ **No Database Code** - Pure business logic only
+❌ **No Deployment Scripts** - Separate deployment concerns
+
+### What You Need to Provide
+
+✅ **Blockchain Provider** - Your Algorand SDK integration
+✅ **Configuration** - Runtime config based on your environment
+✅ **Storage** - Database/cache integration (if needed)
+✅ **Authentication** - Your auth system
+✅ **Logging** - Your logging infrastructure
+
+## 📊 Business Logic Features
+
+### Risk Assessment
+- Borrower creditworthiness analysis
+- Collateral ratio calculations
+- Market-based interest rate determination
+
+### Agent-to-Agent Workflow
+- **Negotiation Agent**: Multi-round term negotiation
+- **Liquidity Agent**: Lender discovery and matching
+- **Execution Agent**: Transaction preparation and coordination
+
+### Loan Lifecycle Management
+- Request validation and processing
+- Term negotiation and agreement
+- Execution preparation
+- Status tracking and updates
+
+## 🛠️ Extending the Package
+
+### Custom Agents
+
+```python
+from lending_core.agents import BaseAgent
+
+class CustomRiskAgent(BaseAgent):
+    async def process(self, input_data):
+        # Your custom risk logic
+        return {"risk_score": 85, "recommendation": "approve"}
+
+# Use in engine
+config = {
+    "agents": {
+        "risk": CustomRiskAgent({})
+    }
+}
+```
+
+### Custom Blockchain Providers
+
+```python
+from lending_core import BlockchainProvider
+
+class CustomAlgorandProvider:
+    def __init__(self, custom_settings):
+        self.settings = custom_settings
+
+    async def get_account_balance(self, address: str):
+        # Your custom Algorand integration
+        pass
+```
+
+## 📦 Package Development
+
+```bash
+# Install for development
+pip install -e ".[dev]"
+
+# Run tests
+pytest
+
+# Format code
+black src/
+isort src/
+
+# Type checking
+mypy src/
+```
+
+## 🎯 Why This Architecture?
+
+### Vendorable & Professional
+- Can be sold as standalone package
+- No vendor lock-in or hardcoded dependencies
+- Framework and infrastructure agnostic
+
+### Testable & Maintainable
+- Pure functions with dependency injection
+- Easy to mock external dependencies
+- Clear separation of business logic
+
+### Scalable & Flexible
+- Extend with custom agents
+- Plug into any blockchain provider
+- Use with any web framework
+
+## 📄 License
+
+MIT License - see LICENSE file for details.
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Add tests for new functionality
+4. Ensure all tests pass
+5. Submit a pull request
+
+---
+
+**This package contains ONLY pure business logic. All external dependencies must be provided by the consumer.**

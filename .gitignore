@@ -186,3 +186,70 @@ package-lock.json
 .geminiignore
 .gemini/
 gha-creds-*.json
+
+# ===========================
+# VENDOR DIRECTORY PROTECTION
+# ===========================
+# Track vendor directory structure but prevent modifications to vendor files
+# This ensures we never accidentally modify external library code
+
+# Allow tracking vendor directory and our documentation
+!vendor/
+!vendor/README.md
+!vendor/*/VENDOR_INFO.md
+
+# But ignore all vendor source code changes
+vendor/google-adk-python/src/
+vendor/google-adk-python/dist/
+vendor/google-adk-python/.git/
+vendor/google-adk-web/src/
+vendor/google-adk-web/dist/
+vendor/google-adk-web/.git/
+
+# Prevent tracking of any vendor modifications
+vendor/**/modified_*
+vendor/**/*_custom*
+vendor/**/*.backup
+vendor/**/*.orig
+
+# ===========================
+# ADK-SPECIFIC IGNORES
+# ===========================
+# Python cache from ADK
+**/__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv-adk/
+.venv-adk/
+
+# ADK sessions and temporary files
+*.adk_session
+adk_temp_*
+
+# ===========================
+# SECRETS PROTECTION
+# ===========================
+# Algorand private keys and secrets
+.env.testnet
+.env.production
+*_private_key*
+*.pem
+wallet_*.json
+mnemonic_*
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# ===========================
+# OVERLAY DEVELOPMENT
+# ===========================
+# Overlay development files
+apps/lending-platform/ui-overlay/node_modules/
+apps/lending-platform/ui-overlay/.env
+apps/lending-platform/ui-overlay/dist/
+packages/lending-ui/node_modules/
+packages/lending-ui/dist/

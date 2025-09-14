@@ -1,0 +1,280 @@
+# 🌐 AWS ECS Production Deployment - Docker Compose
+# Optimized for AWS ECS Fargate with Load Balancer and RDS
+
+version: '3.8'
+
+x-aws-vpc: &vpc_config
+  vpc: ${AWS_VPC_ID}
+  subnets:
+    - ${AWS_SUBNET_1}
+    - ${AWS_SUBNET_2}
+  security_groups:
+    - ${AWS_SECURITY_GROUP}
+
+x-logging: &logging_config
+  logging:
+    driver: awslogs
+    options:
+      awslogs-group: /ecs/algorand-lending
+      awslogs-region: ${AWS_REGION:-us-east-1}
+      awslogs-stream-prefix: ecs
+
+services:
+  # ==============================================================================
+  # FRONTEND SERVICES
+  # ==============================================================================
+
+  lending-ui:
+    image: ${AWS_ECR_REGISTRY}/algorand-lending-ui:${IMAGE_TAG:-latest}
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    ports:
+      - "8081:8081"
+    environment:
+      - NODE_ENV=production
+      - PORT=8081
+      - API_BASE_URL=https://${API_DOMAIN}
+      - LENDING_ONLY_MODE=true
+      - HIDE_GENERIC_AGENTS=true
+      - AWS_REGION=${AWS_REGION}
+    networks:
+      - algorand-lending
+    depends_on:
+      - lending-api
+    <<: *logging_config
+    labels:
+      - "com.amazonaws.ecs.cluster=${ECS_CLUSTER_NAME}"
+      - "com.amazonaws.ecs.service=${ECS_SERVICE_UI}"
+
+  # ==============================================================================
+  # BACKEND SERVICES
+  # ==============================================================================
+
+  lending-api:
+    image: ${AWS_ECR_REGISTRY}/algorand-lending-api:${IMAGE_TAG:-latest}
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+    ports:
+      - "8003:8003"
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=${RDS_DATABASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - ALGORAND_NETWORK=${ALGORAND_NETWORK:-testnet}
+      - ALGORAND_ALGOD_URL=${ALGORAND_ALGOD_URL:-https://testnet-api.algonode.cloud}
+      - ALGORAND_INDEXER_URL=${ALGORAND_INDEXER_URL:-https://testnet-idx.algonode.cloud}
+      - MCP_READER_URL=http://remote-mcp:8002
+      - MCP_WRITER_URL=http://actions-mcp:3001
+      - REDIS_URL=${ELASTICACHE_REDIS_URL}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - CORS_ORIGINS=https://${DOMAIN}
+      - RATE_LIMIT_ENABLED=true
+      - AWS_REGION=${AWS_REGION}
+      - S3_BUCKET=${AWS_S3_BUCKET}
+      # Secrets from AWS Secrets Manager
+      - JWT_SECRET_ARN=${AWS_JWT_SECRET_ARN}
+      - DB_PASSWORD_ARN=${AWS_DB_PASSWORD_ARN}
+    secrets:
+      - source: jwt_secret
+        target: /run/secrets/jwt_secret
+      - source: db_password
+        target: /run/secrets/db_password
+    networks:
+      - algorand-lending
+    depends_on:
+      - remote-mcp
+      - actions-mcp
+    <<: *logging_config
+    labels:
+      - "com.amazonaws.ecs.cluster=${ECS_CLUSTER_NAME}"
+      - "com.amazonaws.ecs.service=${ECS_SERVICE_API}"
+
+  # ==============================================================================
+  # BLOCKCHAIN SERVICES
+  # ==============================================================================
+
+  remote-mcp:
+    image: ${AWS_ECR_REGISTRY}/algorand-remote-mcp:${IMAGE_TAG:-latest}
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    ports:
+      - "8002:8002"
+    environment:
+      - NODE_ENV=production
+      - PORT=8002
+      - ALGORAND_NETWORK=${ALGORAND_NETWORK:-testnet}
+      - ALGORAND_ALGOD_URL=${ALGORAND_ALGOD_URL}
+      - ALGORAND_INDEXER_URL=${ALGORAND_INDEXER_URL}
+      - READ_ONLY=true
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - AWS_REGION=${AWS_REGION}
+    networks:
+      - algorand-lending
+    <<: *logging_config
+    labels:
+      - "com.amazonaws.ecs.cluster=${ECS_CLUSTER_NAME}"
+      - "com.amazonaws.ecs.service=${ECS_SERVICE_MCP_READER}"
+
+  actions-mcp:
+    image: ${AWS_ECR_REGISTRY}/algorand-actions-mcp:${IMAGE_TAG:-latest}
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - ALGORAND_NETWORK=${ALGORAND_NETWORK:-testnet}
+      - ALGORAND_ALGOD_URL=${ALGORAND_ALGOD_URL}
+      - ALGORAND_INDEXER_URL=${ALGORAND_INDEXER_URL}
+      - READ_ONLY=false
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - TRANSACTION_TIMEOUT=${TRANSACTION_TIMEOUT:-30}
+      - AWS_REGION=${AWS_REGION}
+    networks:
+      - algorand-lending
+    <<: *logging_config
+    labels:
+      - "com.amazonaws.ecs.cluster=${ECS_CLUSTER_NAME}"
+      - "com.amazonaws.ecs.service=${ECS_SERVICE_MCP_WRITER}"
+
+  # ==============================================================================
+  # MONITORING SERVICES
+  # ==============================================================================
+
+  prometheus:
+    image: prom/prometheus:v2.47.0
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.external-url=https://prometheus.${DOMAIN}'
+    configs:
+      - source: prometheus_config
+        target: /etc/prometheus/prometheus.yml
+    volumes:
+      - prometheus-data:/prometheus
+    networks:
+      - algorand-lending
+    <<: *logging_config
+
+  grafana:
+    image: grafana/grafana:10.2.0
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 512M
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SERVER_ROOT_URL=https://grafana.${DOMAIN}
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - AWS_REGION=${AWS_REGION}
+    secrets:
+      - source: grafana_password
+        target: /run/secrets/grafana_password
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - algorand-lending
+    depends_on:
+      - prometheus
+    <<: *logging_config
+
+# ==============================================================================
+# AWS-SPECIFIC CONFIGURATIONS
+# ==============================================================================
+
+secrets:
+  jwt_secret:
+    external: true
+    name: ${AWS_JWT_SECRET_ARN}
+  db_password:
+    external: true
+    name: ${AWS_DB_PASSWORD_ARN}
+  grafana_password:
+    external: true
+    name: ${AWS_GRAFANA_PASSWORD_ARN}
+
+configs:
+  prometheus_config:
+    file: ./monitoring/prometheus-aws.yml
+
+networks:
+  algorand-lending:
+    driver: overlay
+    attachable: true
+    <<: *vpc_config
+
+volumes:
+  prometheus-data:
+    driver: cloudstor:aws
+    driver_opts:
+      backing: efs
+      size: 20Gb
+  grafana-data:
+    driver: cloudstor:aws
+    driver_opts:
+      backing: efs
+      size: 10Gb
+
+# ==============================================================================
+# AWS ECS EXTENSIONS
+# ==============================================================================
+
+x-aws-loadbalancer: &load_balancer_config
+  x-aws-loadbalancer: algorand-lending-alb
+  x-aws-loadbalancer-type: application
+  x-aws-loadbalancer-scheme: internet-facing

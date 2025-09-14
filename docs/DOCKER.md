@@ -29,7 +29,7 @@ Both workers use optimized multi-stage Dockerfiles:
 ### Actions MCP Worker
 ```bash
 # Build locally
-docker build -f apps/actions-mcp-worker/Dockerfile -t algorand-actions-mcp .
+docker build -f apps/blockchain/algorand-actions-mcp/Dockerfile -t algorand-actions-mcp .
 
 # Run container
 docker run -p 8080:8080 -e ALGORAND_NETWORK=testnet algorand-actions-mcp
@@ -47,7 +47,7 @@ docker run -p 8080:8080 -e ALGORAND_NETWORK=testnet algorand-actions-mcp
 ### Remote MCP Worker
 ```bash
 # Build locally  
-docker build -f apps/remote-mcp-worker/Dockerfile -t algorand-remote-mcp .
+docker build -f apps/blockchain/algorand-remote-mcp/Dockerfile -t algorand-remote-mcp .
 
 # Run container
 docker run -p 8080:8080 -e ALGORAND_NETWORK=mainnet algorand-remote-mcp

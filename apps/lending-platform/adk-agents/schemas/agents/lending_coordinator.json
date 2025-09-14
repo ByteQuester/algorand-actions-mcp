@@ -1,0 +1,269 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Algorand Lending Coordinator Agent",
+  "description": "Schema for the master coordination agent that orchestrates the complete lending workflow",
+  "type": "object",
+
+  "agent_metadata": {
+    "name": "algorand_lending_coordinator",
+    "version": "1.0.0",
+    "model": "gemini-2.5-pro",
+    "agent_type": "coordinator",
+    "created": "2025-09-14",
+    "last_updated": "2025-09-14",
+    "capabilities": [
+      "workflow_orchestration",
+      "multi_agent_coordination",
+      "mcp_service_integration",
+      "error_recovery",
+      "real_time_monitoring"
+    ]
+  },
+
+  "input_schema": {
+    "type": "object",
+    "required": ["loan_request"],
+    "properties": {
+      "loan_request": {
+        "type": "object",
+        "required": ["borrower_address", "amount_algos", "duration_days"],
+        "properties": {
+          "borrower_address": {
+            "type": "string",
+            "pattern": "^[A-Z2-7]{58}$",
+            "description": "Valid Algorand address (base32 encoded, 58 characters)"
+          },
+          "lender_address": {
+            "type": "string",
+            "pattern": "^[A-Z2-7]{58}$",
+            "description": "Optional specific lender address"
+          },
+          "amount_algos": {
+            "type": "number",
+            "minimum": 0.1,
+            "maximum": 100000,
+            "description": "Loan amount in ALGO (0.1 to 100,000 ALGO)"
+          },
+          "duration_days": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 365,
+            "description": "Loan duration in days (1 to 365 days)"
+          },
+          "max_interest_rate": {
+            "type": "number",
+            "minimum": 0.1,
+            "maximum": 50,
+            "default": 15.0,
+            "description": "Maximum acceptable interest rate percentage"
+          },
+          "collateral_amount_algos": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Collateral amount in ALGO (calculated if not provided)"
+          },
+          "collateral_type": {
+            "type": "string",
+            "enum": ["ALGO", "USDC", "BTC", "ETH", "OTHER"],
+            "default": "ALGO",
+            "description": "Type of collateral asset"
+          }
+        },
+        "additionalProperties": false
+      },
+      "options": {
+        "type": "object",
+        "properties": {
+          "priority": {
+            "type": "string",
+            "enum": ["economy", "standard", "priority"],
+            "default": "standard",
+            "description": "Processing priority level"
+          },
+          "max_processing_time": {
+            "type": "integer",
+            "minimum": 60,
+            "maximum": 600,
+            "default": 300,
+            "description": "Maximum processing time in seconds"
+          },
+          "enable_fallback": {
+            "type": "boolean",
+            "default": true,
+            "description": "Enable fallback mechanisms if services unavailable"
+          }
+        }
+      }
+    },
+    "additionalProperties": false
+  },
+
+  "output_schema": {
+    "type": "object",
+    "required": ["workflow_status", "workflow_id", "agent_results"],
+    "properties": {
+      "workflow_status": {
+        "type": "string",
+        "enum": ["completed", "failed", "partial", "timeout"],
+        "description": "Overall workflow completion status"
+      },
+      "workflow_id": {
+        "type": "string",
+        "pattern": "^WORKFLOW_[A-F0-9]{8}$",
+        "description": "Unique workflow identifier"
+      },
+      "agent_results": {
+        "type": "object",
+        "properties": {
+          "liquidity_analysis": {
+            "type": "object",
+            "properties": {
+              "lenders_found": {"type": "integer", "minimum": 0},
+              "best_match": {"type": "string"},
+              "total_capacity": {"type": "number"},
+              "recommended_rate": {"type": "number"}
+            }
+          },
+          "negotiation_results": {
+            "type": "object",
+            "properties": {
+              "final_rate": {"type": "number"},
+              "terms_agreed": {"type": "boolean"},
+              "collateral_ratio": {"type": "number"},
+              "risk_assessment": {"type": "string", "enum": ["LOW", "MEDIUM", "HIGH", "VERY_HIGH"]}
+            }
+          },
+          "execution_planning": {
+            "type": "object",
+            "properties": {
+              "transactions_prepared": {"type": "integer"},
+              "estimated_cost": {"type": "number"},
+              "ready_for_execution": {"type": "boolean"},
+              "estimated_time": {"type": "string"}
+            }
+          }
+        }
+      },
+      "final_recommendation": {
+        "type": "object",
+        "required": ["loan_approved", "terms"],
+        "properties": {
+          "loan_approved": {"type": "boolean"},
+          "terms": {
+            "type": "object",
+            "properties": {
+              "amount": {"type": "number"},
+              "rate": {"type": "number"},
+              "duration": {"type": "integer"},
+              "collateral_ratio": {"type": "number"},
+              "lender": {"type": "string"}
+            }
+          },
+          "next_actions": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "List of next steps to complete the loan"
+          }
+        }
+      },
+      "mcp_integration": {
+        "type": "object",
+        "properties": {
+          "services_healthy": {"type": "boolean"},
+          "reader_status": {"type": "string"},
+          "writer_status": {"type": "string"},
+          "total_api_calls": {"type": "integer"},
+          "response_time_ms": {"type": "integer"}
+        }
+      },
+      "execution_metrics": {
+        "type": "object",
+        "properties": {
+          "total_processing_time_ms": {"type": "integer"},
+          "agent_coordination_time_ms": {"type": "integer"},
+          "mcp_calls_time_ms": {"type": "integer"},
+          "steps_completed": {"type": "integer"},
+          "errors_encountered": {"type": "integer"},
+          "retry_attempts": {"type": "integer"}
+        }
+      }
+    },
+    "additionalProperties": false
+  },
+
+  "error_schema": {
+    "type": "object",
+    "required": ["error_type", "error_message", "error_code"],
+    "properties": {
+      "error_type": {
+        "type": "string",
+        "enum": [
+          "validation_error",
+          "mcp_service_unavailable",
+          "insufficient_liquidity",
+          "negotiation_failed",
+          "execution_error",
+          "timeout_exceeded",
+          "system_error"
+        ]
+      },
+      "error_message": {"type": "string"},
+      "error_code": {"type": "string"},
+      "error_details": {"type": "object"},
+      "recovery_suggestions": {
+        "type": "array",
+        "items": {"type": "string"}
+      },
+      "retry_possible": {"type": "boolean"},
+      "support_contact": {"type": "string"}
+    }
+  },
+
+  "sub_agents": [
+    {
+      "name": "negotiation_agent",
+      "role": "loan_negotiation",
+      "required": true,
+      "timeout_seconds": 60
+    },
+    {
+      "name": "liquidity_agent",
+      "role": "liquidity_discovery",
+      "required": true,
+      "timeout_seconds": 30
+    },
+    {
+      "name": "execution_agent",
+      "role": "transaction_execution",
+      "required": true,
+      "timeout_seconds": 90
+    }
+  ],
+
+  "configuration": {
+    "max_concurrent_requests": 10,
+    "default_timeout_seconds": 300,
+    "retry_attempts": 3,
+    "retry_delay_seconds": 2,
+    "enable_caching": true,
+    "cache_ttl_seconds": 300,
+    "log_level": "INFO",
+    "metrics_collection": true
+  },
+
+  "monitoring": {
+    "health_check_interval": 30,
+    "performance_metrics": [
+      "request_latency",
+      "success_rate",
+      "error_rate",
+      "agent_coordination_time",
+      "mcp_response_time"
+    ],
+    "alerting": {
+      "error_rate_threshold": 0.05,
+      "latency_threshold_ms": 5000,
+      "availability_threshold": 0.99
+    }
+  }
+}

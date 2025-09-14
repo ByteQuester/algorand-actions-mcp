@@ -29,8 +29,8 @@ algorand-showcase/
 ## Current Folder Mapping
 
 ### Moving to `apps/`
-- `vendors/algorand-actions-mcp/` → `apps/actions-mcp-worker/`
-- `vendors/algorand-remote-mcp/` → `apps/remote-mcp-worker/`
+- `vendors/algorand-actions-mcp/` → `apps/blockchain/algorand-actions-mcp/`
+- `vendors/algorand-remote-mcp/` → `apps/blockchain/algorand-remote-mcp/`
 
 Each app will maintain its own:
 - `wrangler.toml` configuration

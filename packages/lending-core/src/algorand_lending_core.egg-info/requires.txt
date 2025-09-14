@@ -1,0 +1,10 @@
+
+[algorand]
+py-algorand-sdk>=2.0.0
+
+[dev]
+pytest
+pytest-asyncio
+black
+isort
+mypy

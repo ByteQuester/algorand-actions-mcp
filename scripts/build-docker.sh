@@ -44,7 +44,7 @@ if [ -n "$DOCKER_REGISTRY" ]; then
 fi
 
 docker build \
-    -f apps/actions-mcp-worker/Dockerfile \
+    -f apps/blockchain/algorand-actions-mcp/Dockerfile \
     -t "$ACTIONS_IMAGE" \
     --target runner \
     .
@@ -59,7 +59,7 @@ if [ -n "$DOCKER_REGISTRY" ]; then
 fi
 
 docker build \
-    -f apps/remote-mcp-worker/Dockerfile \
+    -f apps/blockchain/algorand-remote-mcp/Dockerfile \
     -t "$REMOTE_IMAGE" \
     --target runner \
     .

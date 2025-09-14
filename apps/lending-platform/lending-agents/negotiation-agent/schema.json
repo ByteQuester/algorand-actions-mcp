@@ -1,0 +1,168 @@
+{
+  "id": "negotiation-agent",
+  "name": "Loan Negotiation Agent",
+  "version": "1.0.0",
+  "description": "Negotiates loan terms between lender and borrower through multi-round proposals",
+  "category": "lending",
+  "author": "Agent 2 - Lending API Team",
+
+  "purpose": {
+    "primary": "Facilitate term negotiations between lending parties",
+    "secondary": ["Risk assessment", "Interest rate calculation", "Collateral evaluation"]
+  },
+
+  "mcp_dependencies": {
+    "algorand-reader-mcp": {
+      "purpose": "Read borrower and lender account data for risk assessment",
+      "endpoints": [
+        "GET /accounts/{address}/balance",
+        "GET /accounts/{address}/transactions",
+        "GET /accounts/{address}/assets"
+      ],
+      "required": true
+    },
+    "loan-calculator-mcp": {
+      "purpose": "Calculate interest rates and collateral requirements",
+      "endpoints": [
+        "POST /calculate/interest-rate",
+        "POST /assess/risk-score",
+        "POST /calculate/collateral"
+      ],
+      "required": false,
+      "fallback": "Built-in calculation logic"
+    }
+  },
+
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "loan_request": {
+        "type": "object",
+        "properties": {
+          "borrower_address": {"type": "string", "pattern": "^[A-Z0-9]{58}$"},
+          "lender_address": {"type": "string", "pattern": "^[A-Z0-9]{58}$"},
+          "amount_micro_algos": {"type": "integer", "minimum": 1000000},
+          "duration_days": {"type": "integer", "minimum": 1, "maximum": 365},
+          "max_interest_rate": {"type": "number", "minimum": 0, "maximum": 100},
+          "collateral_type": {"type": "string", "enum": ["ALGO", "USDC", "ASA"]}
+        },
+        "required": ["borrower_address", "amount_micro_algos", "duration_days", "max_interest_rate", "collateral_type"]
+      },
+      "market_conditions": {
+        "type": "object",
+        "properties": {
+          "base_interest_rate": {"type": "number"},
+          "liquidity_available": {"type": "boolean"},
+          "risk_factors": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "required": ["loan_request"]
+  },
+
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "negotiation_result": {
+        "type": "object",
+        "properties": {
+          "status": {"type": "string", "enum": ["agreed", "rejected", "counter-proposal"]},
+          "agreed_terms": {
+            "type": "object",
+            "properties": {
+              "amount": {"type": "integer"},
+              "interest_rate": {"type": "number"},
+              "duration_days": {"type": "integer"},
+              "collateral_amount": {"type": "integer"},
+              "collateral_type": {"type": "string"}
+            }
+          },
+          "negotiation_rounds": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "round": {"type": "integer"},
+                "proposal": {"type": "string"},
+                "status": {"type": "string"}
+              }
+            }
+          }
+        }
+      },
+      "processing_metadata": {
+        "type": "object",
+        "properties": {
+          "processing_time_ms": {"type": "number"},
+          "risk_assessment": {"type": "object"},
+          "recommendations": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "required": ["negotiation_result"]
+  },
+
+  "workflow": [
+    {
+      "step": 1,
+      "name": "validate_participants",
+      "description": "Validate borrower and lender addresses and balances",
+      "mcp_calls": ["algorand-reader-mcp:/accounts/{borrower}/balance", "algorand-reader-mcp:/accounts/{lender}/balance"]
+    },
+    {
+      "step": 2,
+      "name": "assess_risk",
+      "description": "Analyze borrower creditworthiness and transaction history",
+      "mcp_calls": ["algorand-reader-mcp:/accounts/{borrower}/transactions"]
+    },
+    {
+      "step": 3,
+      "name": "calculate_terms",
+      "description": "Calculate competitive interest rate and collateral requirements",
+      "logic": "Built-in interest rate calculation based on risk and market conditions"
+    },
+    {
+      "step": 4,
+      "name": "negotiate_rounds",
+      "description": "Execute multi-round negotiation between parties",
+      "iterations": "up to 3 rounds"
+    },
+    {
+      "step": 5,
+      "name": "finalize_agreement",
+      "description": "Generate final agreed terms or rejection",
+      "output": "Negotiation result with agreed terms"
+    }
+  ],
+
+  "error_handling": {
+    "invalid_address": {
+      "code": "INVALID_ADDRESS",
+      "message": "Algorand address validation failed",
+      "recovery": "Request valid 58-character address"
+    },
+    "insufficient_balance": {
+      "code": "INSUFFICIENT_BALANCE",
+      "message": "Lender has insufficient balance for loan",
+      "recovery": "Find alternative lenders via liquidity-agent"
+    },
+    "mcp_unavailable": {
+      "code": "MCP_SERVICE_DOWN",
+      "message": "Required MCP service unavailable",
+      "recovery": "Use fallback calculation methods"
+    }
+  },
+
+  "performance_targets": {
+    "response_time_ms": 2000,
+    "success_rate_percent": 95,
+    "negotiation_completion_rate": 85
+  },
+
+  "deployment": {
+    "runtime": "python",
+    "dependencies": ["lending-core>=1.0.0"],
+    "config_required": ["interest_calculation_strategy", "max_negotiation_rounds"],
+    "health_check": "/agents/negotiation/health"
+  }
+}

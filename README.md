@@ -89,11 +89,11 @@ Deploy globally in minutes:
 pnpm install
 
 # Deploy Actions MCP Worker
-cd apps/actions-mcp-worker
+cd apps/blockchain/algorand-actions-mcp
 pnpm run deploy
 
 # Deploy Remote MCP Worker
-cd apps/remote-mcp-worker
+cd apps/blockchain/algorand-remote-mcp
 pnpm run deploy
 ```
 
@@ -133,33 +133,33 @@ curl -X POST http://localhost:8789/api/account \
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    AI Agents & Applications                      │
+│                    AI Agents & Applications                     │
 │         (Claude, GPT, Custom Apps, Web Interfaces)              │
 └─────────────────┬───────────────────────────┬───────────────────┘
                   │                           │
                   │ HTTP REST API             │ Server-Sent Events
                   │ MCP Protocol              │ Real-time Updates
                   │                           │
-┌─────────────────▼───────────────┐  ┌───────▼───────────────────┐
+┌─────────────────▼───────────────┐  ┌────────▼──────────────────┐
 │      Actions MCP Worker         │  │     Remote MCP Worker     │
 │                                 │  │                           │
 │ 🔧 Transaction Operations       │  │ 📊 Blockchain Data Access │
 │ • Build Payment Transactions    │  │ • Account Information     │
 │ • Simulate Before Submit        │  │ • Transaction History     │
-│ • Multi-sig Support            │  │ • Asset Metadata          │
-│ • Error Handling & Retry       │  │ • Block Explorer Data     │
+│ • Multi-sig Support             │  │ • Asset Metadata          │
+│ • Error Handling & Retry        │  │ • Block Explorer Data     │
 │ • Rate Limiting                 │  │ • Search & Analytics      │
 └─────────────────┬───────────────┘  └───────┬───────────────────┘
                   │                          │
-                  └─────┬────────────────────┘
-                        │
-              ┌─────────▼─────────┐
-              │  Algorand Network │
-              │                   │
-              │ ⚡ Testnet        │
-              │ 🌐 Mainnet        │
-              │ 🔗 AlgoNode APIs  │
-              └───────────────────┘
+                  └─────────────┬────────────┘
+                                │
+                      ┌─────────▼─────────┐
+                      │  Algorand Network │
+                      │                   │
+                      │ ⚡ Testnet         │
+                      │ 🌐 Mainnet        │
+                      │ 🔗 AlgoNode APIs  │
+                      └───────────────────┘
 ```
 
 ### Key Design Principles

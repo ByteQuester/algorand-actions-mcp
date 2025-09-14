@@ -1,0 +1,46 @@
+{
+  "workflow_start": "2025-09-14T21:52:17Z",
+  "participants": {
+    "lender": "MYZFY5XANQ3HN2YCS2XNOQIWL5PANXL35EV3YKBN5R5A6Y4TT43ZU3WZYM",
+    "borrower": "CRMMBMPQ7VZISVJCHBCR2T4OUZ5634FXP6BX3BLOBVXB6ZK44IF6CGMLPI",
+    "liquidity_provider": "DCZRXVVPPAKVGNFHUGMTQWJHCIROOVQPHHIRM562I2WYPWXVNKISCK2DK4"
+  },
+  "steps": {
+    "account_verification": {
+      "lender_balance_algo": 10.0,
+      "borrower_balance_algo": 10.0,
+      "liquidity_balance_algo": 10.0,
+      "real_data_used": true,
+      "status": "SUCCESS"
+    },
+    "credit_analysis": {
+      "lender_transaction_count": 1,
+      "borrower_transaction_count": 1,
+      "real_data_used": true,
+      "credit_score_factors": {
+        "lender_activity": true,
+        "borrower_activity": true,
+        "sufficient_balances": true
+      },
+      "status": "SUCCESS"
+    },
+    "ai_risk_assessment": {
+      "risk_score": 10.0,
+      "risk_factors": {
+        "collateral_ratio": 2.0,
+        "borrower_balance_sufficient": true,
+        "lender_liquidity_available": true,
+        "transaction_history_positive": true
+      },
+      "loan_approved": true,
+      "recommended_interest_rate": 5.0,
+      "loan_amount_algo": 5.0,
+      "collateral_ratio": 2.0,
+      "real_data_based": true,
+      "status": "SUCCESS"
+    }
+  },
+  "workflow_success": true,
+  "real_blockchain_integration": true,
+  "fallback_mechanisms_used": false
+}

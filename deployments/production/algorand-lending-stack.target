@@ -1,0 +1,9 @@
+[Unit]
+Description=Algorand Lending Platform - Complete Service Stack
+Documentation=https://github.com/algorand-showcase/algorand-showcase
+After=multi-user.target docker.service
+Requires=docker.service
+Wants=algorand-lending.service algorand-adk-web.service algorand-lending-api.service algorand-actions-mcp.service algorand-remote-mcp.service
+
+[Install]
+WantedBy=multi-user.target

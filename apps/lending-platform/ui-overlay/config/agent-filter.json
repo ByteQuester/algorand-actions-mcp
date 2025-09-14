@@ -1,0 +1,110 @@
+{
+  "filter_config": {
+    "mode": "whitelist",
+    "description": "Configuration for filtering ADK agents to show only lending-relevant functionality"
+  },
+  "enabled_agents": {
+    "description": "Agents explicitly enabled for lending platform",
+    "list": [
+      "hello_world",
+      "a2a_auth",
+      "a2a_basic",
+      "a2a_root"
+    ]
+  },
+  "hidden_categories": {
+    "description": "Categories of agents to hide from lending users",
+    "patterns": [
+      "adk_",
+      "bigquery",
+      "bigtable",
+      "spanner",
+      "callbacks",
+      "code_execution",
+      "jira",
+      "pr_",
+      "triaging",
+      "documentation",
+      "issue_formatting",
+      "oauth_",
+      "mcp_stdio",
+      "plugin_",
+      "telemetry",
+      "workflow_"
+    ]
+  },
+  "lending_keywords": {
+    "description": "Keywords that indicate lending-relevant agents",
+    "patterns": [
+      "loan",
+      "lend",
+      "borrow",
+      "balance",
+      "wallet",
+      "algo",
+      "payment",
+      "transfer",
+      "account"
+    ]
+  },
+  "filtering_rules": {
+    "enable_pattern_matching": true,
+    "case_sensitive": false,
+    "include_lending_keywords": true,
+    "exclude_dev_tools": true,
+    "exclude_admin_tools": true,
+    "show_stats": true
+  },
+  "agent_metadata": {
+    "hello_world": {
+      "category": "demo",
+      "lending_relevance": "high",
+      "description": "Demo agent for loan operations",
+      "quick_actions": [
+        "demo_loan_request",
+        "demo_status_check",
+        "demo_balance_inquiry"
+      ]
+    },
+    "a2a_auth": {
+      "category": "authentication",
+      "lending_relevance": "high",
+      "description": "User authentication for lending platform",
+      "quick_actions": [
+        "login",
+        "register",
+        "profile"
+      ]
+    },
+    "a2a_basic": {
+      "category": "core",
+      "lending_relevance": "medium",
+      "description": "Basic agent functionality",
+      "quick_actions": [
+        "basic_query",
+        "help"
+      ]
+    },
+    "a2a_root": {
+      "category": "system",
+      "lending_relevance": "medium",
+      "description": "Root agent coordination",
+      "quick_actions": [
+        "system_status"
+      ]
+    }
+  },
+  "ui_customization": {
+    "show_agent_count": true,
+    "show_filtering_stats": true,
+    "highlight_lending_agents": true,
+    "group_by_category": true,
+    "show_quick_actions": true
+  },
+  "development": {
+    "bypass_filter": false,
+    "show_hidden_agents": false,
+    "log_filtering_decisions": true,
+    "enable_filter_testing": true
+  }
+}

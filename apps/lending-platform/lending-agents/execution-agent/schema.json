@@ -1,0 +1,253 @@
+{
+  "id": "execution-agent",
+  "name": "Loan Execution Agent",
+  "version": "1.0.0",
+  "description": "Coordinates and executes loan transactions on Algorand blockchain",
+  "category": "lending",
+  "author": "Agent 2 - Lending API Team",
+
+  "purpose": {
+    "primary": "Execute agreed loan terms as atomic blockchain transactions",
+    "secondary": ["Transaction optimization", "Fee calculation", "Escrow management", "Settlement coordination"]
+  },
+
+  "mcp_dependencies": {
+    "algorand-writer-mcp": {
+      "purpose": "Create and submit blockchain transactions",
+      "endpoints": [
+        "POST /transactions/create",
+        "POST /transactions/submit",
+        "POST /transactions/group",
+        "POST /escrow/deploy"
+      ],
+      "required": true
+    },
+    "algorand-reader-mcp": {
+      "purpose": "Verify transaction status and confirm settlements",
+      "endpoints": [
+        "GET /transactions/{txid}/status",
+        "GET /transactions/{txid}/confirmation",
+        "GET /accounts/{address}/balance"
+      ],
+      "required": true
+    },
+    "smart-contract-mcp": {
+      "purpose": "Deploy and manage lending escrow contracts",
+      "endpoints": [
+        "POST /contracts/deploy",
+        "POST /contracts/call",
+        "GET /contracts/{id}/state"
+      ],
+      "required": false,
+      "fallback": "Simple payment transactions without escrow"
+    }
+  },
+
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "agreed_terms": {
+        "type": "object",
+        "properties": {
+          "loan_id": {"type": "string"},
+          "borrower_address": {"type": "string", "pattern": "^[A-Z0-9]{58}$"},
+          "lender_address": {"type": "string", "pattern": "^[A-Z0-9]{58}$"},
+          "amount": {"type": "integer", "minimum": 1000000},
+          "interest_rate": {"type": "number", "minimum": 0, "maximum": 100},
+          "duration_days": {"type": "integer", "minimum": 1, "maximum": 365},
+          "collateral_amount": {"type": "integer", "minimum": 0},
+          "collateral_type": {"type": "string", "enum": ["ALGO", "USDC", "ASA"]},
+          "due_date": {"type": "string", "format": "date-time"}
+        },
+        "required": ["loan_id", "borrower_address", "lender_address", "amount", "interest_rate", "duration_days"]
+      },
+      "execution_preferences": {
+        "type": "object",
+        "properties": {
+          "use_escrow_contract": {"type": "boolean", "default": true},
+          "atomic_execution": {"type": "boolean", "default": true},
+          "fee_optimization": {"type": "boolean", "default": true},
+          "confirmation_rounds": {"type": "integer", "default": 4, "minimum": 1, "maximum": 10}
+        }
+      },
+      "signatures": {
+        "type": "object",
+        "properties": {
+          "borrower_signature": {"type": "string"},
+          "lender_signature": {"type": "string"},
+          "signed_transactions": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "required": ["agreed_terms"]
+  },
+
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "execution_result": {
+        "type": "object",
+        "properties": {
+          "status": {"type": "string", "enum": ["success", "failed", "pending_signatures", "pending_confirmation"]},
+          "transaction_group_id": {"type": "string"},
+          "individual_transactions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "transaction_id": {"type": "string"},
+                "type": {"type": "string", "enum": ["collateral_deposit", "loan_disbursement", "escrow_setup"]},
+                "status": {"type": "string", "enum": ["submitted", "confirmed", "failed"]},
+                "block_number": {"type": "integer"},
+                "fee_paid": {"type": "integer"}
+              }
+            }
+          },
+          "escrow_contract": {
+            "type": "object",
+            "properties": {
+              "contract_address": {"type": "string"},
+              "contract_id": {"type": "integer"},
+              "escrow_balance": {"type": "integer"}
+            }
+          }
+        }
+      },
+      "settlement_details": {
+        "type": "object",
+        "properties": {
+          "total_fees": {"type": "integer"},
+          "network_congestion": {"type": "string", "enum": ["low", "medium", "high"]},
+          "confirmation_time_seconds": {"type": "number"},
+          "gas_optimization_savings": {"type": "integer"}
+        }
+      },
+      "next_actions": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "action": {"type": "string"},
+            "due_date": {"type": "string", "format": "date-time"},
+            "responsible_party": {"type": "string", "enum": ["borrower", "lender", "system"]}
+          }
+        }
+      }
+    },
+    "required": ["execution_result"]
+  },
+
+  "workflow": [
+    {
+      "step": 1,
+      "name": "validate_execution_readiness",
+      "description": "Verify all terms are agreed and signatures are available",
+      "validation": ["signatures_present", "terms_finalized", "balances_sufficient"]
+    },
+    {
+      "step": 2,
+      "name": "deploy_escrow_contract",
+      "description": "Deploy smart contract for loan escrow (if enabled)",
+      "mcp_calls": ["smart-contract-mcp:/contracts/deploy"],
+      "condition": "use_escrow_contract === true"
+    },
+    {
+      "step": 3,
+      "name": "create_transaction_group",
+      "description": "Create atomic transaction group for loan execution",
+      "mcp_calls": ["algorand-writer-mcp:/transactions/group"],
+      "transactions": ["collateral_deposit", "loan_disbursement"]
+    },
+    {
+      "step": 4,
+      "name": "optimize_fees",
+      "description": "Calculate optimal fee structure for transaction group",
+      "logic": "Minimize total fees while ensuring reasonable confirmation time"
+    },
+    {
+      "step": 5,
+      "name": "submit_transactions",
+      "description": "Submit signed transaction group to blockchain",
+      "mcp_calls": ["algorand-writer-mcp:/transactions/submit"]
+    },
+    {
+      "step": 6,
+      "name": "monitor_confirmation",
+      "description": "Wait for transaction confirmation and verify success",
+      "mcp_calls": ["algorand-reader-mcp:/transactions/{txid}/status"],
+      "timeout_seconds": 300
+    },
+    {
+      "step": 7,
+      "name": "finalize_settlement",
+      "description": "Complete settlement and update loan status",
+      "actions": ["record_settlement", "schedule_repayment", "notify_parties"]
+    }
+  ],
+
+  "transaction_types": {
+    "collateral_deposit": {
+      "description": "Borrower deposits collateral to escrow",
+      "from": "borrower_address",
+      "to": "escrow_contract_address",
+      "amount": "collateral_amount",
+      "note": "Collateral deposit for loan {loan_id}"
+    },
+    "loan_disbursement": {
+      "description": "Lender disburses loan amount to borrower",
+      "from": "lender_address",
+      "to": "borrower_address",
+      "amount": "loan_amount",
+      "note": "Loan disbursement for loan {loan_id}"
+    },
+    "escrow_setup": {
+      "description": "Initialize escrow contract with loan terms",
+      "type": "application_call",
+      "app_id": "escrow_contract_id",
+      "arguments": ["loan_terms", "repayment_schedule"]
+    }
+  },
+
+  "error_handling": {
+    "insufficient_signatures": {
+      "code": "MISSING_SIGNATURES",
+      "message": "Required signatures not provided for transaction execution",
+      "recovery": "Request signatures from borrower and/or lender"
+    },
+    "transaction_failed": {
+      "code": "TRANSACTION_EXECUTION_FAILED",
+      "message": "Blockchain transaction submission failed",
+      "recovery": "Analyze failure reason and retry with adjusted parameters"
+    },
+    "escrow_deployment_failed": {
+      "code": "ESCROW_CONTRACT_ERROR",
+      "message": "Smart contract deployment failed",
+      "recovery": "Fall back to simple payment transactions without escrow"
+    },
+    "confirmation_timeout": {
+      "code": "CONFIRMATION_TIMEOUT",
+      "message": "Transaction confirmation exceeded timeout period",
+      "recovery": "Continue monitoring or investigate network congestion"
+    }
+  },
+
+  "performance_targets": {
+    "response_time_ms": 5000,
+    "success_rate_percent": 98,
+    "confirmation_time_seconds": 30
+  },
+
+  "security_features": {
+    "atomic_execution": "All loan transactions execute atomically or fail together",
+    "signature_verification": "All transactions verified with participant signatures",
+    "escrow_protection": "Collateral held in smart contract escrow until repayment",
+    "fee_validation": "Transaction fees calculated and validated before submission"
+  },
+
+  "deployment": {
+    "runtime": "python",
+    "dependencies": ["lending-core>=1.0.0", "algorand-sdk>=2.0.0", "pyteal>=0.24.0"],
+    "config_required": ["escrow_contract_template", "fee_optimization_strategy", "confirmation_requirements"],
+    "health_check": "/agents/execution/health"
+  }
+}

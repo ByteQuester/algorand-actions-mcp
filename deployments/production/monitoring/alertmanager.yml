@@ -1,0 +1,335 @@
+# ==============================================================================
+# ALERTMANAGER CONFIGURATION - ALGORAND LENDING PLATFORM
+# ==============================================================================
+# Comprehensive alerting and notification configuration
+# Handles alert routing, grouping, and notification channels
+# ==============================================================================
+
+global:
+  # The smarthost and SMTP sender used for mail notifications.
+  smtp_smarthost: 'localhost:587'
+  smtp_from: 'alerts@algorand-lending.com'
+  smtp_auth_username: 'alerts@algorand-lending.com'
+  smtp_auth_password: 'your-email-password'  # Use env var or secret in production
+  smtp_require_tls: true
+
+  # Slack API URL for webhook notifications
+  slack_api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+
+# Templates for notifications
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+# The route tree for alert routing
+route:
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 12h
+  receiver: 'default-receiver'
+
+  routes:
+    # Critical infrastructure alerts - immediate notification
+    - match:
+        severity: critical
+      receiver: 'critical-alerts'
+      group_wait: 0s
+      group_interval: 5m
+      repeat_interval: 30m
+      routes:
+        # Service down alerts - highest priority
+        - match_re:
+            alertname: '.*Down|ServiceDown'
+          receiver: 'service-down-alerts'
+          group_wait: 0s
+          repeat_interval: 15m
+
+    # Security alerts - immediate notification
+    - match:
+        category: security
+      receiver: 'security-alerts'
+      group_wait: 0s
+      group_interval: 5m
+      repeat_interval: 1h
+
+    # Database alerts - specialized handling
+    - match:
+        category: database
+      receiver: 'database-alerts'
+      group_wait: 30s
+      group_interval: 10m
+      repeat_interval: 2h
+
+    # Business logic alerts - during business hours
+    - match:
+        category: business
+      receiver: 'business-alerts'
+      group_wait: 60s
+      group_interval: 15m
+      repeat_interval: 4h
+
+    # Warning level alerts - less frequent notifications
+    - match:
+        severity: warning
+      receiver: 'warning-alerts'
+      group_wait: 5m
+      group_interval: 30m
+      repeat_interval: 6h
+
+# Inhibition rules - suppress alerts when others are firing
+inhibit_rules:
+  # Suppress non-critical alerts when critical ones are firing for the same service
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['service']
+
+  # Suppress individual service alerts when the whole system is down
+  - source_match_re:
+      alertname: 'ServiceDown'
+    target_match_re:
+      alertname: '(?!ServiceDown).*'
+    equal: ['instance']
+
+  # Suppress high error rate alerts when service is down
+  - source_match_re:
+      alertname: '.*Down'
+    target_match_re:
+      alertname: '.*ErrorRate|.*Timeout|.*Slow.*'
+    equal: ['service']
+
+# Receivers define how to notify about alerts
+receivers:
+  # ===========================================================================
+  # DEFAULT RECEIVER
+  # ===========================================================================
+  - name: 'default-receiver'
+    slack_configs:
+      - api_url: '{{ .SlackAPIURL }}'
+        channel: '#algorand-alerts'
+        title: 'Algorand Lending Platform Alert'
+        text: >
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Severity:* {{ .Labels.severity }}
+          *Service:* {{ .Labels.service }}
+          {{ end }}
+        color: '{{ if eq .Status "firing" }}danger{{ else }}good{{ end }}'
+
+  # ===========================================================================
+  # CRITICAL ALERTS RECEIVER
+  # ===========================================================================
+  - name: 'critical-alerts'
+    email_configs:
+      - to: 'admin@algorand-lending.com,ops@algorand-lending.com'
+        subject: '🚨 CRITICAL: {{ .GroupLabels.alertname }} - Algorand Lending Platform'
+        body: |
+          Critical alert fired for Algorand Lending Platform!
+
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Severity: {{ .Labels.severity }}
+          Service: {{ .Labels.service }}
+          Started: {{ .StartsAt }}
+          {{ if .Labels.runbook_url }}
+          Runbook: {{ .Labels.runbook_url }}
+          {{ end }}
+
+          {{ end }}
+
+          Dashboard: https://grafana.algorand-lending.com
+          Prometheus: https://prometheus.algorand-lending.com
+
+    slack_configs:
+      - api_url: '{{ .SlackAPIURL }}'
+        channel: '#critical-alerts'
+        title: '🚨 CRITICAL ALERT 🚨'
+        text: >
+          <!channel> Critical alert fired!
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Service:* {{ .Labels.service }}
+          *Started:* {{ .StartsAt }}
+          {{ if .Labels.runbook_url }}
+          *Runbook:* {{ .Labels.runbook_url }}
+          {{ end }}
+          {{ end }}
+        color: 'danger'
+        send_resolved: true
+
+    # PagerDuty integration for critical alerts
+    pagerduty_configs:
+      - routing_key: 'your-pagerduty-integration-key'
+        description: '{{ .GroupLabels.alertname }} - {{ .Annotations.summary }}'
+        details:
+          firing: '{{ template "__pagerduty_alert_list" . }}'
+          resolved: 'Alert resolved'
+          num_firing: '{{ .Alerts.Firing | len }}'
+          num_resolved: '{{ .Alerts.Resolved | len }}'
+
+  # ===========================================================================
+  # SERVICE DOWN ALERTS RECEIVER
+  # ===========================================================================
+  - name: 'service-down-alerts'
+    email_configs:
+      - to: 'oncall@algorand-lending.com'
+        subject: '🔴 SERVICE DOWN: {{ .GroupLabels.service }} - IMMEDIATE ACTION REQUIRED'
+        body: |
+          SERVICE DOWN ALERT - IMMEDIATE ACTION REQUIRED
+
+          {{ range .Alerts }}
+          Service: {{ .Labels.service }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Started: {{ .StartsAt }}
+          Instance: {{ .Labels.instance }}
+
+          {{ if .Labels.runbook_url }}
+          RUNBOOK: {{ .Labels.runbook_url }}
+          {{ end }}
+
+          {{ end }}
+
+          This requires immediate attention!
+
+    slack_configs:
+      - api_url: '{{ .SlackAPIURL }}'
+        channel: '#service-outages'
+        title: '🔴 SERVICE DOWN - IMMEDIATE ACTION REQUIRED'
+        text: >
+          <!here> SERVICE OUTAGE DETECTED!
+          {{ range .Alerts }}
+          *Service:* {{ .Labels.service }}
+          *Alert:* {{ .Annotations.summary }}
+          *Started:* {{ .StartsAt }}
+          {{ if .Labels.runbook_url }}
+          *Runbook:* {{ .Labels.runbook_url }}
+          {{ end }}
+          {{ end }}
+        color: '#FF0000'
+        send_resolved: true
+
+  # ===========================================================================
+  # SECURITY ALERTS RECEIVER
+  # ===========================================================================
+  - name: 'security-alerts'
+    email_configs:
+      - to: 'security@algorand-lending.com,admin@algorand-lending.com'
+        subject: '🔒 SECURITY ALERT: {{ .GroupLabels.alertname }}'
+        body: |
+          SECURITY ALERT DETECTED
+
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Severity: {{ .Labels.severity }}
+          Service: {{ .Labels.service }}
+          Started: {{ .StartsAt }}
+
+          {{ end }}
+
+          Please investigate immediately and take appropriate action.
+
+    slack_configs:
+      - api_url: '{{ .SlackAPIURL }}'
+        channel: '#security-alerts'
+        title: '🔒 SECURITY ALERT'
+        text: >
+          <!channel> Security alert detected!
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Service:* {{ .Labels.service }}
+          {{ end }}
+        color: '#FF6600'
+
+  # ===========================================================================
+  # DATABASE ALERTS RECEIVER
+  # ===========================================================================
+  - name: 'database-alerts'
+    email_configs:
+      - to: 'dba@algorand-lending.com,ops@algorand-lending.com'
+        subject: '💾 DATABASE ALERT: {{ .GroupLabels.alertname }}'
+        body: |
+          Database alert for Algorand Lending Platform
+
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Database: {{ .Labels.service }}
+          Severity: {{ .Labels.severity }}
+          Started: {{ .StartsAt }}
+
+          {{ end }}
+
+    slack_configs:
+      - api_url: '{{ .SlackAPIURL }}'
+        channel: '#database-alerts'
+        title: '💾 Database Alert'
+        text: >
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Database:* {{ .Labels.service }}
+          {{ end }}
+        color: '#FFAA00'
+
+  # ===========================================================================
+  # BUSINESS ALERTS RECEIVER
+  # ===========================================================================
+  - name: 'business-alerts'
+    email_configs:
+      - to: 'business@algorand-lending.com,product@algorand-lending.com'
+        subject: '📊 BUSINESS ALERT: {{ .GroupLabels.alertname }}'
+        body: |
+          Business metric alert for Algorand Lending Platform
+
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Severity: {{ .Labels.severity }}
+          Started: {{ .StartsAt }}
+
+          {{ end }}
+
+    slack_configs:
+      - api_url: '{{ .SlackAPIURL }}'
+        channel: '#business-alerts'
+        title: '📊 Business Alert'
+        text: >
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          {{ end }}
+        color: '#0066FF'
+
+  # ===========================================================================
+  # WARNING ALERTS RECEIVER
+  # ===========================================================================
+  - name: 'warning-alerts'
+    slack_configs:
+      - api_url: '{{ .SlackAPIURL }}'
+        channel: '#warnings'
+        title: '⚠️ Warning Alert'
+        text: >
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Service:* {{ .Labels.service }}
+          {{ end }}
+        color: 'warning'
+        send_resolved: true
+
+  # ===========================================================================
+  # WEBHOOK RECEIVER (for external integrations)
+  # ===========================================================================
+  - name: 'webhook-alerts'
+    webhook_configs:
+      - url: 'https://api.algorand-lending.com/webhooks/alerts'
+        http_config:
+          bearer_token: 'your-webhook-token'
+        send_resolved: true

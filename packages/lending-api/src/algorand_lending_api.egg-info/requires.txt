@@ -1,0 +1,8 @@
+fastapi>=0.100.0
+uvicorn>=0.20.0
+algorand-lending-core==1.0.0
+
+[dev]
+pytest
+pytest-asyncio
+httpx

@@ -1,0 +1,20 @@
+{
+  "lender": {
+    "name": "Lender Wallet",
+    "address": "MYZFY5XANQ3HN2YCS2XNOQIWL5PANXL35EV3YKBN5R5A6Y4TT43ZU3WZYM",
+    "funded": true,
+    "balance": 10000000
+  },
+  "borrower": {
+    "name": "Borrower Wallet",
+    "address": "CRMMBMPQ7VZISVJCHBCR2T4OUZ5634FXP6BX3BLOBVXB6ZK44IF6CGMLPI",
+    "funded": true,
+    "balance": 10000000
+  },
+  "liquidity_provider": {
+    "name": "Liquidity Provider Wallet",
+    "address": "DCZRXVVPPAKVGNFHUGMTQWJHCIROOVQPHHIRM562I2WYPWXVNKISCK2DK4",
+    "funded": true,
+    "balance": 10000000
+  }
+}

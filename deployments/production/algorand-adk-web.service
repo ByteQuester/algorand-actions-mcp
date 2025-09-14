@@ -1,0 +1,51 @@
+[Unit]
+Description=Algorand ADK Web Frontend Service
+Documentation=https://github.com/algorand-showcase/algorand-showcase
+After=docker.service algorand-lending.service
+Requires=docker.service
+PartOf=algorand-lending-stack.target
+Conflicts=algorand-adk-web-standalone.service
+
+[Service]
+Type=exec
+User=algorand
+Group=algorand
+WorkingDirectory=/opt/algorand-lending
+
+# Environment
+Environment=CONTAINER_NAME=algorand-adk-web
+Environment=SERVICE_PORT=8081
+EnvironmentFile=/opt/algorand-lending/.env.production
+
+# Health check command
+ExecStartPre=/bin/bash -c 'docker ps --filter name=${CONTAINER_NAME} --filter status=running --quiet | grep -q . || exit 1'
+
+# Monitor container health
+ExecStart=/opt/algorand-lending/scripts/monitor-service.sh adk-web ${CONTAINER_NAME} ${SERVICE_PORT}
+
+# Container management
+ExecReload=/usr/bin/docker restart ${CONTAINER_NAME}
+ExecStop=/usr/bin/docker stop ${CONTAINER_NAME}
+
+# Restart policy
+Restart=always
+RestartSec=10s
+TimeoutStartSec=60s
+TimeoutStopSec=30s
+
+# Health monitoring
+WatchdogSec=60s
+
+# Security
+NoNewPrivileges=true
+PrivateDevices=true
+ProtectHome=true
+ProtectSystem=strict
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=algorand-adk-web
+
+[Install]
+WantedBy=algorand-lending-stack.target

@@ -1,0 +1,201 @@
+# ==============================================================================
+# PROMETHEUS CONFIGURATION - ALGORAND LENDING PLATFORM
+# ==============================================================================
+# Comprehensive monitoring configuration for production deployment
+# Monitors all services, infrastructure, and business metrics
+# ==============================================================================
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'algorand-lending'
+    environment: 'production'
+
+rule_files:
+  - "alerts/*.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+scrape_configs:
+  # ===========================================================================
+  # INFRASTRUCTURE MONITORING
+  # ===========================================================================
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # Node exporter for system metrics
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 15s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'algorand-lending-server'
+
+  # ===========================================================================
+  # APPLICATION SERVICES MONITORING
+  # ===========================================================================
+
+  # Algorand Lending API
+  - job_name: 'algorand-lending-api'
+    static_configs:
+      - targets: ['lending-api:8000']
+    scrape_interval: 5s
+    metrics_path: /metrics
+    scrape_timeout: 10s
+    scheme: http
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'lending-api'
+
+  # ADK Web Frontend
+  - job_name: 'algorand-adk-web'
+    static_configs:
+      - targets: ['adk-web:80']
+    scrape_interval: 10s
+    metrics_path: /metrics
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'adk-web'
+
+  # ===========================================================================
+  # MCP SERVICES MONITORING
+  # ===========================================================================
+
+  # Algorand Actions MCP Service
+  - job_name: 'algorand-actions-mcp'
+    static_configs:
+      - targets: ['actions-mcp:8080']
+    scrape_interval: 10s
+    metrics_path: /metrics
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'actions-mcp'
+
+  # Algorand Remote MCP Service
+  - job_name: 'algorand-remote-mcp'
+    static_configs:
+      - targets: ['remote-mcp:8080']
+    scrape_interval: 10s
+    metrics_path: /metrics
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'remote-mcp'
+
+  # ===========================================================================
+  # DATABASE MONITORING
+  # ===========================================================================
+
+  # PostgreSQL Database
+  - job_name: 'postgres-exporter'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    scrape_interval: 15s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'postgresql'
+
+  # Redis Cache
+  - job_name: 'redis-exporter'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    scrape_interval: 15s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'redis'
+
+  # ===========================================================================
+  # REVERSE PROXY MONITORING
+  # ===========================================================================
+
+  # Nginx Reverse Proxy
+  - job_name: 'nginx-exporter'
+    static_configs:
+      - targets: ['nginx-exporter:9113']
+    scrape_interval: 15s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'nginx'
+
+  # Traefik (if using instead of nginx)
+  - job_name: 'traefik'
+    static_configs:
+      - targets: ['traefik:8080']
+    scrape_interval: 15s
+    metrics_path: /metrics
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'traefik'
+
+  # ===========================================================================
+  # EXTERNAL HEALTH CHECKS
+  # ===========================================================================
+
+  # Blackbox exporter for external endpoint monitoring
+  - job_name: 'blackbox-http'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+        - https://lending.yourdomain.com
+        - https://api.lending.yourdomain.com/health
+        - https://lending.yourdomain.com/health
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # SSL certificate expiry monitoring
+  - job_name: 'blackbox-ssl'
+    metrics_path: /probe
+    params:
+      module: [tls_connect]
+    static_configs:
+      - targets:
+        - lending.yourdomain.com:443
+        - api.lending.yourdomain.com:443
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # ===========================================================================
+  # BUSINESS METRICS
+  # ===========================================================================
+
+  # Custom business metrics endpoint
+  - job_name: 'business-metrics'
+    static_configs:
+      - targets: ['lending-api:8000']
+    scrape_interval: 30s
+    metrics_path: /business-metrics
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'business-metrics'
