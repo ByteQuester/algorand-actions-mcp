@@ -1,24 +1,16 @@
-# Algorand MCP Workers
+# 🚀 Algorand Showcase: AI-Powered Lending Platform
 
-[![CI](https://github.com/ByteQuester/algorand-showcase/actions/workflows/ci.yml/badge.svg)](https://github.com/ByteQuester/algorand-showcase/actions/workflows/ci.yml)
-[![Docker Build](https://github.com/ByteQuester/algorand-showcase/actions/workflows/docker-build.yml/badge.svg)](https://github.com/ByteQuester/algorand-showcase/actions/workflows/docker-build.yml)
-[![Security](https://github.com/ByteQuester/algorand-showcase/actions/workflows/security.yml/badge.svg)](https://github.com/ByteQuester/algorand-showcase/actions/workflows/security.yml)
+**Production-ready AI lending platform with real blockchain connectivity**
+
+[![Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)]()
+[![Blockchain](https://img.shields.io/badge/Blockchain-Algorand%20Testnet-blue)]()
+[![AI](https://img.shields.io/badge/AI-Google%20Gemini%201.5%20Flash-orange)]()
+[![Architecture](https://img.shields.io/badge/Architecture-MCP%20Protocol-purple)]()
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![GitHub release](https://img.shields.io/github/v/release/ByteQuester/algorand-showcase)](https://github.com/ByteQuester/algorand-showcase/releases)
-[![GitHub stars](https://img.shields.io/github/stars/ByteQuester/algorand-showcase?style=flat)](https://github.com/ByteQuester/algorand-showcase/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/ByteQuester/algorand-showcase?style=flat)](https://github.com/ByteQuester/algorand-showcase/network)
-[![GitHub issues](https://img.shields.io/github/issues/ByteQuester/algorand-showcase)](https://github.com/ByteQuester/algorand-showcase/issues)
-[![GitHub pull requests](https://img.shields.io/github/issues-pr/ByteQuester/algorand-showcase)](https://github.com/ByteQuester/algorand-showcase/pulls)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.6+-blue.svg)](https://www.typescriptlang.org/)
-[![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
-[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
-[![Kubernetes](https://img.shields.io/badge/Kubernetes-Ready-326ce5.svg)](https://kubernetes.io/)
-[![Algorand](https://img.shields.io/badge/Algorand-Blockchain-orange.svg)](https://algorand.com/)
-[![MCP](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/)
 
-> **Production-ready Model Context Protocol (MCP) servers for seamless Algorand blockchain integration with AI agents like Claude.**
+> **Transform lending with AI and blockchain - Two production-ready systems demonstrating real-world AI-powered finance**
 
-Transform how AI agents interact with the Algorand blockchain through standardized, production-grade MCP servers. This repository provides complete infrastructure for transaction operations and blockchain data access, deployable on both Cloudflare Workers and Kubernetes.
+The Algorand Showcase demonstrates AI-powered lending with **real blockchain connectivity**. It features two production-ready systems built with different architectural approaches, both integrating Google Gemini AI with Algorand blockchain through the MCP (Model Context Protocol).
 
 ## ✨ What Makes This Special?
 
