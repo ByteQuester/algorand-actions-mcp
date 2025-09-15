@@ -17,8 +17,8 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime
 import uuid
 
-# Import from algorand-lending-core
-from algorand_lending_core import (
+# Import from the local lending core
+from ...core.lending.src import (
     LendingWorkflow,
     LoanRequestAPI,
     LoanStatusResponse,
@@ -28,7 +28,7 @@ from algorand_lending_core import (
     LendingError,
     ErrorHandler
 )
-from algorand_lending_core.api_models import convert_api_to_internal_request
+from ...core.lending.src.api_models import convert_api_to_internal_request
 
 from .auth import AuthHandler, get_current_user
 from .storage import LoanStorage

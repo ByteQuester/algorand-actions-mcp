@@ -9,8 +9,8 @@ import json
 import os
 import sys
 
-# Add packages to Python path
-sys.path.insert(0, '/home/mpo/algorand-showcase/packages')
+# Add apps to Python path
+sys.path.insert(0, '/home/mpo/algorand-showcase/apps/lending-platform/src')
 
 # Set environment variables for Gemini
 os.environ['GOOGLE_API_KEY'] = 'AIzaSyDYGxsZFS4pl5-3mnxVwrp3YqCe67DPuB4'
@@ -24,7 +24,7 @@ async def test_complete_lending_workflow():
 
     try:
         # Import the integrated workflow
-        from algorand_lending_core import IntegratedLendingWorkflow, MCPServiceConfig
+        from core.lending.src import IntegratedLendingWorkflow, MCPServiceConfig
 
         print("✅ Successfully imported IntegratedLendingWorkflow")
 
@@ -129,7 +129,7 @@ async def test_edge_cases():
     print("-" * 30)
 
     try:
-        from algorand_lending_core import IntegratedLendingWorkflow
+        from core.lending.src import IntegratedLendingWorkflow
 
         workflow = IntegratedLendingWorkflow()
 

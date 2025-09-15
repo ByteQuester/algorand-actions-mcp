@@ -10,9 +10,7 @@ import json
 from datetime import datetime
 
 # Add the lending platform to the path
-sys.path.insert(0, '/home/mpo/algorand-showcase/apps/lending-platform')
-sys.path.insert(0, '/home/mpo/algorand-showcase/packages/lending-core/src')
-sys.path.insert(0, '/home/mpo/algorand-showcase/packages')
+sys.path.insert(0, '/home/mpo/algorand-showcase/apps/lending-platform/src')
 
 def test_gemini_integration():
     """Test Gemini API integration for lending agents"""
@@ -109,7 +107,7 @@ def test_lending_workflow():
     print("\n💰 Testing Lending Workflow...")
 
     try:
-        from algorand_lending_core import LendingWorkflow, MCPServiceConfig
+        from core.lending.src import LendingWorkflow, MCPServiceConfig
 
         # Configure MCP services
         mcp_config = MCPServiceConfig(

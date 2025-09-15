@@ -1,0 +1,24 @@
+{
+  "name": "@algorand-showcase/lending-platform",
+  "version": "1.0.0",
+  "description": "Algorand-based lending platform with ADK framework integration",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "echo 'Lending platform is a Python application - use requirements.txt for dependencies'",
+    "clean": "find . -name '__pycache__' -type d -exec rm -rf {} + || true && find . -name '*.egg-info' -type d -exec rm -rf {} + || true",
+    "dev": "python3 src/api/src/server.py",
+    "test": "python3 -m pytest tests/ -v",
+    "test:integration": "python3 tests/test_complete_lending_workflow.py",
+    "test:agents": "python3 tests/adk-framework/test_lending_agents_fixed.py",
+    "setup-dev": "pip3 install -r requirements.txt",
+    "start": "python3 src/api/src/server.py"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "python": ">=3.9.0"
+  }
+}

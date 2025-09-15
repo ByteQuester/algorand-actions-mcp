@@ -9,7 +9,7 @@ import asyncio
 import json
 
 # Add the correct path
-sys.path.insert(0, '/home/mpo/algorand-showcase/apps/lending-platform')
+sys.path.insert(0, '/home/mpo/algorand-showcase/apps/lending-platform/src')
 
 def test_workflow_import():
     """Test importing the lending workflow using the new package structure"""
@@ -17,8 +17,8 @@ def test_workflow_import():
 
     try:
         # Use the new package structure
-        from algorand_lending_core import LendingWorkflow, MCPServiceConfig
-        print("✅ Successfully imported from algorand_lending_core")
+        from core.lending.src import LendingWorkflow, MCPServiceConfig
+        print("✅ Successfully imported from core.lending.src")
 
         # Test creating workflow
         mcp_config = MCPServiceConfig()

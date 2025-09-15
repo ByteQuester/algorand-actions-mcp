@@ -17,9 +17,8 @@ types (foundation)
       ↑
       └── (used by apps)
 
-lending-core (standalone)
-  ↑
-  └── lending-api
+Note: lending-core and lending-api have been moved to
+apps/lending-platform/src/ as application-specific modules
 ```
 
 ### Detailed Dependency Matrix
@@ -30,8 +29,6 @@ lending-core (standalone)
 | **config** | types | mcp-core, apps | zod |
 | **algorand-clients** | types | apps | algosdk, algo-msgpack-with-bigint |
 | **mcp-core** | types, config | apps | zod |
-| **lending-core** | None | lending-api | None (pure) |
-| **lending-api** | lending-core | None | fastapi, uvicorn |
 
 ## External Dependencies
 

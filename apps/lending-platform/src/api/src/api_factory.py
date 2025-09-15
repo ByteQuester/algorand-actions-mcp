@@ -10,9 +10,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
 
-# Import the pure lending core package
-from algorand_lending_core import LendingEngine, LoanRequest, LoanResult, BlockchainTransactionBuilder
-from algorand_lending_core import LoanStatus, CollateralType
+# Import the lending core from the local app structure
+from ...core.lending.src import LendingEngine, LoanRequest, LoanResult, BlockchainTransactionBuilder
+from ...core.lending.src import LoanStatus, CollateralType
 
 class ConfigurableBlockchainProvider:
     """
@@ -114,12 +114,12 @@ class LendingAPIFactory:
         )
 
         # Dependency injection setup
-        def get_blockchain_provider() -> BlockchainProvider:
+        def get_blockchain_provider() -> ConfigurableBlockchainProvider:
             """Create blockchain provider with injected config"""
             return ConfigurableBlockchainProvider(blockchain_config)
 
         def get_lending_engine(
-            blockchain_provider: BlockchainProvider = Depends(get_blockchain_provider)
+            blockchain_provider: ConfigurableBlockchainProvider = Depends(get_blockchain_provider)
         ) -> LendingEngine:
             """Create lending engine with injected dependencies"""
             return LendingEngine(blockchain_provider, lending_config)

@@ -6,6 +6,10 @@ A complete, production-ready lending platform for Algorand-based agent-to-agent 
 
 This lending platform provides clean, vendorable business logic and a production-ready API for facilitating automated lending between agents on the Algorand blockchain. The platform is designed for seamless integration with ADK-Web UI systems and supports real-world lending operations.
 
+### Architecture Update
+
+**🏗️ Consolidated Structure** - The lending-core and lending-api modules have been moved from `packages/` into this application directory (`src/core/lending/` and `src/api/`) to maintain proper architectural separation between shared packages and application-specific code.
+
 ## Architecture
 
 **🚀 REORGANIZED FOR PRODUCTION** - The platform has been restructured for production readiness while maintaining full development functionality. See [PRODUCTION.md](PRODUCTION.md) for detailed deployment guide.
@@ -21,9 +25,14 @@ lending-platform/
 │   │   ├── schemas/       # JSON schemas and validation
 │   │   └── manifest.json  # Agent manifest
 │   ├── core/              # Platform core modules
+│   │   ├── lending/       # 🆕 Pure lending business logic (moved from packages)
 │   │   ├── lending_platform/  # Original platform code
 │   │   ├── config.py      # Configuration management
 │   │   └── logging_config.py  # Structured logging
+│   ├── api/               # 🆕 FastAPI wrapper (moved from packages)
+│   │   ├── src/           # API implementation
+│   │   ├── config/        # API configuration
+│   │   └── scripts/       # API scripts
 │   └── ui/                # UI components and overlays
 ├── scripts/               # Organized development tools
 │   ├── dev/              # Development utilities

@@ -4,15 +4,13 @@ Production-ready shared packages for the Algorand Showcase ecosystem, organized 
 
 ## Package Ecosystem
 
-### TypeScript Packages
+### Shared Libraries (TypeScript)
 - **[types/](./types/)** - Shared TypeScript interfaces and type definitions
 - **[config/](./config/)** - Environment configuration and validation utilities
 - **[algorand-clients/](./algorand-clients/)** - Algorand SDK wrappers and client abstractions
 - **[mcp-core/](./mcp-core/)** - MCP protocol implementation patterns and utilities
 
-### Python Packages
-- **[lending-core/](./lending-core/)** - Pure business logic for Algorand lending operations
-- **[lending-api/](./lending-api/)** - FastAPI wrapper for lending-core
+> **Note**: Application-specific modules (formerly lending-core and lending-api) have been moved to their respective application directories to maintain proper architectural separation.
 
 ## Production Features
 
