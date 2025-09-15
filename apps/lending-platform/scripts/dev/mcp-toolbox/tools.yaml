@@ -1,0 +1,223 @@
+sources:
+  postgresql:
+    kind: postgres
+    host: 127.0.0.1
+    port: 5432
+    database: lending_db
+    user: ${DB_USER}
+    password: ${DB_PASS}
+
+tools:
+  # Loan Request Management
+  create-loan-request:
+    description: Create a new loan request in the lending platform
+    source: postgresql
+    query: |
+      INSERT INTO loan_requests (borrower_address, amount_algo, duration_days, interest_rate, status)
+      VALUES ($1, $2, $3, $4, 'pending')
+      RETURNING id, borrower_address, amount_algo, duration_days, interest_rate, status, created_at;
+    parameters:
+      - name: borrower_address
+        type: string
+        description: The Algorand address of the borrower
+      - name: amount_algo
+        type: number
+        description: The loan amount in ALGO
+      - name: duration_days
+        type: integer
+        description: The loan duration in days
+      - name: interest_rate
+        type: number
+        description: The proposed interest rate (as decimal, e.g. 0.08 for 8%)
+
+  get-loan-request:
+    description: Get a loan request by ID
+    source: postgresql
+    query: |
+      SELECT id, borrower_address, amount_algo, duration_days, interest_rate, status, created_at, updated_at
+      FROM loan_requests
+      WHERE id = $1;
+    parameters:
+      - name: id
+        type: integer
+        description: The loan request ID
+
+  list-loan-requests:
+    description: List all loan requests with optional status filter
+    source: postgresql
+    query: |
+      SELECT id, borrower_address, amount_algo, duration_days, interest_rate, status, created_at
+      FROM loan_requests
+      WHERE ($1::text IS NULL OR status = $1)
+      ORDER BY created_at DESC
+      LIMIT $2;
+    parameters:
+      - name: status
+        type: string
+        description: Filter by status (pending, approved, rejected, active, completed). Leave empty for all.
+        optional: true
+      - name: limit
+        type: integer
+        description: Maximum number of results to return
+        default: 10
+
+  update-loan-request-status:
+    description: Update the status of a loan request
+    source: postgresql
+    query: |
+      UPDATE loan_requests
+      SET status = $2, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $1
+      RETURNING id, borrower_address, amount_algo, status, updated_at;
+    parameters:
+      - name: id
+        type: integer
+        description: The loan request ID
+      - name: status
+        type: string
+        description: The new status (pending, approved, rejected, active, completed)
+
+  # Lender Management
+  create-lender:
+    description: Register a new lender in the platform
+    source: postgresql
+    query: |
+      INSERT INTO lenders (lender_address, available_amount, interest_rate)
+      VALUES ($1, $2, $3)
+      RETURNING id, lender_address, available_amount, interest_rate, created_at;
+    parameters:
+      - name: lender_address
+        type: string
+        description: The Algorand address of the lender
+      - name: available_amount
+        type: number
+        description: The amount of ALGO available for lending
+      - name: interest_rate
+        type: number
+        description: The lender's preferred interest rate (as decimal, e.g. 0.08 for 8%)
+
+  list-available-lenders:
+    description: List lenders with available funds for lending
+    source: postgresql
+    query: |
+      SELECT id, lender_address, available_amount, interest_rate, created_at
+      FROM lenders
+      WHERE available_amount > $1
+      ORDER BY interest_rate ASC, available_amount DESC
+      LIMIT $2;
+    parameters:
+      - name: min_amount
+        type: number
+        description: Minimum available amount required
+        default: 0
+      - name: limit
+        type: integer
+        description: Maximum number of results to return
+        default: 20
+
+  update-lender-availability:
+    description: Update a lender's available amount
+    source: postgresql
+    query: |
+      UPDATE lenders
+      SET available_amount = $2, updated_at = CURRENT_TIMESTAMP
+      WHERE lender_address = $1
+      RETURNING id, lender_address, available_amount, interest_rate, updated_at;
+    parameters:
+      - name: lender_address
+        type: string
+        description: The Algorand address of the lender
+      - name: available_amount
+        type: number
+        description: The new available amount in ALGO
+
+  # Active Loan Management
+  create-loan:
+    description: Create a new active loan record
+    source: postgresql
+    query: |
+      INSERT INTO loans (loan_request_id, lender_id, borrower_address, lender_address, amount_algo, interest_rate, duration_days, due_date)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP + INTERVAL '$7 days')
+      RETURNING id, borrower_address, lender_address, amount_algo, interest_rate, duration_days, status, start_date, due_date;
+    parameters:
+      - name: loan_request_id
+        type: integer
+        description: The ID of the original loan request
+      - name: lender_id
+        type: integer
+        description: The ID of the lender
+      - name: borrower_address
+        type: string
+        description: The Algorand address of the borrower
+      - name: lender_address
+        type: string
+        description: The Algorand address of the lender
+      - name: amount_algo
+        type: number
+        description: The loan amount in ALGO
+      - name: interest_rate
+        type: number
+        description: The agreed interest rate (as decimal)
+      - name: duration_days
+        type: integer
+        description: The loan duration in days
+
+  list-active-loans:
+    description: List active loans with optional filters
+    source: postgresql
+    query: |
+      SELECT id, borrower_address, lender_address, amount_algo, interest_rate, duration_days, status, start_date, due_date
+      FROM loans
+      WHERE ($1::text IS NULL OR status = $1)
+        AND ($2::text IS NULL OR borrower_address = $2)
+        AND ($3::text IS NULL OR lender_address = $3)
+      ORDER BY start_date DESC
+      LIMIT $4;
+    parameters:
+      - name: status
+        type: string
+        description: Filter by loan status (active, completed, defaulted). Leave empty for all.
+        optional: true
+      - name: borrower_address
+        type: string
+        description: Filter by borrower address. Leave empty for all.
+        optional: true
+      - name: lender_address
+        type: string
+        description: Filter by lender address. Leave empty for all.
+        optional: true
+      - name: limit
+        type: integer
+        description: Maximum number of results to return
+        default: 50
+
+  update-loan-status:
+    description: Update the status of an active loan
+    source: postgresql
+    query: |
+      UPDATE loans
+      SET status = $2, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $1
+      RETURNING id, borrower_address, lender_address, amount_algo, status, updated_at;
+    parameters:
+      - name: id
+        type: integer
+        description: The loan ID
+      - name: status
+        type: string
+        description: The new status (active, completed, defaulted)
+
+toolsets:
+  lending_toolset:
+    description: "Comprehensive lending platform tools for managing loan requests, lenders, and active loans"
+    tools:
+      - create-loan-request
+      - get-loan-request
+      - list-loan-requests
+      - update-loan-request-status
+      - create-lender
+      - list-available-lenders
+      - update-lender-availability
+      - create-loan
+      - list-active-loans
+      - update-loan-status

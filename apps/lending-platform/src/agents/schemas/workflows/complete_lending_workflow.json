@@ -1,0 +1,381 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Complete Lending Workflow Itinerary",
+  "description": "End-to-end lending process from initial request to loan execution",
+  "type": "object",
+
+  "workflow_metadata": {
+    "name": "complete_lending_workflow",
+    "version": "1.0.0",
+    "coordinator_agent": "lending_coordinator",
+    "estimated_duration": "2-5 minutes",
+    "complexity": "high",
+    "success_rate_target": 0.85,
+    "created": "2025-09-14"
+  },
+
+  "workflow_steps": [
+    {
+      "step_id": "1_health_check",
+      "name": "System Health Check",
+      "description": "Verify all MCP services and agents are operational",
+      "agent": "lending_coordinator",
+      "tools": ["check_mcp_service_health"],
+      "estimated_duration": "5-10 seconds",
+      "required": true,
+      "retry_on_failure": true,
+      "max_retries": 3,
+      "success_criteria": [
+        "mcp_reader_healthy",
+        "mcp_writer_healthy",
+        "all_agents_responsive"
+      ],
+      "failure_actions": [
+        "log_service_status",
+        "attempt_service_recovery",
+        "escalate_to_ops_team"
+      ],
+      "next_step_on_success": "2_borrower_assessment",
+      "next_step_on_failure": "terminate_workflow"
+    },
+
+    {
+      "step_id": "2_borrower_assessment",
+      "name": "Borrower Data Collection & Assessment",
+      "description": "Gather borrower account information and transaction history",
+      "agent": "lending_coordinator",
+      "tools": ["get_borrower_data", "get_lender_data"],
+      "estimated_duration": "10-20 seconds",
+      "required": true,
+      "parallel_execution": false,
+      "inputs": {
+        "borrower_address": "from_request",
+        "lender_address": "from_request_optional",
+        "include_transactions": true,
+        "transaction_limit": 20
+      },
+      "success_criteria": [
+        "borrower_account_exists",
+        "sufficient_balance_for_fees",
+        "account_activity_adequate"
+      ],
+      "validation_rules": {
+        "minimum_balance": 0.1,
+        "minimum_transaction_count": 1,
+        "account_status": "active"
+      },
+      "next_step_on_success": "3_liquidity_discovery",
+      "next_step_on_failure": "handle_borrower_assessment_failure"
+    },
+
+    {
+      "step_id": "3_liquidity_discovery",
+      "name": "Liquidity Discovery & Credit Assessment",
+      "description": "Find suitable lenders and assess borrower creditworthiness",
+      "agent": "liquidity_agent",
+      "tools": [
+        "find_available_lenders",
+        "assess_borrower_creditworthiness",
+        "match_liquidity_requirements"
+      ],
+      "estimated_duration": "20-40 seconds",
+      "required": true,
+      "parallel_execution": true,
+      "parallel_tasks": [
+        {
+          "task": "lender_discovery",
+          "tool": "find_available_lenders",
+          "timeout": 30
+        },
+        {
+          "task": "credit_assessment",
+          "tool": "assess_borrower_creditworthiness",
+          "timeout": 20
+        }
+      ],
+      "inputs": {
+        "loan_amount": "from_request",
+        "target_rate": "from_request_max_rate",
+        "duration": "from_request",
+        "borrower_profile": "from_previous_step"
+      },
+      "success_criteria": [
+        "lenders_found_count >= 1",
+        "credit_score >= 30",
+        "liquidity_available"
+      ],
+      "quality_gates": {
+        "minimum_lenders": 1,
+        "minimum_credit_score": 30,
+        "maximum_rate_spread": 5.0
+      },
+      "next_step_on_success": "4_term_negotiation",
+      "next_step_on_failure": "handle_liquidity_shortage"
+    },
+
+    {
+      "step_id": "4_term_negotiation",
+      "name": "AI-Powered Term Negotiation",
+      "description": "Negotiate optimal loan terms using Gemini AI",
+      "agent": "negotiation_agent",
+      "tools": [
+        "assess_loan_risk",
+        "calculate_interest_rate",
+        "calculate_collateral_requirement",
+        "generate_counter_proposal"
+      ],
+      "estimated_duration": "30-60 seconds",
+      "required": true,
+      "ai_driven": true,
+      "inputs": {
+        "loan_request": "from_original_request",
+        "borrower_profile": "from_step_2",
+        "liquidity_analysis": "from_step_3",
+        "market_conditions": "current_market_data"
+      },
+      "negotiation_rounds": {
+        "maximum": 3,
+        "convergence_threshold": 0.5,
+        "timeout_per_round": 20
+      },
+      "success_criteria": [
+        "terms_within_borrower_limits",
+        "risk_assessment_complete",
+        "interest_rate_competitive",
+        "collateral_adequate"
+      ],
+      "ai_decision_factors": [
+        "borrower_creditworthiness",
+        "market_conditions",
+        "lender_preferences",
+        "risk_mitigation",
+        "competitive_positioning"
+      ],
+      "next_step_on_success": "5_execution_preparation",
+      "next_step_on_failure": "handle_negotiation_failure"
+    },
+
+    {
+      "step_id": "5_execution_preparation",
+      "name": "Transaction Preparation & Validation",
+      "description": "Prepare blockchain transactions and validate execution requirements",
+      "agent": "execution_agent",
+      "tools": [
+        "prepare_transaction_group",
+        "validate_execution_requirements",
+        "estimate_transaction_costs",
+        "create_lending_contract"
+      ],
+      "estimated_duration": "20-40 seconds",
+      "required": true,
+      "blockchain_interaction": true,
+      "inputs": {
+        "negotiated_terms": "from_step_4",
+        "borrower_address": "from_request",
+        "lender_address": "from_step_3_best_match",
+        "loan_parameters": "finalized_terms"
+      },
+      "transaction_types": [
+        "collateral_deposit",
+        "loan_disbursement",
+        "smart_contract_creation"
+      ],
+      "success_criteria": [
+        "transactions_prepared",
+        "validation_passed",
+        "costs_estimated",
+        "atomic_group_ready"
+      ],
+      "validation_checks": [
+        "address_format_valid",
+        "balance_sufficient",
+        "gas_fees_calculated",
+        "network_conditions_acceptable"
+      ],
+      "next_step_on_success": "6_final_coordination",
+      "next_step_on_failure": "handle_execution_preparation_failure"
+    },
+
+    {
+      "step_id": "6_final_coordination",
+      "name": "Final Coordination & Results",
+      "description": "Coordinate all agent results and prepare final recommendation",
+      "agent": "lending_coordinator",
+      "tools": ["coordinate_lending_workflow"],
+      "estimated_duration": "10-20 seconds",
+      "required": true,
+      "aggregation_step": true,
+      "inputs": {
+        "liquidity_results": "from_step_3",
+        "negotiation_results": "from_step_4",
+        "execution_results": "from_step_5",
+        "original_request": "from_initial_input"
+      },
+      "final_checks": [
+        "all_agents_completed_successfully",
+        "terms_within_acceptable_ranges",
+        "execution_plan_viable",
+        "risk_levels_acceptable"
+      ],
+      "output_generation": {
+        "include_agent_details": true,
+        "include_execution_plan": true,
+        "include_next_actions": true,
+        "include_monitoring_data": true
+      },
+      "success_criteria": [
+        "workflow_completed",
+        "final_recommendation_generated",
+        "all_validations_passed"
+      ],
+      "next_step_on_success": "workflow_complete",
+      "next_step_on_failure": "handle_coordination_failure"
+    }
+  ],
+
+  "error_handling_procedures": {
+    "handle_borrower_assessment_failure": {
+      "description": "Handle borrower data collection failures",
+      "actions": [
+        "retry_with_different_endpoints",
+        "use_minimal_assessment_mode",
+        "request_manual_verification"
+      ],
+      "escalation_threshold": 3,
+      "recovery_possible": true
+    },
+
+    "handle_liquidity_shortage": {
+      "description": "Handle insufficient liquidity scenarios",
+      "actions": [
+        "expand_lender_search_criteria",
+        "suggest_alternative_loan_amounts",
+        "recommend_waiting_for_better_conditions"
+      ],
+      "user_notification_required": true,
+      "recovery_possible": true
+    },
+
+    "handle_negotiation_failure": {
+      "description": "Handle term negotiation failures",
+      "actions": [
+        "generate_alternative_proposals",
+        "adjust_risk_parameters",
+        "escalate_to_human_negotiator"
+      ],
+      "max_retry_attempts": 2,
+      "fallback_to_standard_terms": true
+    },
+
+    "handle_execution_preparation_failure": {
+      "description": "Handle transaction preparation failures",
+      "actions": [
+        "retry_with_different_parameters",
+        "check_network_conditions",
+        "use_simplified_transaction_structure"
+      ],
+      "blockchain_dependent": true,
+      "recovery_possible": true
+    },
+
+    "handle_coordination_failure": {
+      "description": "Handle final coordination failures",
+      "actions": [
+        "regenerate_final_results",
+        "flag_for_manual_review",
+        "provide_partial_results"
+      ],
+      "critical_failure": true,
+      "user_notification_required": true
+    }
+  },
+
+  "monitoring_and_metrics": {
+    "key_performance_indicators": [
+      {
+        "name": "workflow_success_rate",
+        "target": 0.85,
+        "measurement": "successful_completions / total_attempts"
+      },
+      {
+        "name": "average_processing_time",
+        "target": "< 4 minutes",
+        "measurement": "total_time / successful_completions"
+      },
+      {
+        "name": "agent_coordination_efficiency",
+        "target": 0.95,
+        "measurement": "successful_agent_calls / total_agent_calls"
+      },
+      {
+        "name": "mcp_service_reliability",
+        "target": 0.99,
+        "measurement": "successful_mcp_calls / total_mcp_calls"
+      }
+    ],
+
+    "real_time_monitoring": {
+      "step_progress_tracking": true,
+      "agent_response_times": true,
+      "error_rate_monitoring": true,
+      "resource_utilization": true
+    },
+
+    "alerting": {
+      "failure_rate_threshold": 0.15,
+      "latency_threshold_seconds": 300,
+      "consecutive_failures_threshold": 3,
+      "notification_channels": ["ops_team", "development_team"]
+    }
+  },
+
+  "quality_assurance": {
+    "pre_execution_checks": [
+      "input_validation",
+      "agent_availability",
+      "mcp_service_health",
+      "network_conditions"
+    ],
+
+    "post_execution_validation": [
+      "output_completeness",
+      "data_consistency",
+      "business_rule_compliance",
+      "security_requirements"
+    ],
+
+    "audit_trail": {
+      "log_all_agent_interactions": true,
+      "record_decision_points": true,
+      "track_performance_metrics": true,
+      "maintain_workflow_history": true
+    }
+  },
+
+  "business_rules": {
+    "loan_limits": {
+      "minimum_amount": 0.1,
+      "maximum_amount": 100000,
+      "maximum_duration_days": 365
+    },
+
+    "risk_thresholds": {
+      "maximum_acceptable_risk": "HIGH",
+      "minimum_credit_score": 30,
+      "maximum_interest_rate": 25.0
+    },
+
+    "operational_limits": {
+      "max_concurrent_workflows": 50,
+      "max_workflow_duration": 600,
+      "max_retry_attempts": 3
+    }
+  },
+
+  "compliance_requirements": {
+    "data_privacy": "borrower_data_encryption_required",
+    "financial_regulations": "algorithmic_lending_compliance",
+    "audit_requirements": "full_workflow_audit_trail",
+    "security_standards": "multi_factor_validation"
+  }
+}

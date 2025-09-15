@@ -1,0 +1,253 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Algorand Lending Negotiation Agent",
+  "description": "Schema for AI-powered loan negotiation and risk assessment agent",
+  "type": "object",
+
+  "agent_metadata": {
+    "name": "algorand_lending_negotiation_agent",
+    "version": "1.0.0",
+    "model": "gemini-2.5-flash",
+    "agent_type": "specialist",
+    "domain": "financial_negotiation",
+    "expertise": ["risk_assessment", "interest_calculation", "term_optimization"],
+    "created": "2025-09-14"
+  },
+
+  "input_schema": {
+    "type": "object",
+    "required": ["loan_request", "borrower_profile"],
+    "properties": {
+      "loan_request": {
+        "type": "object",
+        "required": ["borrower_address", "amount_algos", "duration_days"],
+        "properties": {
+          "borrower_address": {
+            "type": "string",
+            "pattern": "^[A-Z2-7]{58}$"
+          },
+          "amount_algos": {
+            "type": "number",
+            "minimum": 0.1,
+            "maximum": 100000
+          },
+          "duration_days": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 365
+          },
+          "max_interest_rate": {
+            "type": "number",
+            "minimum": 0.1,
+            "maximum": 50
+          },
+          "collateral_type": {
+            "type": "string",
+            "enum": ["ALGO", "USDC", "BTC", "ETH", "OTHER"]
+          }
+        }
+      },
+      "borrower_profile": {
+        "type": "object",
+        "properties": {
+          "balance_data": {
+            "type": "object",
+            "properties": {
+              "algo_balance": {"type": "number"},
+              "usdc_balance": {"type": "number"},
+              "total_balance_value": {"type": "number"},
+              "available_balance": {"type": "number"}
+            }
+          },
+          "transaction_history": {
+            "type": "object",
+            "properties": {
+              "total_transactions": {"type": "integer", "minimum": 0},
+              "average_transaction_size": {"type": "number"},
+              "monthly_frequency": {"type": "number"},
+              "activity_span_days": {"type": "integer"},
+              "largest_transaction": {"type": "number"}
+            }
+          },
+          "risk_indicators": {
+            "type": "object",
+            "properties": {
+              "balance_risk": {"type": "string", "enum": ["low", "medium", "high"]},
+              "activity_risk": {"type": "string", "enum": ["low", "medium", "high"]},
+              "overall_risk": {"type": "string", "enum": ["low", "medium", "high"]}
+            }
+          }
+        }
+      },
+      "market_conditions": {
+        "type": "object",
+        "properties": {
+          "base_rate": {"type": "number", "default": 7.5},
+          "volatility": {"type": "number", "default": 0.15},
+          "liquidity_available": {"type": "boolean", "default": true}
+        }
+      }
+    }
+  },
+
+  "output_schema": {
+    "type": "object",
+    "required": ["negotiated_terms", "risk_analysis", "recommendation"],
+    "properties": {
+      "negotiated_terms": {
+        "type": "object",
+        "required": ["interest_rate", "collateral_ratio", "duration_days"],
+        "properties": {
+          "interest_rate": {
+            "type": "number",
+            "minimum": 0.1,
+            "maximum": 50,
+            "description": "Final negotiated annual interest rate"
+          },
+          "collateral_ratio": {
+            "type": "number",
+            "minimum": 1.0,
+            "maximum": 3.0,
+            "description": "Collateral to loan ratio (e.g., 1.3 = 130%)"
+          },
+          "duration_days": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 365
+          },
+          "total_repayment_amount": {
+            "type": "number",
+            "description": "Total amount to be repaid including interest"
+          },
+          "required_collateral_algos": {
+            "type": "number",
+            "description": "Required collateral amount in ALGO"
+          }
+        }
+      },
+      "risk_analysis": {
+        "type": "object",
+        "required": ["risk_score", "risk_category", "factors"],
+        "properties": {
+          "risk_score": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Overall risk score (1-100, higher is better)"
+          },
+          "risk_category": {
+            "type": "string",
+            "enum": ["LOW", "MEDIUM", "HIGH", "VERY_HIGH"]
+          },
+          "factors": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "List of factors considered in risk assessment"
+          },
+          "borrower_profile_summary": {
+            "type": "object",
+            "properties": {
+              "balance_adequacy": {"type": "number"},
+              "transaction_activity": {"type": "string"},
+              "account_maturity": {"type": "string"}
+            }
+          }
+        }
+      },
+      "recommendation": {
+        "type": "string",
+        "enum": ["APPROVE", "APPROVE_WITH_CONDITIONS", "NEGOTIATE_TERMS", "DECLINE"],
+        "description": "Final lending recommendation"
+      },
+      "reasoning": {
+        "type": "string",
+        "description": "AI agent's reasoning for the recommendation"
+      },
+      "counter_proposal": {
+        "type": "object",
+        "properties": {
+          "offered": {"type": "boolean"},
+          "modified_terms": {"type": "object"},
+          "justification": {
+            "type": "array",
+            "items": {"type": "string"}
+          }
+        }
+      }
+    }
+  },
+
+  "tools": [
+    {
+      "name": "calculate_interest_rate",
+      "description": "Calculate risk-adjusted interest rate",
+      "required_params": ["loan_amount_algos", "duration_days", "borrower_risk_score"],
+      "optional_params": ["market_base_rate", "collateral_ratio"],
+      "output_type": "object"
+    },
+    {
+      "name": "assess_loan_risk",
+      "description": "Comprehensive loan risk assessment",
+      "required_params": ["borrower_address", "loan_amount_algos", "borrower_balance_algos"],
+      "optional_params": ["transaction_history", "requested_duration_days"],
+      "output_type": "object"
+    },
+    {
+      "name": "calculate_collateral_requirement",
+      "description": "Calculate required collateral based on risk",
+      "required_params": ["loan_amount_algos", "borrower_risk_score"],
+      "optional_params": ["collateral_type", "market_volatility"],
+      "output_type": "object"
+    },
+    {
+      "name": "generate_counter_proposal",
+      "description": "Generate AI-powered counter proposal",
+      "required_params": ["original_request", "risk_assessment"],
+      "optional_params": ["market_conditions"],
+      "output_type": "object"
+    }
+  ],
+
+  "business_rules": {
+    "interest_rate_bounds": {
+      "minimum": 3.0,
+      "maximum": 25.0,
+      "description": "Acceptable interest rate range"
+    },
+    "collateral_ratios": {
+      "ALGO": {"min": 1.1, "standard": 1.3, "high_risk": 1.5},
+      "USDC": {"min": 1.05, "standard": 1.15, "high_risk": 1.3},
+      "OTHER": {"min": 1.3, "standard": 1.5, "high_risk": 2.0}
+    },
+    "risk_thresholds": {
+      "approve_threshold": 75,
+      "negotiate_threshold": 50,
+      "decline_threshold": 30
+    },
+    "loan_limits": {
+      "minimum_loan": 0.1,
+      "maximum_loan": 100000,
+      "maximum_duration_days": 365
+    }
+  },
+
+  "ai_prompt_configuration": {
+    "system_prompt": "You are a professional loan negotiation agent specializing in Algorand DeFi lending. Your role is to analyze loan requests, assess risk, and negotiate optimal terms that are fair to both borrowers and lenders while maintaining sound lending practices.",
+    "negotiation_style": "professional_balanced",
+    "risk_tolerance": "moderate",
+    "decision_factors": [
+      "borrower_creditworthiness",
+      "market_conditions",
+      "collateral_strength",
+      "loan_duration",
+      "amount_size"
+    ]
+  },
+
+  "performance_metrics": {
+    "target_response_time_ms": 2000,
+    "accuracy_threshold": 0.95,
+    "approval_rate_target": 0.65,
+    "risk_prediction_accuracy": 0.90
+  }
+}

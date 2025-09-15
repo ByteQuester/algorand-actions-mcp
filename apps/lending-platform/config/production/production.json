@@ -1,0 +1,51 @@
+{
+  "lending": {
+    "max_loan_amount": 100000000000,
+    "default_interest_rate": 8.0,
+    "strict_validation": true
+  },
+  "mcp_services": {
+    "algorand_reader": {
+      "endpoint": "${ALGORAND_READER_ENDPOINT}",
+      "timeout": 60000
+    },
+    "algorand_writer": {
+      "endpoint": "${ALGORAND_WRITER_ENDPOINT}",
+      "timeout": 60000
+    },
+    "lending_toolbox": {
+      "endpoint": "${LENDING_TOOLBOX_ENDPOINT}",
+      "timeout": 60000
+    }
+  },
+  "agents": {
+    "model": "${GOOGLE_MODEL_NAME:gemini-2.0-flash-exp}",
+    "timeout": 120000,
+    "max_retries": 5
+  },
+  "logging": {
+    "level": "${LOG_LEVEL:INFO}",
+    "console": false,
+    "file": true,
+    "structured": true,
+    "include_debug_info": false
+  },
+  "monitoring": {
+    "health_check_interval": 60,
+    "metrics_enabled": true,
+    "performance_tracking": true,
+    "debug_mode": false
+  },
+  "database": {
+    "type": "${DATABASE_TYPE:postgresql}",
+    "url": "${DATABASE_URL}",
+    "pool_size": 20,
+    "max_overflow": 30
+  },
+  "security": {
+    "jwt_secret": "${JWT_SECRET}",
+    "token_expiry": 3600,
+    "rate_limiting": true,
+    "cors_enabled": true
+  }
+}

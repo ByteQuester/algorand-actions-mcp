@@ -1,0 +1,220 @@
+# Agent-to-MCP Service Mapping
+# Clear documentation of which agent uses which MCP service
+# Last Updated: 2025-09-14
+
+metadata:
+  version: "1.0.0"
+  description: "Comprehensive mapping of lending agents to MCP services"
+  author: "Agent 2 - Lending API Team"
+  purpose: "Eliminate confusion about service dependencies"
+
+# MCP Services (renamed for clarity)
+mcp_services:
+  algorand-reader-mcp:
+    old_name: "algorand-remote-mcp"
+    port: 8002
+    purpose: "READ-ONLY blockchain operations"
+    capabilities: ["account_queries", "transaction_history", "balance_checks", "market_data"]
+    endpoints:
+      - "GET /accounts/{address}/balance"
+      - "GET /accounts/{address}/transactions"
+      - "GET /accounts/{address}/assets"
+      - "GET /accounts/search"
+      - "GET /transactions/{txid}"
+      - "GET /liquidity/pools"
+      - "GET /market/depth"
+
+  algorand-writer-mcp:
+    old_name: "algorand-actions-mcp"
+    port: 3001
+    purpose: "WRITE blockchain transactions"
+    capabilities: ["transaction_creation", "transaction_submission", "smart_contracts", "escrow_management"]
+    endpoints:
+      - "POST /transactions/create"
+      - "POST /transactions/submit"
+      - "POST /transactions/group"
+      - "POST /escrow/deploy"
+      - "POST /contracts/deploy"
+
+  loan-calculator-mcp:
+    port: null  # Future service
+    purpose: "CALCULATE loan terms and risk"
+    capabilities: ["interest_calculation", "risk_assessment", "collateral_evaluation"]
+    status: "planned"
+
+# Agent Dependencies (crystal clear!)
+agent_dependencies:
+
+  negotiation-agent:
+    primary_function: "Negotiate loan terms between lender and borrower"
+    mcp_services_used:
+      algorand-reader-mcp:
+        purpose: "Validate participants and assess creditworthiness"
+        endpoints_used:
+          - "GET /accounts/{borrower}/balance"        # Check borrower has collateral
+          - "GET /accounts/{lender}/balance"          # Check lender has funds
+          - "GET /accounts/{borrower}/transactions"   # Assess borrower history
+          - "GET /accounts/{lender}/transactions"     # Assess lender reputation
+        data_flow: "Read → Risk Assessment → Term Calculation"
+
+      loan-calculator-mcp:
+        purpose: "Calculate competitive interest rates"
+        endpoints_used:
+          - "POST /calculate/interest-rate"
+          - "POST /assess/risk-score"
+        fallback: "Built-in interest rate calculation if MCP unavailable"
+        required: false
+
+    workflow_example:
+      1: "Read borrower balance via algorand-reader-mcp"
+      2: "Read lender balance via algorand-reader-mcp"
+      3: "Calculate risk score using transaction history"
+      4: "Determine interest rate (internal logic or loan-calculator-mcp)"
+      5: "Execute multi-round negotiation"
+      6: "Return agreed terms"
+
+  liquidity-agent:
+    primary_function: "Find and match lenders with borrowers"
+    mcp_services_used:
+      algorand-reader-mcp:
+        purpose: "Discover available liquidity and assess lender quality"
+        endpoints_used:
+          - "GET /accounts/search"                    # Find accounts with sufficient ALGO
+          - "GET /accounts/{address}/balance"         # Check potential lender balances
+          - "GET /accounts/{address}/transactions"    # Analyze lender lending history
+          - "GET /liquidity/pools"                    # Check institutional liquidity
+          - "GET /market/depth"                       # Assess market conditions
+        data_flow: "Search → Filter → Rank → Recommend"
+
+      reputation-mcp:
+        purpose: "Access lender reputation scores"
+        endpoints_used:
+          - "GET /lenders/{address}/reputation"
+          - "GET /lenders/{address}/history"
+        fallback: "On-chain transaction analysis for reputation proxy"
+        required: false
+
+    workflow_example:
+      1: "Search for accounts with balance > loan_amount via algorand-reader-mcp"
+      2: "Filter candidates by transaction history and patterns"
+      3: "Query reputation scores (if reputation-mcp available)"
+      4: "Rank lenders by suitability score"
+      5: "Return top matches with recommendations"
+
+  execution-agent:
+    primary_function: "Execute agreed loan terms on blockchain"
+    mcp_services_used:
+      algorand-writer-mcp:
+        purpose: "Create and submit loan execution transactions"
+        endpoints_used:
+          - "POST /transactions/create"               # Create collateral deposit txn
+          - "POST /transactions/group"                # Group loan transactions atomically
+          - "POST /transactions/submit"               # Submit signed transaction group
+          - "POST /escrow/deploy"                     # Deploy escrow smart contract
+        data_flow: "Terms → Transactions → Blockchain"
+        required: true
+
+      algorand-reader-mcp:
+        purpose: "Monitor transaction confirmation and verify settlement"
+        endpoints_used:
+          - "GET /transactions/{txid}/status"         # Check transaction status
+          - "GET /transactions/{txid}/confirmation"   # Wait for confirmation
+          - "GET /accounts/{address}/balance"         # Verify balance changes
+        data_flow: "Submit → Monitor → Confirm → Verify"
+        required: true
+
+      smart-contract-mcp:
+        purpose: "Manage escrow smart contracts"
+        endpoints_used:
+          - "POST /contracts/deploy"
+          - "POST /contracts/call"
+          - "GET /contracts/{id}/state"
+        fallback: "Simple payment transactions without smart contract escrow"
+        required: false
+
+    workflow_example:
+      1: "Validate signatures and terms"
+      2: "Deploy escrow contract via smart-contract-mcp (optional)"
+      3: "Create atomic transaction group via algorand-writer-mcp"
+      4: "Submit signed transactions via algorand-writer-mcp"
+      5: "Monitor confirmation via algorand-reader-mcp"
+      6: "Verify settlement via algorand-reader-mcp"
+
+# Service Interaction Patterns
+interaction_patterns:
+  read_then_write:
+    description: "Most common pattern - read data, make decisions, write transactions"
+    agents: ["negotiation-agent", "liquidity-agent", "execution-agent"]
+    flow: "algorand-reader-mcp → business_logic → algorand-writer-mcp"
+
+  read_only:
+    description: "Pure data analysis without blockchain writes"
+    agents: ["liquidity-agent (discovery phase)", "negotiation-agent (validation phase)"]
+    flow: "algorand-reader-mcp → analysis → results"
+
+  write_with_monitoring:
+    description: "Write transactions then monitor for confirmation"
+    agents: ["execution-agent"]
+    flow: "algorand-writer-mcp → algorand-reader-mcp (monitoring)"
+
+# Error Handling and Fallbacks
+error_handling:
+  algorand-reader-mcp_down:
+    impact: "All agents degraded functionality"
+    fallback_strategies:
+      - "Use cached account data"
+      - "Fall back to user-provided balance information"
+      - "Reduce validation requirements temporarily"
+
+  algorand-writer-mcp_down:
+    impact: "execution-agent cannot function"
+    fallback_strategies:
+      - "Queue transactions for later execution"
+      - "Generate unsigned transactions for manual signing"
+      - "Notify users of service interruption"
+
+  optional_services_down:
+    impact: "Reduced functionality but core features work"
+    affected_services: ["loan-calculator-mcp", "reputation-mcp", "smart-contract-mcp"]
+    fallback_strategies:
+      - "Use built-in calculation logic"
+      - "Simple payment transactions instead of escrow"
+
+# Performance Considerations
+performance_targets:
+  total_loan_processing_time: "< 10 seconds"
+  individual_agent_times:
+    negotiation-agent: "< 2 seconds"
+    liquidity-agent: "< 3 seconds"
+    execution-agent: "< 5 seconds (excluding blockchain confirmation)"
+
+  mcp_call_budgets:
+    algorand-reader-mcp: "up to 10 calls per loan"
+    algorand-writer-mcp: "1-3 calls per loan"
+    optional_services: "0-2 calls per loan"
+
+# Deployment Configuration
+deployment:
+  required_services:
+    - algorand-reader-mcp (port 8002)
+    - algorand-writer-mcp (port 3001)
+
+  optional_services:
+    - loan-calculator-mcp (future)
+    - reputation-mcp (future)
+    - smart-contract-mcp (future)
+
+  health_checks:
+    - "GET /health on each MCP service"
+    - "Test query to algorand-reader-mcp"
+    - "Verify algorand-writer-mcp can create test transaction"
+
+# Clear Summary for Anyone Reading This File
+summary:
+  purpose: "This file eliminates confusion about which agent uses which MCP service"
+  key_points:
+    1: "negotiation-agent READS blockchain data to assess and calculate terms"
+    2: "liquidity-agent READS blockchain data to find and rank lenders"
+    3: "execution-agent WRITES to blockchain to execute agreed loan terms"
+    4: "All agents can gracefully handle MCP service outages with fallbacks"
+    5: "algorand-reader-mcp and algorand-writer-mcp are the ONLY required services"

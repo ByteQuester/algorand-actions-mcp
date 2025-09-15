@@ -8,54 +8,100 @@ This lending platform provides clean, vendorable business logic and a production
 
 ## Architecture
 
+**🚀 REORGANIZED FOR PRODUCTION** - The platform has been restructured for production readiness while maintaining full development functionality. See [PRODUCTION.md](PRODUCTION.md) for detailed deployment guide.
+
 ```
-apps/lending-platform/
-├── lending-core/       # Pure business logic (vendorable)
-├── lending-api/        # FastAPI server (production-ready)
-└── lending-agents/     # Agent schema definitions
+lending-platform/
+├── src/                    # Production source code
+│   ├── agents/            # ADK agents and core logic
+│   │   ├── coordination/  # Master coordination agent
+│   │   ├── negotiation/   # Term negotiation agent
+│   │   ├── liquidity/     # Liquidity discovery agent
+│   │   ├── execution/     # Transaction execution agent
+│   │   ├── schemas/       # JSON schemas and validation
+│   │   └── manifest.json  # Agent manifest
+│   ├── core/              # Platform core modules
+│   │   ├── lending_platform/  # Original platform code
+│   │   ├── config.py      # Configuration management
+│   │   └── logging_config.py  # Structured logging
+│   └── ui/                # UI components and overlays
+├── scripts/               # Organized development tools
+│   ├── dev/              # Development utilities
+│   ├── test/             # Testing and validation
+│   ├── demo/             # Demonstrations and examples
+│   └── deployment/       # Production deployment
+├── config/                # Environment configurations
+│   ├── default.json      # Base configuration
+│   ├── development/      # Development settings
+│   └── production/       # Production settings
+├── tests/                 # Organized test suites
+├── docs/                  # Documentation
+└── .env.example           # Environment template
 ```
 
 ### Core Components
 
-#### 1. Lending Core (`lending-core/`)
+#### 1. Production Source Code (`src/`)
 
-Pure business logic without external dependencies, suitable for vendoring:
+**Agents** (`src/agents/`):
+- **Coordination Agent** - Master workflow orchestration with Gemini 2.0
+- **Negotiation Agent** - AI-powered term negotiation and risk assessment
+- **Liquidity Agent** - Intelligent lender discovery and matching
+- **Execution Agent** - Blockchain transaction coordination
+- **Schemas** - Professional JSON schemas with validation
 
-- **`models.py`** - Core data models and enums
-- **`workflow.py`** - Main lending workflow orchestration
-- **`error_handling.py`** - Comprehensive error management
-- **`api_models.py`** - API contract models with validation
-- **`blockchain.py`** - Blockchain transaction logic
-- **`__init__.py`** - Clean exports for library usage
+**Core Platform** (`src/core/`):
+- **Configuration System** - Environment-based configuration management
+- **Logging System** - Structured logging with business event tracking
+- **Original Platform** - Preserved lending platform logic
 
-#### 2. Lending API (`lending-api/`)
+**UI Integration** (`src/ui/`):
+- **ADK Web UI** - Production-ready web interface components
 
-Production-ready FastAPI server:
+#### 2. Development & Operations (`scripts/`)
 
-- **`server.py`** - Main FastAPI application
-- **`auth.py`** - Authentication and authorization
-- **`storage.py`** - Data storage abstraction
-- **`requirements.txt`** - Python dependencies
+**Development Tools** (`scripts/dev/`):
+- Debug utilities for agent troubleshooting
+- MCP toolbox integration for development
 
-#### 3. Lending Agents (`lending-agents/`)
+**Testing Suite** (`scripts/test/`):
+- Comprehensive integration tests
+- Agent validation scripts
+- MCP connectivity testing
 
-Agent schema definitions for MCP integration:
+**Demonstrations** (`scripts/demo/`):
+- Standalone demos for quick testing
+- ADK pattern examples
+- Reference implementations
 
-- **`liquidity-agent/`** - Liquidity discovery and management
-- **`negotiation-agent/`** - Term negotiation logic
-- **`execution-agent/`** - Transaction execution handling
+**Production Deployment** (`scripts/deployment/`):
+- Automated build system with Docker
+- Production startup scripts
+- Health check utilities
+
+#### 3. Configuration Management (`config/`)
+
+**Environment-Based Configuration**:
+- **Base Settings** - Common defaults and fallbacks
+- **Development** - Debug settings, local endpoints
+- **Production** - Secure settings, production endpoints
+
+**Features**:
+- Environment variable overrides
+- Validation and type checking
+- Production security settings
 
 ## Features
 
 ### Core Features
 
-✅ **Clean Architecture** - Separation of concerns between business logic and API layers
-✅ **Production Ready** - Comprehensive error handling, logging, and monitoring
-✅ **Vendorable Core** - Business logic can be used as a standalone library
-✅ **API-First Design** - RESTful API with OpenAPI/Swagger documentation
-✅ **Authentication** - JWT-based auth with ADK-Web integration
-✅ **Blockchain Integration** - Native Algorand transaction handling
-✅ **Agent Integration** - MCP-compatible agent schemas
+✅ **Production-Ready Architecture** - Organized structure with clear separation of concerns
+✅ **Environment-Based Configuration** - Development and production configurations
+✅ **Structured Logging** - Business event tracking and performance monitoring
+✅ **Automated Build System** - Docker-based production deployment
+✅ **ADK Agent Integration** - Google ADK with Gemini 2.0 and specialized agents
+✅ **MCP Services Integration** - Real blockchain data and transaction execution
+✅ **Development Tools** - Comprehensive testing, debugging, and demo scripts
 
 ### Lending Operations
 
@@ -76,25 +122,58 @@ Agent schema definitions for MCP integration:
 
 ## Quick Start
 
-### 1. Environment Setup
+### 🚀 Production Deployment
+
+For production deployment, see [PRODUCTION.md](PRODUCTION.md) for the complete guide.
 
 ```bash
-cd apps/lending-platform/lending-api
-pip install -r requirements.txt
+# Build production distribution
+cd scripts/deployment
+python build.py
+
+# Deploy with Docker
+cd build/
+docker-compose -f docker-compose.production.yml up -d
 ```
 
-### 2. Configuration
+### 🛠️ Development Setup
 
-Set environment variables:
+#### 1. Environment Setup
 
 ```bash
-export JWT_SECRET_KEY="your-secret-key"
-export ADK_WEB_BASE_URL="http://localhost:8000"
-export LOAN_DATA_DIR="./data"
-export PORT=8003
+# Set up Python environment
+export PYTHONPATH="${PYTHONPATH}:$(pwd)/src"
+pip install -r src/agents/requirements.txt
 ```
 
-### 3. Start the API Server
+#### 2. Configuration
+
+```bash
+# Copy development environment template
+cp config/development/.env.development.template .env.development
+
+# Edit with your development values
+export GOOGLE_API_KEY="your-google-api-key"
+export NODE_ENV=development
+```
+
+#### 3. Run Development Scripts
+
+```bash
+# Try a simple demo
+cd scripts/demo
+python standalone_demo.py
+
+# Run comprehensive tests
+cd scripts/test
+python final_comprehensive_test.py
+
+# Debug agents
+cd scripts/dev
+python debug_agent_errors.py
+```
+
+### 🎯 ADK Web Integration
 
 ```bash
 cd apps/lending-platform/lending-api
