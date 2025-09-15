@@ -19,7 +19,11 @@
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "dev": "tsc --watch",
+    "test": "node scripts/examples/test-response-processor.js",
+    "setup-dev": "echo 'MCP Core package - development utilities available in scripts/'",
+    "validate": "npm run type-check"
   },
   "dependencies": {
     "@algorand-showcase/types": "workspace:*",

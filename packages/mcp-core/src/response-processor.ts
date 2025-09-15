@@ -2,12 +2,27 @@
  * Response processor for consistent MCP response formatting and pagination
  * Extracted from algorand-remote-mcp ResponseProcessor
  */
-import type { 
-  MCPToolResult, 
-  MCPToolContent, 
+import type {
+  MCPToolResult,
+  MCPToolContent,
   MCPPaginationMetadata,
-  MCPPaginatedResponse 
+  MCPPaginatedResponse
 } from '@algorand-showcase/types';
+
+// Production-safe logging interface
+interface Logger {
+  debug(message: string, data?: any): void;
+  info(message: string, data?: any): void;
+}
+
+// Null logger for production
+const nullLogger: Logger = {
+  debug: () => {},
+  info: () => {}
+};
+
+// Default logger that can be replaced for development/testing
+let logger: Logger = nullLogger;
 
 /**
  * Response processor for MCP tools with pagination support
@@ -16,11 +31,25 @@ export class ResponseProcessor {
   private static itemsPerPage = 10;
 
   /**
+   * Set logger for development/debugging
+   */
+  static setLogger(newLogger: Logger): void {
+    logger = newLogger;
+  }
+
+  /**
+   * Reset to null logger (production mode)
+   */
+  static resetLogger(): void {
+    logger = nullLogger;
+  }
+
+  /**
    * Set the pagination size
    */
   static setItemsPerPage(itemsPerPage: number): void {
     this.itemsPerPage = itemsPerPage;
-    console.log('[ResponseProcessor] Set items per page:', itemsPerPage);
+    logger.debug('Set items per page', { itemsPerPage });
   }
 
   /**
@@ -28,7 +57,7 @@ export class ResponseProcessor {
    */
   private static generateNextPageToken(page: number): string {
     const token = btoa(`page_${page}`);
-    console.log('[Pagination] Generated token:', { page, token });
+    logger.debug('Generated pagination token', { page, token });
     return token;
   }
 
@@ -36,15 +65,15 @@ export class ResponseProcessor {
    * Decode a page token to get the page number
    */
   private static decodePageToken(token: string): number {
-    console.log('[Pagination] Decoding token:', token);
+    logger.debug('Decoding pagination token', { token });
     try {
       const decoded = atob(token);
-      console.log('[Pagination] Decoded token string:', decoded);
+      logger.debug('Decoded token string', { decoded });
       const page = parseInt(decoded.replace('page_', ''));
-      console.log('[Pagination] Parsed page number:', page);
+      logger.debug('Parsed page number', { page });
       return isNaN(page) ? 1 : page;
     } catch (error) {
-      console.log('[Pagination] Error decoding token:', error);
+      logger.debug('Error decoding token', { error });
       return 1;
     }
   }
@@ -54,10 +83,10 @@ export class ResponseProcessor {
    */
   private static shouldPaginateArray(array: any[]): boolean {
     const should = array.length > this.itemsPerPage;
-    console.log('[Pagination] Should paginate array?', { 
-      arrayLength: array.length, 
+    logger.debug('Should paginate array?', {
+      arrayLength: array.length,
       itemsPerPage: this.itemsPerPage,
-      shouldPaginate: should 
+      shouldPaginate: should
     });
     return should;
   }
@@ -69,22 +98,22 @@ export class ResponseProcessor {
     array: T[],
     pageToken?: string
   ): { items: T[]; metadata: MCPPaginationMetadata } {
-    console.log('[Pagination] Starting array pagination', { 
+    logger.debug('Starting array pagination', {
       arrayLength: array.length,
-      pageToken 
+      pageToken
     });
     const totalItems = array.length;
     const totalPages = Math.ceil(totalItems / this.itemsPerPage);
     const currentPage = pageToken ? this.decodePageToken(pageToken) : 1;
-    
-    console.log('[Pagination] Array pagination state:', { totalItems, totalPages, currentPage });
-    
+
+    logger.debug('Array pagination state', { totalItems, totalPages, currentPage });
+
     const startIndex = (currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
     const hasNextPage = endIndex < totalItems;
 
     const paginatedItems = array.slice(startIndex, endIndex);
-    console.log('[Pagination] Array pagination result:', {
+    logger.debug('Array pagination result', {
       startIndex,
       endIndex,
       hasNextPage,
@@ -121,7 +150,7 @@ export class ResponseProcessor {
    * Process a response with consistent formatting and pagination
    */
   static processResponse(response: any, pageToken?: string): MCPToolResult {
-    console.log('[ResponseProcessor] Processing response', { 
+    logger.debug('Processing response', {
       type: Array.isArray(response) ? 'array' : typeof response,
       pageToken
     });
@@ -137,7 +166,7 @@ export class ResponseProcessor {
           data: items,
           metadata
         };
-        console.log('[ResponseProcessor] Array response result:', {
+        logger.debug('Array response result', {
           itemsCount: items.length,
           metadata
         });
@@ -160,15 +189,15 @@ export class ResponseProcessor {
   
     // Handle object responses with array values
     if (typeof response === 'object' && response !== null) {
-      console.log('[ResponseProcessor] Processing object response');
+      logger.debug('Processing object response');
       // Create a deep copy to avoid modifying the original object
       const processed = JSON.parse(JSON.stringify(response));
       let paginatedField: string | undefined;
       let paginationMetadata: MCPPaginationMetadata | undefined;
-      
+
       // Process each property of the object
       for (const key in processed) {
-        console.log('[ResponseProcessor] Processing field:', key);
+        logger.debug('Processing field', { key });
         if (Array.isArray(processed[key]) && !this.shouldSkipPagination(processed, key)) {
           if (this.shouldPaginateArray(processed[key])) {
             const result = this.paginateArray(processed[key], pageToken);
@@ -190,7 +219,7 @@ export class ResponseProcessor {
             arrayField: paginatedField
           }
         };
-        console.log('[ResponseProcessor] Object response result with pagination:', {
+        logger.debug('Object response result with pagination', {
           paginatedField,
           metadata: paginationMetadata
         });
@@ -206,7 +235,7 @@ export class ResponseProcessor {
       const wrappedResponse = {
         data: processed
       };
-      console.log('[ResponseProcessor] Object response result without pagination');
+      logger.debug('Object response result without pagination');
       return {
         content: [{
           type: 'text',
@@ -219,7 +248,7 @@ export class ResponseProcessor {
     const wrappedResponse = {
       data: response
     };
-    console.log('[ResponseProcessor] Simple value response');
+    logger.debug('Simple value response');
     return {
       content: [{
         type: 'text',

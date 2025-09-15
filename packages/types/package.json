@@ -19,7 +19,10 @@
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "dev": "tsc --watch",
+    "setup-dev": "echo 'Types package - no additional dev setup required'",
+    "validate": "npm run type-check"
   },
   "peerDependencies": {
     "buffer": "*"

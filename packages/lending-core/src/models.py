@@ -125,7 +125,28 @@ class AccountBalance:
 @dataclass
 class MCPServiceConfig:
     """Configuration for MCP services"""
-    reader_endpoint: str = "http://localhost:8002"
-    writer_endpoint: str = "http://localhost:3001"
+    reader_endpoint: str = ""  # Must be provided via environment or injection
+    writer_endpoint: str = ""  # Must be provided via environment or injection
     timeout_seconds: int = 30
     retry_count: int = 3
+
+    def __post_init__(self):
+        """Validate configuration after initialization"""
+        if not self.reader_endpoint:
+            raise ValueError("reader_endpoint must be provided")
+        if not self.writer_endpoint:
+            raise ValueError("writer_endpoint must be provided")
+
+    @classmethod
+    def from_environment(cls, env: dict = None) -> 'MCPServiceConfig':
+        """Create configuration from environment variables"""
+        import os
+        if env is None:
+            env = os.environ
+
+        return cls(
+            reader_endpoint=env.get("LENDING_READER_ENDPOINT", ""),
+            writer_endpoint=env.get("LENDING_WRITER_ENDPOINT", ""),
+            timeout_seconds=int(env.get("LENDING_TIMEOUT_SECONDS", "30")),
+            retry_count=int(env.get("LENDING_RETRY_COUNT", "3"))
+        )
