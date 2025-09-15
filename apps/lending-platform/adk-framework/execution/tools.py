@@ -20,7 +20,7 @@ def prepare_transaction_group(
     collateral_amount_algos: float,
     interest_rate_percent: float,
     duration_days: int,
-    loan_id: str = None
+    loan_id: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Prepare atomic transaction group for lending operation
@@ -148,8 +148,8 @@ def validate_execution_requirements(
     lender_address: str,
     loan_amount_algos: float,
     collateral_amount_algos: float,
-    borrower_balance_algos: float = None,
-    lender_balance_algos: float = None
+    borrower_balance_algos: Optional[float] = None,
+    lender_balance_algos: Optional[float] = None
 ) -> Dict[str, Any]:
     """
     Validate all requirements for successful loan execution

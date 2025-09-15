@@ -82,7 +82,7 @@ def create_demo_coordinator() -> MockAgent:
 
     return MockAgent(
         name="demo_lending_coordinator",
-        model="gemini-2.5-pro",
+        model="gemini-2.0-flash-exp",
         description="Demo master coordinator for lending operations",
         instruction="You are the master coordinator that orchestrates the complete lending workflow.",
         sub_agents=[negotiation_agent, liquidity_agent, execution_agent],
@@ -138,7 +138,7 @@ async def demo_individual_agents():
     }
 
     liquidity_result = await liquidity_agent.process(liquidity_input)
-    print(f"✅ Liquidity result: Found {liquidity_result['liquidity_analysis']['lenders_found']} lenders")
+    print(f"✅ Liquidity result: Found {liquidity_result['liquidity_analysis']['liquidity_analysis']['total_lenders_found']} lenders")
 
     # Test execution agent
     print("\nTesting Execution Agent...")
@@ -154,7 +154,7 @@ async def demo_individual_agents():
     }
 
     execution_result = await execution_agent.process(execution_input)
-    print(f"✅ Execution result: {execution_result['execution_plan']['transactions_prepared']} transactions prepared")
+    print(f"✅ Execution result: {execution_result['execution_plan']['execution_plan']['transactions_prepared']} transactions prepared")
 
 
 async def demo_coordination_workflow():

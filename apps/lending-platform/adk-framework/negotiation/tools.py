@@ -16,8 +16,8 @@ def calculate_interest_rate(
     loan_amount_algos: float,
     duration_days: int,
     borrower_risk_score: int,
-    market_base_rate: float = 7.5,
-    collateral_ratio: float = 1.3
+    market_base_rate: Optional[float] = None,
+    collateral_ratio: Optional[float] = None
 ) -> Dict[str, Any]:
     """
     Calculate appropriate interest rate based on loan parameters
@@ -32,8 +32,9 @@ def calculate_interest_rate(
     Returns:
         Dict with calculated interest rate and factors
     """
-    # Base rate adjustment
-    base_rate = market_base_rate
+    # Set defaults for optional parameters
+    base_rate = market_base_rate or 7.5
+    collateral_ratio = collateral_ratio or 1.3
 
     # Risk adjustment (higher risk = higher rate)
     if borrower_risk_score >= 80:
@@ -99,8 +100,8 @@ def calculate_interest_rate(
 def calculate_collateral_requirement(
     loan_amount_algos: float,
     borrower_risk_score: int,
-    collateral_type: str = "ALGO",
-    market_volatility: float = 0.15
+    collateral_type: Optional[str] = None,
+    market_volatility: Optional[float] = None
 ) -> Dict[str, Any]:
     """
     Calculate required collateral amount based on loan parameters
@@ -114,6 +115,10 @@ def calculate_collateral_requirement(
     Returns:
         Dict with collateral requirements
     """
+    # Set defaults for optional parameters
+    collateral_type = collateral_type or "ALGO"
+    market_volatility = market_volatility or 0.15
+
     # Base collateral ratios by type
     base_ratios = {
         "ALGO": 1.3,     # Native token, moderate volatility

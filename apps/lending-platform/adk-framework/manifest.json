@@ -10,7 +10,7 @@
     "lending_coordinator": {
       "name": "algorand_lending_coordinator",
       "description": "Master coordination agent for Algorand DeFi lending operations",
-      "model": "gemini-2.5-pro",
+      "model": "gemini-2.0-flash-exp",
       "type": "coordinator",
       "file": "coordination/agent.py",
       "manifest": "schemas/agents/lending_coordinator.json",

@@ -21,8 +21,8 @@ class MockAgent:
         model: str = "gemini-2.5-flash",
         description: str = "",
         instruction: str = "",
-        tools: List = None,
-        sub_agents: List = None,
+        tools: Optional[List] = None,
+        sub_agents: Optional[List] = None,
         output_key: str = "result"
     ):
         self.name = name
@@ -80,7 +80,7 @@ class MockAgent:
         """Simulate liquidity agent processing"""
         return {
             "liquidity_analysis": {
-                "lenders_found": 3,
+                "total_lenders_found": 3,
                 "total_capacity": 500.0,
                 "best_match": "AlgoCapital Partners",
                 "average_rate": 7.5

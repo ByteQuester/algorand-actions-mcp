@@ -140,7 +140,7 @@ GET  /api/analytics/lending
 ```json
 {
   "lending_coordinator": {
-    "model": "gemini-2.5-pro",
+    "model": "gemini-2.0-flash-exp",
     "timeout_seconds": 300,
     "max_concurrent_requests": 10
   },

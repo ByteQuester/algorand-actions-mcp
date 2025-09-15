@@ -63,7 +63,7 @@ class TransactionInfo:
 class MCPClient:
     """Production MCP client with error handling and retries"""
 
-    def __init__(self, config: MCPServiceConfig = None):
+    def __init__(self, config: Optional[MCPServiceConfig] = None):
         self.config = config or MCPServiceConfig()
         self._client = None
 
@@ -534,31 +534,31 @@ class MCPClient:
 
 
 # Convenience functions for ADK tool integration
-async def get_real_account_balance(address: str, config: MCPServiceConfig = None) -> Dict[str, Any]:
+async def get_real_account_balance(address: str, config: Optional[MCPServiceConfig] = None) -> Dict[str, Any]:
     """Get real account balance with full error handling"""
     async with MCPClient(config) as client:
         return await client.get_account_info(address)
 
 
-async def get_real_account_transactions(address: str, limit: int = 10, config: MCPServiceConfig = None) -> Dict[str, Any]:
+async def get_real_account_transactions(address: str, limit: int = 10, config: Optional[MCPServiceConfig] = None) -> Dict[str, Any]:
     """Get real account transactions with full error handling"""
     async with MCPClient(config) as client:
         return await client.get_transactions(address, limit)
 
 
-async def check_real_mcp_services(config: MCPServiceConfig = None) -> Dict[str, Any]:
+async def check_real_mcp_services(config: Optional[MCPServiceConfig] = None) -> Dict[str, Any]:
     """Check real MCP service health with full monitoring"""
     async with MCPClient(config) as client:
         return await client.check_service_health()
 
 
-async def prepare_real_transaction(transaction_params: Dict[str, Any], config: MCPServiceConfig = None) -> Dict[str, Any]:
+async def prepare_real_transaction(transaction_params: Dict[str, Any], config: Optional[MCPServiceConfig] = None) -> Dict[str, Any]:
     """Prepare real transaction with multiple endpoint attempts"""
     async with MCPClient(config) as client:
         return await client.prepare_transaction(transaction_params)
 
 
-async def submit_real_transaction(signed_transaction: Dict[str, Any], config: MCPServiceConfig = None) -> Dict[str, Any]:
+async def submit_real_transaction(signed_transaction: Dict[str, Any], config: Optional[MCPServiceConfig] = None) -> Dict[str, Any]:
     """Submit real transaction with full error handling"""
     async with MCPClient(config) as client:
         return await client.submit_transaction(signed_transaction)

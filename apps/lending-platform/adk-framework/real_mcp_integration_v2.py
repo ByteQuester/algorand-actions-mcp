@@ -52,7 +52,7 @@ class AccountInfo:
 class MCPClient:
     """Production MCP client with correct API endpoints"""
 
-    def __init__(self, config: MCPServiceConfig = None):
+    def __init__(self, config: Optional[MCPServiceConfig] = None):
         self.config = config or MCPServiceConfig()
         self.logger = logging.getLogger(f"{__name__}.MCPClient")
 
@@ -218,7 +218,7 @@ class MCPClient:
             raise Exception(f"MCP service unavailable: {str(e)}")
 
     async def build_payment_transaction(self, from_address: str, to_address: str,
-                                      microalgos: int, note: str = None) -> Dict[str, Any]:
+                                      microalgos: int, note: Optional[str] = None) -> Dict[str, Any]:
         """Build payment transaction using WORKING MCP Writer API"""
         try:
             # VERIFIED WORKING: POST /tools/build_payment
@@ -293,33 +293,33 @@ class MCPClient:
 
 
 # Factory function to create client
-async def create_mcp_client(config: MCPServiceConfig = None) -> MCPClient:
+async def create_mcp_client(config: Optional[MCPServiceConfig] = None) -> MCPClient:
     """Create and initialize MCP client"""
     return MCPClient(config or MCPServiceConfig())
 
 
 # Convenience functions with correct API calls
-async def get_real_account_info(address: str, config: MCPServiceConfig = None) -> Dict[str, Any]:
+async def get_real_account_info(address: str, config: Optional[MCPServiceConfig] = None) -> Dict[str, Any]:
     """Get real account info using correct MCP endpoints"""
     async with MCPClient(config) as client:
         return await client.get_account_info(address)
 
 
 async def get_real_account_transactions(address: str, limit: int = 10,
-                                       config: MCPServiceConfig = None) -> Dict[str, Any]:
+                                       config: Optional[MCPServiceConfig] = None) -> Dict[str, Any]:
     """Get real account transactions using correct MCP endpoints"""
     async with MCPClient(config) as client:
         return await client.get_transactions(address, limit)
 
 
 async def build_real_payment_transaction(from_address: str, to_address: str, microalgos: int,
-                                        note: str = None, config: MCPServiceConfig = None) -> Dict[str, Any]:
+                                        note: Optional[str] = None, config: Optional[MCPServiceConfig] = None) -> Dict[str, Any]:
     """Build real payment transaction using correct MCP endpoints"""
     async with MCPClient(config) as client:
         return await client.build_payment_transaction(from_address, to_address, microalgos, note)
 
 
-async def test_full_mcp_integration(config: MCPServiceConfig = None) -> Dict[str, Any]:
+async def test_full_mcp_integration(config: Optional[MCPServiceConfig] = None) -> Dict[str, Any]:
     """Comprehensive test of all MCP services with real blockchain data"""
     test_config = config or MCPServiceConfig()
 

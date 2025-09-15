@@ -11,13 +11,12 @@ Orchestrates the complete lending workflow using specialized sub-agents
 import os
 from typing import Dict, Any, Optional
 from google.adk.agents import Agent
-from google.adk.tools import FunctionTool
-from google.adk.tools.agent_tool import AgentTool
+# from google.adk.tools import FunctionTool  # Removed - using direct function references
 
 # Import sub-agents
-from ..negotiation.agent import negotiation_agent
-from ..liquidity.agent import liquidity_agent
-from ..execution.agent import execution_agent
+from negotiation.agent import negotiation_agent
+from liquidity.agent import liquidity_agent
+from execution.agent import execution_agent
 
 from .tools import (
     check_mcp_service_health,
@@ -27,7 +26,7 @@ from .tools import (
 )
 
 
-def create_lending_coordinator(model: str = "gemini-2.5-pro") -> Agent:
+def create_lending_coordinator(model: str = "gemini-2.0-flash-exp") -> Agent:
     """Create the main coordination agent"""
 
     return Agent(
@@ -86,13 +85,10 @@ def create_lending_coordinator(model: str = "gemini-2.5-pro") -> Agent:
             execution_agent
         ],
         tools=[
-            FunctionTool(check_mcp_service_health),
-            FunctionTool(get_borrower_data),
-            FunctionTool(get_lender_data),
-            FunctionTool(coordinate_lending_workflow),
-            AgentTool(agent=liquidity_agent),
-            AgentTool(agent=negotiation_agent),
-            AgentTool(agent=execution_agent)
+            check_mcp_service_health,
+            get_borrower_data,
+            get_lender_data,
+            coordinate_lending_workflow
         ],
         output_key="lending_workflow_result"
     )

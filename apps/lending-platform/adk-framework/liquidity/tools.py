@@ -149,8 +149,8 @@ def assess_borrower_creditworthiness(
     borrower_address: str,
     current_balance_algos: float,
     transaction_history: Dict[str, Any],
-    previous_loans: Dict[str, Any] = None,
-    loan_amount_algos: float = 0
+    previous_loans: Optional[Dict[str, Any]] = None,
+    loan_amount_algos: Optional[float] = None
 ) -> Dict[str, Any]:
     """
     Assess borrower's creditworthiness for lending decisions
@@ -170,8 +170,9 @@ def assess_borrower_creditworthiness(
     credit_factors = []
 
     # Balance assessment
-    if loan_amount_algos > 0:
-        balance_ratio = current_balance_algos / loan_amount_algos
+    loan_amount = loan_amount_algos or 0
+    if loan_amount > 0:
+        balance_ratio = current_balance_algos / loan_amount
 
         if balance_ratio >= 3.0:
             credit_score += 20
@@ -275,8 +276,8 @@ def assess_borrower_creditworthiness(
         "risk_category": risk_category,
         "credit_factors": credit_factors,
         "borrower_profile": {
-            "balance_strength": "STRONG" if current_balance_algos >= loan_amount_algos * 2 else
-                               "ADEQUATE" if current_balance_algos >= loan_amount_algos else "WEAK",
+            "balance_strength": "STRONG" if current_balance_algos >= loan_amount * 2 else
+                               "ADEQUATE" if current_balance_algos >= loan_amount else "WEAK" if loan_amount > 0 else "UNKNOWN",
             "transaction_activity": "HIGH" if tx_count >= 50 else "MEDIUM" if tx_count >= 20 else "LOW",
             "account_maturity": "MATURE" if tx_span_days >= 365 else "DEVELOPING" if tx_span_days >= 90 else "NEW"
         },
@@ -396,8 +397,8 @@ def calculate_liquidity_costs(
     loan_amount_algos: float,
     interest_rate_percent: float,
     duration_days: int,
-    platform_fee_percent: float = 0.5,
-    origination_fee_algos: float = 0.1
+    platform_fee_percent: Optional[float] = None,
+    origination_fee_algos: Optional[float] = None
 ) -> Dict[str, Any]:
     """
     Calculate comprehensive costs for accessing liquidity
@@ -412,6 +413,9 @@ def calculate_liquidity_costs(
     Returns:
         Dict with detailed cost breakdown
     """
+    # Set defaults for optional parameters
+    platform_fee_percent = platform_fee_percent or 0.5
+    origination_fee_algos = origination_fee_algos or 0.1
 
     # Calculate interest cost
     daily_rate = interest_rate_percent / 100 / 365

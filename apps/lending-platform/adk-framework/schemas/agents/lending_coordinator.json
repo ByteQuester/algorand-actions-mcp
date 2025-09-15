@@ -7,7 +7,7 @@
   "agent_metadata": {
     "name": "algorand_lending_coordinator",
     "version": "1.0.0",
-    "model": "gemini-2.5-pro",
+    "model": "gemini-2.0-flash-exp",
     "agent_type": "coordinator",
     "created": "2025-09-14",
     "last_updated": "2025-09-14",

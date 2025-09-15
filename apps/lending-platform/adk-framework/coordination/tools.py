@@ -290,7 +290,7 @@ def get_lender_data(lender_address: str, check_lending_capacity: bool = True) ->
 def coordinate_lending_workflow(
     loan_request: Dict[str, Any],
     borrower_data: Dict[str, Any],
-    lender_data: Dict[str, Any] = None
+    lender_data: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
     Coordinate the complete lending workflow across all agents
