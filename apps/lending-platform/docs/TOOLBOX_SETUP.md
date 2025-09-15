@@ -34,11 +34,11 @@ pip install toolbox-core==0.1.0
 ### 2. Created Files ✅
 
 #### Database Schema
-- **File**: `/home/mpo/algorand-showcase/apps/lending-platform/adk-framework/lending_database.sql`
+- **File**: `/home/mpo/algorand-showcase/apps/lending-platform/config/development/lending_database.sql`
 - **Content**: Complete schema for loan_requests, lenders, and loans tables
 
 #### MCP Toolset Configuration
-- **File**: `/home/mpo/algorand-showcase/apps/lending-platform/adk-framework/lending_toolset.py`
+- **File**: `/home/mpo/algorand-showcase/apps/lending-platform/src/agents/lending_toolset.py`
 - **Pattern**: Exact copy of software-bug-assistant pattern with lending-specific naming
 ```python
 LENDING_TOOLBOX_URL = os.getenv("LENDING_TOOLBOX_URL", "http://127.0.0.1:5001")
@@ -47,11 +47,11 @@ lending_tools = toolbox.load_toolset("lending_toolset")
 ```
 
 #### Main Tools Configuration
-- **File**: `/home/mpo/algorand-showcase/apps/lending-platform/adk-framework/tools.py`
+- **File**: `/home/mpo/algorand-showcase/apps/lending-platform/src/agents/tools.py`
 - **Pattern**: Following software-bug-assistant structure exactly
 
 #### Connection Test
-- **File**: `/home/mpo/algorand-showcase/apps/lending-platform/adk-framework/test_toolbox_connection.py`
+- **File**: `/home/mpo/algorand-showcase/apps/lending-platform/scripts/test/test_toolbox_connection.py`
 - **Status**: ✅ Client initializes correctly, awaiting service
 
 ## Next Steps

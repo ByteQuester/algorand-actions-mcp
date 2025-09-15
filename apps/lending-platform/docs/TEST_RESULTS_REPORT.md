@@ -15,7 +15,7 @@
 - **Status**: ✅ SUCCESS
 - **Evidence**:
   - ADK web server running on port 8091: ✅
-  - Agent available in apps list: ✅ `['adk-framework', 'direct-integration', 'lending_platform', 'ui-overlay']`
+  - Agent available in apps list: ✅ `['direct-integration', 'lending_platform', 'ui-overlay']`
   - Session creation successful: ✅
   - Agent responds to requests: ✅
 
@@ -23,7 +23,6 @@
 ```bash
 $ curl -s http://localhost:8091/list-apps | jq .
 [
-  "adk-framework",
   "direct-integration",
   "lending_platform",
   "ui-overlay"

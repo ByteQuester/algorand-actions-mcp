@@ -19,7 +19,7 @@ The `create_lending_coordinator()` function in `coordination/agent.py` was confi
 2. Same agents redundantly wrapped in `AgentTool` instances in the `tools` list (lines 93-95)
 
 **Solution Applied:**
-- **File:** `/home/mpo/algorand-showcase/apps/lending-platform/adk-framework/coordination/agent.py`
+- **File:** `/home/mpo/algorand-showcase/apps/lending-platform/src/agents/coordination/agent.py`
 - **Fix:** Removed redundant `AgentTool` wrappers from tools list (lines 93-95)
 - **Fix:** Removed unnecessary `AgentTool` import (line 15)
 - **Kept:** Proper sub-agent configuration in `sub_agents` parameter

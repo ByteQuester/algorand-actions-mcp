@@ -288,12 +288,13 @@ The build script creates a production-ready distribution:
 ### File Mapping
 ```
 Original Location                    → New Location
-adk-framework/coordination/         → src/agents/coordination/
-adk-framework/debug_*.py           → scripts/dev/
-adk-framework/test_*.py            → scripts/test/
-adk-framework/demo_*.py            → scripts/demo/
-adk-framework/schemas/             → src/agents/schemas/
-adk-framework/*.md                 → docs/
+Original adk-framework/            → Removed (duplicated)
+adk-framework/coordination/        → src/agents/coordination/
+adk-framework/debug_*.py          → scripts/dev/
+adk-framework/test_*.py           → scripts/test/
+adk-framework/demo_*.py           → scripts/demo/
+adk-framework/schemas/            → src/agents/schemas/
+adk-framework/*.md                → docs/
 ```
 
 ## 🎯 Environment Variables

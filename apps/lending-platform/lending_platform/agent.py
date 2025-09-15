@@ -11,8 +11,8 @@ ADK-compliant agent structure for web interface integration
 import sys
 import os
 
-# Add the adk-framework directory to Python path to import existing agents
-framework_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'adk-framework')
+# Add the src/agents directory to Python path to import existing agents
+framework_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'src', 'agents')
 sys.path.insert(0, framework_path)
 
 try:
@@ -25,7 +25,7 @@ except ImportError as e:
     # Fallback: Create a simple agent if import fails
     from google.adk.agents import Agent
 
-    # Add the negotiation tools from adk-framework
+    # Add the negotiation tools from src/agents
     sys.path.insert(0, os.path.join(framework_path, 'negotiation'))
     try:
         from tools import (

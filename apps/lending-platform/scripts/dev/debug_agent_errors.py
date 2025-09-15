@@ -17,7 +17,7 @@ def test_simple_agent_call(agent_name: str) -> dict:
     # Create session
     try:
         session_response = requests.post(
-            "http://localhost:8091/apps/adk-framework/users/debug_user/sessions",
+            "http://localhost:8091/apps/lending_platform/users/debug_user/sessions",
             json={"state": {"agent": agent_name}},
             timeout=10
         )
@@ -35,7 +35,7 @@ def test_simple_agent_call(agent_name: str) -> dict:
         simple_prompt = "Hello, what can you help me with?"
 
         request_data = {
-            "appName": "adk-framework",
+            "appName": "lending_platform",
             "userId": "debug_user",
             "sessionId": session_id,
             "newMessage": {

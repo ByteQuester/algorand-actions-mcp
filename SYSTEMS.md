@@ -20,7 +20,7 @@ The Algorand Showcase contains **two working AI lending systems**, each with dif
 - Test suite with real blockchain verification
 
 ## 🏗️ System 2: ADK Framework (Agent 8)
-**Location:** `apps/lending-platform/adk-framework/`
+**Location:** `apps/lending-platform/src/agents/`
 **Approach:** Google ADK (Agent Development Kit) professional framework
 **Status:** ✅ Production Ready
 

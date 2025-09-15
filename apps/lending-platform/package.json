@@ -10,7 +10,7 @@
     "dev": "python3 src/api/src/server.py",
     "test": "python3 -m pytest tests/ -v",
     "test:integration": "python3 tests/test_complete_lending_workflow.py",
-    "test:agents": "python3 tests/adk-framework/test_lending_agents_fixed.py",
+    "test:agents": "python3 scripts/test/validate_agents_comprehensive.py",
     "setup-dev": "pip3 install -r requirements.txt",
     "start": "python3 src/api/src/server.py"
   },

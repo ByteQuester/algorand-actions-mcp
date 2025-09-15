@@ -15,7 +15,7 @@ import uuid
 class ADKAgentValidator:
     def __init__(self, base_url: str = "http://localhost:8091"):
         self.base_url = base_url
-        self.app_name = "adk-framework"
+        self.app_name = "lending_platform"
         self.user_id = "test_user"
         self.session_id = None
 
