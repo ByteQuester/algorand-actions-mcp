@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: algorand-showcase
-  labels:
-    name: algorand-showcase
-    environment: production
