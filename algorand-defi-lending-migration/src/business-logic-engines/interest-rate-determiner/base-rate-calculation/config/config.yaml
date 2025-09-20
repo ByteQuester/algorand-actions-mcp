@@ -1,0 +1,320 @@
+# Base Rate Calculation Engine Configuration
+
+# MCP Service URLs for data retrieval
+mcp_services:
+  algorand_reader_url: "http://localhost:8002"
+  market_data_url: "http://localhost:8003"
+
+# Federal Reserve rate integration
+federal_reserve_rates:
+  # Federal funds rate (primary policy rate)
+  fed_funds_rate:
+    enabled: true
+    weight: 0.4
+    api_endpoint: "https://api.stlouisfed.org/fred/series/observations"
+    series_id: "FEDFUNDS"
+    update_frequency_hours: 24
+    fallback_rate: 0.05  # 5% fallback
+
+  # 10-Year Treasury rate (long-term risk-free rate)
+  treasury_10y:
+    enabled: true
+    weight: 0.3
+    api_endpoint: "https://api.stlouisfed.org/fred/series/observations"
+    series_id: "GS10"
+    update_frequency_hours: 24
+    fallback_rate: 0.04  # 4% fallback
+
+  # 3-Month Treasury bills (short-term risk-free rate)
+  treasury_3m:
+    enabled: true
+    weight: 0.2
+    api_endpoint: "https://api.stlouisfed.org/fred/series/observations"
+    series_id: "GS3M"
+    update_frequency_hours: 24
+    fallback_rate: 0.045  # 4.5% fallback
+
+  # SOFR (Secured Overnight Financing Rate)
+  sofr_rate:
+    enabled: true
+    weight: 0.1
+    api_endpoint: "https://api.stlouisfed.org/fred/series/observations"
+    series_id: "SOFR"
+    update_frequency_hours: 24
+    fallback_rate: 0.048  # 4.8% fallback
+
+# Algorand DeFi protocol rate aggregation
+algorand_defi_rates:
+  # Folks Finance lending/borrowing rates
+  folks_finance:
+    enabled: true
+    weight: 0.35
+    protocol_name: "Folks Finance"
+    api_endpoint: "https://api.folks.finance/rates"
+    supported_assets: ["ALGO", "USDC", "USDT", "goBTC", "goETH"]
+    rate_types:
+      lending: 0.8    # Weight for lending rates
+      borrowing: 0.2  # Weight for borrowing rates
+    fallback_rates:
+      ALGO: 0.06    # 6% APY
+      USDC: 0.04    # 4% APY
+      USDT: 0.04    # 4% APY
+      goBTC: 0.03   # 3% APY
+      goETH: 0.035  # 3.5% APY
+
+  # Algofi (historical data if available)
+  algofi:
+    enabled: false  # Deprecated but kept for historical analysis
+    weight: 0.15
+    protocol_name: "Algofi"
+    fallback_rates:
+      ALGO: 0.05
+      USDC: 0.035
+      USDT: 0.035
+
+  # Tinyman LP rewards and staking
+  tinyman:
+    enabled: true
+    weight: 0.25
+    protocol_name: "Tinyman"
+    api_endpoint: "https://api.tinyman.org/v1/pools"
+    rate_types:
+      lp_rewards: 0.6      # LP fee rewards
+      farming_rewards: 0.4  # Additional farming incentives
+    fallback_rates:
+      ALGO_USDC: 0.08   # 8% APY for ALGO/USDC LP
+      ALGO_USDT: 0.075  # 7.5% APY for ALGO/USDT LP
+      USDC_USDT: 0.03   # 3% APY for USDC/USDT LP
+
+  # Algorand native staking rewards
+  algorand_staking:
+    enabled: true
+    weight: 0.25
+    protocol_name: "Algorand Consensus"
+    base_participation_rewards: 0.055  # 5.5% base participation
+    governance_rewards: 0.02           # 2% governance rewards
+    total_staking_apy: 0.075          # 7.5% total expected
+    minimum_stake_algo: 1             # 1 ALGO minimum
+
+# Risk-free rate calculation parameters
+risk_free_rate:
+  # Base calculation method
+  calculation_method: "weighted_average"  # Options: weighted_average, median, min, max
+
+  # Weights for different rate sources
+  source_weights:
+    federal_reserve: 0.6    # 60% weight for Fed rates
+    algorand_staking: 0.3   # 30% weight for ALGO staking
+    defi_protocols: 0.1     # 10% weight for DeFi rates
+
+  # Adjustments and margins
+  adjustments:
+    liquidity_premium: 0.005   # 0.5% liquidity premium
+    credit_risk_margin: 0.01   # 1% credit risk margin
+    operational_margin: 0.005  # 0.5% operational margin
+    volatility_adjustment: 0.002  # 0.2% volatility adjustment
+
+# Term structure modeling for different loan durations
+term_structure:
+  # Base curve methodology
+  curve_model: "nelson_siegel"  # Options: nelson_siegel, cubic_spline, linear
+
+  # Term premiums by duration
+  term_premiums:
+    "1_day": 0.0      # 0% term premium for daily rates
+    "1_week": 0.001   # 0.1% term premium
+    "1_month": 0.005  # 0.5% term premium
+    "3_months": 0.01  # 1% term premium
+    "6_months": 0.015 # 1.5% term premium
+    "1_year": 0.02    # 2% term premium
+    "2_years": 0.025  # 2.5% term premium
+    "5_years": 0.03   # 3% term premium
+
+  # Yield curve interpolation points (in years)
+  interpolation_points: [0.003, 0.019, 0.083, 0.25, 0.5, 1, 2, 5, 10]
+
+  # Term structure adjustments
+  adjustments:
+    inverted_curve_penalty: 0.005  # 0.5% penalty for inverted curves
+    steep_curve_bonus: -0.002      # 0.2% reduction for steep curves
+
+# Rate source configuration and weights
+rate_sources:
+  # Primary data sources
+  primary_sources:
+    federal_reserve_api:
+      enabled: true
+      reliability_score: 0.95
+      max_staleness_hours: 48
+      retry_attempts: 3
+      timeout_seconds: 30
+
+    algorand_rpc:
+      enabled: true
+      reliability_score: 0.9
+      max_staleness_hours: 1
+      retry_attempts: 5
+      timeout_seconds: 10
+
+    defi_protocol_apis:
+      enabled: true
+      reliability_score: 0.85
+      max_staleness_hours: 6
+      retry_attempts: 3
+      timeout_seconds: 15
+
+  # Backup/fallback sources
+  fallback_sources:
+    static_rates:
+      enabled: true
+      use_when: "all_primary_failed"
+      rates:
+        base_rate: 0.05      # 5% base rate
+        risk_premium: 0.015  # 1.5% risk premium
+
+    cached_rates:
+      enabled: true
+      max_cache_age_hours: 24
+      use_when: "api_unavailable"
+
+# Market condition integration
+market_conditions:
+  # Volatility adjustments
+  volatility_adjustments:
+    low_volatility:     # VIX < 20
+      rate_adjustment: -0.005  # Reduce rates by 0.5%
+      confidence_boost: 0.1
+
+    normal_volatility:  # VIX 20-30
+      rate_adjustment: 0.0     # No adjustment
+      confidence_boost: 0.0
+
+    high_volatility:    # VIX > 30
+      rate_adjustment: 0.01    # Increase rates by 1%
+      confidence_boost: -0.1
+
+  # Credit spread adjustments
+  credit_spread_adjustments:
+    tight_spreads:      # Investment grade spreads < 150bps
+      rate_adjustment: -0.003  # Reduce rates by 0.3%
+
+    normal_spreads:     # Investment grade spreads 150-300bps
+      rate_adjustment: 0.0     # No adjustment
+
+    wide_spreads:       # Investment grade spreads > 300bps
+      rate_adjustment: 0.008   # Increase rates by 0.8%
+
+# Rate calculation parameters
+calculation_parameters:
+  # Update frequency
+  update_frequency_minutes: 15  # Update rates every 15 minutes
+
+  # Rate smoothing
+  smoothing:
+    enabled: true
+    method: "exponential_moving_average"  # Options: ema, sma, none
+    alpha: 0.3  # Smoothing factor for EMA
+    window: 12  # Window size for moving averages
+
+  # Rate bounds and limits
+  bounds:
+    minimum_rate: 0.001   # 0.1% absolute minimum
+    maximum_rate: 0.50    # 50% absolute maximum
+    max_daily_change: 0.02  # 2% maximum daily change
+    max_hourly_change: 0.005  # 0.5% maximum hourly change
+
+  # Confidence scoring
+  confidence_scoring:
+    data_freshness_weight: 0.3    # Weight for data freshness
+    source_reliability_weight: 0.4  # Weight for source reliability
+    rate_stability_weight: 0.3     # Weight for rate stability
+    minimum_confidence: 0.7        # Minimum confidence to use rate
+
+# Historical data and analysis
+historical_analysis:
+  # Data retention
+  retention_days: 365  # Keep 1 year of historical data
+
+  # Analysis parameters
+  trend_analysis:
+    enabled: true
+    lookback_days: 30     # 30-day trend analysis
+    trend_weight: 0.1     # 10% weight for trend adjustment
+
+  # Seasonal adjustments
+  seasonal_adjustments:
+    enabled: true
+    year_end_premium: 0.002    # 0.2% year-end premium
+    quarter_end_premium: 0.001  # 0.1% quarter-end premium
+
+# Alert and monitoring configuration
+alerts:
+  # Rate change alerts
+  rate_change_thresholds:
+    minor_change: 0.005   # 0.5% change triggers minor alert
+    major_change: 0.02    # 2% change triggers major alert
+    critical_change: 0.05  # 5% change triggers critical alert
+
+  # Data quality alerts
+  data_quality_thresholds:
+    stale_data_hours: 6      # Alert if data older than 6 hours
+    low_confidence: 0.6      # Alert if confidence below 60%
+    source_failure_count: 3   # Alert if 3+ sources fail
+
+# API and integration settings
+api_settings:
+  # Rate limiting
+  rate_limits:
+    federal_reserve_api: 120  # 120 requests per hour
+    defi_apis: 1000          # 1000 requests per hour
+    algorand_rpc: 10000      # 10000 requests per hour
+
+  # Caching
+  cache_settings:
+    redis_enabled: false
+    memory_cache_size_mb: 50
+    cache_ttl_minutes: 30
+
+# Development and testing
+development:
+  # Mock data for testing
+  mock_data_enabled: false
+
+  # Logging
+  log_level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  log_rate_calculations: true
+  log_api_calls: false
+
+  # Testing parameters
+  test_scenarios:
+    normal_market:
+      fed_funds_rate: 0.05
+      treasury_10y: 0.045
+      algo_staking_rate: 0.075
+      expected_base_rate_range: [0.045, 0.055]
+
+    crisis_market:
+      fed_funds_rate: 0.0
+      treasury_10y: 0.02
+      algo_staking_rate: 0.075
+      expected_base_rate_range: [0.02, 0.04]
+
+    high_rate_environment:
+      fed_funds_rate: 0.08
+      treasury_10y: 0.085
+      algo_staking_rate: 0.075
+      expected_base_rate_range: [0.075, 0.09]
+
+# Database configuration
+database:
+  default_path: "notebooks/base_rate_calculation.db"
+  max_history_limit: 10000
+  backup_enabled: true
+  backup_frequency_hours: 24
+
+# Analysis and reporting
+analysis:
+  default_confidence_score: 0.85
+  data_quality_score: 0.9
+  safety_buffer: 0.005  # 0.5% safety buffer
+  cache_expiry_minutes: 15

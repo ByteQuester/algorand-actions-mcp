@@ -1,0 +1,92 @@
+{
+  "services": {
+    "collateral_analyzer": {
+      "name": "collateral_analyzer",
+      "mode": "vendor",
+      "version": "1.0.0",
+      "description": "Collateral analysis and valuation service for loan approvals",
+      "import_path": "algorand_lending_bl.engines.collateral",
+      "class_name": "CollateralAnalyzer",
+      "health_check_interval": 30,
+      "timeout": 30,
+      "retry_attempts": 3,
+      "load_balancing_strategy": "round_robin",
+      "tags": ["lending", "collateral", "analysis", "critical"],
+      "metadata": {
+        "engine_type": "collateral",
+        "priority": "high",
+        "supported_collateral_types": ["ASA", "NFT", "ALGO", "LP_TOKEN"],
+        "max_concurrent_requests": 100
+      },
+      "created_at": "2024-01-01T00:00:00Z",
+      "last_updated": "2024-01-01T00:00:00Z"
+    },
+    "rate_calculator": {
+      "name": "rate_calculator",
+      "mode": "vendor",
+      "version": "1.0.0",
+      "description": "Interest rate calculation and pricing service",
+      "import_path": "algorand_lending_bl.engines.rates",
+      "class_name": "RateCalculator",
+      "health_check_interval": 30,
+      "timeout": 30,
+      "retry_attempts": 3,
+      "load_balancing_strategy": "response_time",
+      "tags": ["lending", "rates", "calculation", "pricing"],
+      "metadata": {
+        "engine_type": "rates",
+        "priority": "high",
+        "supported_rate_models": ["fixed", "variable", "dynamic"],
+        "max_concurrent_requests": 150
+      },
+      "created_at": "2024-01-01T00:00:00Z",
+      "last_updated": "2024-01-01T00:00:00Z"
+    },
+    "loan_evaluator": {
+      "name": "loan_evaluator",
+      "mode": "vendor",
+      "version": "1.0.0",
+      "description": "Comprehensive loan evaluation and approval decision service",
+      "import_path": "algorand_lending_bl.engines.evaluation",
+      "class_name": "LoanEvaluator",
+      "health_check_interval": 30,
+      "timeout": 45,
+      "retry_attempts": 3,
+      "load_balancing_strategy": "least_connections",
+      "tags": ["lending", "evaluation", "approval", "critical"],
+      "metadata": {
+        "engine_type": "evaluation",
+        "priority": "critical",
+        "evaluation_models": ["rules_based", "ml_assisted", "hybrid"],
+        "max_concurrent_requests": 75
+      },
+      "created_at": "2024-01-01T00:00:00Z",
+      "last_updated": "2024-01-01T00:00:00Z"
+    },
+    "risk_assessor": {
+      "name": "risk_assessor",
+      "mode": "vendor",
+      "version": "1.0.0",
+      "description": "Risk assessment and analysis service for loan applications",
+      "import_path": "algorand_lending_bl.engines.risk",
+      "class_name": "RiskAssessor",
+      "health_check_interval": 30,
+      "timeout": 30,
+      "retry_attempts": 3,
+      "load_balancing_strategy": "round_robin",
+      "tags": ["lending", "risk", "assessment", "analysis"],
+      "metadata": {
+        "engine_type": "risk",
+        "priority": "high",
+        "risk_models": ["traditional", "defi_enhanced", "blockchain_native"],
+        "max_concurrent_requests": 100
+      },
+      "created_at": "2024-01-01T00:00:00Z",
+      "last_updated": "2024-01-01T00:00:00Z"
+    }
+  },
+  "default_mode": "vendor",
+  "registry_file": "services.json",
+  "auto_discovery": true,
+  "health_monitoring": true
+}

@@ -1,0 +1,139 @@
+version: '3.8'
+
+services:
+  # Main application
+  defi-lending-app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      # Database
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/defi_core_db
+      - REDIS_URL=redis://redis:6379
+
+      # Algorand configuration
+      - ALGORAND_NETWORK=testnet
+      - ALGORAND_ALGOD=https://testnet-api.algonode.cloud
+      - ALGORAND_INDEXER=https://testnet-idx.algonode.cloud
+      - ALGORAND_TOKEN=
+
+      # Application settings
+      - NODE_ENV=development
+      - LOG_LEVEL=debug
+      - PORT=8080
+
+      # Security (use secure values in production)
+      - JWT_SECRET=dev-jwt-secret-change-in-production
+      - COOKIE_ENCRYPTION_KEY=dev-cookie-key-32-chars-long!!
+
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ../config:/app/config:ro
+    networks:
+      - defi-network
+
+  # PostgreSQL database
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=defi_core_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ../database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ../database/seed-data.sql:/docker-entrypoint-initdb.d/02-seed-data.sql:ro
+    networks:
+      - defi-network
+
+  # Redis cache
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - defi-network
+
+  # Optional: PostgreSQL admin interface
+  pgadmin:
+    image: dpage/pgadmin4:7
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@algorand-defi.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "8081:80"
+    depends_on:
+      - postgres
+    networks:
+      - defi-network
+    profiles:
+      - admin
+
+  # Optional: Redis admin interface
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8082:8081"
+    depends_on:
+      - redis
+    networks:
+      - defi-network
+    profiles:
+      - admin
+
+  # Monitoring with Prometheus (optional)
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - defi-network
+    profiles:
+      - monitoring
+
+  # Grafana for visualization (optional)
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - defi-network
+    profiles:
+      - monitoring
+
+volumes:
+  postgres_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  defi-network:
+    driver: bridge

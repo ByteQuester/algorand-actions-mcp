@@ -1,0 +1,233 @@
+# Governance Reputation Engine Configuration
+# Algorand governance & community participation analysis
+
+governance_scoring:
+  # Voting participation weights (total: 40%)
+  voting_participation:
+    weight: 0.15
+    min_participation_rate: 0.3
+    excellent_threshold: 0.8
+    consistency_bonus: 0.05
+
+  # Voting quality and engagement (total: 25%)
+  voting_quality:
+    weight: 0.12
+    proposal_analysis_depth: 0.08
+    debate_participation: 0.05
+    informed_decisions: 0.13
+
+  # Governance proposal activity (total: 20%)
+  proposal_activity:
+    weight: 0.10
+    submission_quality: 0.08
+    community_support: 0.07
+    implementation_success: 0.10
+
+  # Delegation patterns (total: 15%)
+  delegation_patterns:
+    weight: 0.08
+    stable_delegation: 0.05
+    informed_choice: 0.07
+
+community_engagement:
+  # Forum and social participation (total: 30%)
+  forum_participation:
+    weight: 0.15
+    post_quality: 0.10
+    helpful_responses: 0.08
+    moderation_activity: 0.05
+
+  # Development contributions (total: 25%)
+  development_contributions:
+    weight: 0.12
+    code_contributions: 0.10
+    bug_reports: 0.05
+    testing_participation: 0.08
+
+  # Community building (total: 25%)
+  community_building:
+    weight: 0.12
+    mentoring_activity: 0.08
+    educational_content: 0.10
+    event_participation: 0.05
+
+  # Ecosystem advocacy (total: 20%)
+  ecosystem_advocacy:
+    weight: 0.10
+    social_promotion: 0.05
+    cross_platform_engagement: 0.08
+    ambassador_activities: 0.07
+
+consensus_participation:
+  # Node operation (total: 40%)
+  node_operation:
+    weight: 0.20
+    uptime_consistency: 0.15
+    performance_metrics: 0.10
+    security_practices: 0.15
+
+  # Relay participation (total: 35%)
+  relay_participation:
+    weight: 0.18
+    relay_uptime: 0.12
+    bandwidth_contribution: 0.08
+    geographic_distribution: 0.05
+
+  # Network security contributions (total: 25%)
+  security_contributions:
+    weight: 0.12
+    vulnerability_reporting: 0.08
+    security_auditing: 0.10
+    incident_response: 0.05
+
+ecosystem_commitment:
+  # Long-term holding patterns (total: 35%)
+  holding_patterns:
+    weight: 0.18
+    algo_holding_duration: 0.12
+    holding_consistency: 0.08
+    accumulation_patterns: 0.10
+
+  # Protocol engagement (total: 30%)
+  protocol_engagement:
+    weight: 0.15
+    defi_participation: 0.10
+    nft_ecosystem: 0.08
+    dapp_usage: 0.12
+
+  # Investment diversification (total: 20%)
+  investment_patterns:
+    weight: 0.10
+    asa_investments: 0.08
+    protocol_tokens: 0.06
+    ecosystem_projects: 0.06
+
+  # Market cycle loyalty (total: 15%)
+  loyalty_metrics:
+    weight: 0.08
+    bear_market_activity: 0.10
+    consistent_usage: 0.07
+    protocol_evangelism: 0.05
+
+# Reputation calculation parameters
+reputation_engine:
+  # Weight distribution across categories
+  category_weights:
+    governance_participation: 0.30
+    community_engagement: 0.25
+    consensus_participation: 0.20
+    ecosystem_commitment: 0.25
+
+  # Scoring thresholds
+  thresholds:
+    excellent: 85
+    good: 70
+    average: 50
+    poor: 30
+    unacceptable: 15
+
+  # Time decay factors
+  time_decay:
+    recent_activity_weight: 0.4  # Last 6 months
+    medium_term_weight: 0.35     # 6-18 months
+    historical_weight: 0.25      # 18+ months
+
+  # Bonus multipliers
+  bonuses:
+    founding_member: 1.15
+    core_contributor: 1.20
+    security_researcher: 1.10
+    ambassador: 1.08
+    educator: 1.05
+
+# Data source configurations
+data_sources:
+  algorand_foundation:
+    governance_api: "https://governance.algorand.foundation/api"
+    participation_endpoints:
+      - "/governance/voting-history"
+      - "/governance/proposals"
+      - "/governance/delegates"
+    rate_limit: 100  # requests per minute
+
+  community_platforms:
+    forum:
+      url: "https://forum.algorand.org"
+      api_key_required: true
+
+    github:
+      base_url: "https://api.github.com"
+      algorand_orgs:
+        - "algorand"
+        - "algorandfoundation"
+        - "TinyMan-org"
+        - "Folks-Finance"
+
+    reddit:
+      subreddits:
+        - "algorand"
+        - "algorandofficial"
+      api_base: "https://www.reddit.com/r"
+
+  blockchain_data:
+    algod_nodes:
+      - "https://mainnet-api.algonode.cloud"
+      - "https://mainnet-api.algonode.network"
+
+    indexer_nodes:
+      - "https://mainnet-idx.algonode.cloud"
+      - "https://mainnet-idx.algonode.network"
+
+    participation_apis:
+      - "/v2/accounts/{address}/participation"
+      - "/v2/transactions"
+
+# Risk adjustment parameters
+risk_adjustments:
+  # Governance reputation impact on loan decisions
+  loan_decision_impact:
+    excellent_reputation:
+      ltv_bonus: 0.10          # +10% LTV
+      rate_discount: 0.005     # -0.5% interest rate
+      approval_bias: 0.15      # +15% approval likelihood
+
+    good_reputation:
+      ltv_bonus: 0.05          # +5% LTV
+      rate_discount: 0.002     # -0.2% interest rate
+      approval_bias: 0.08      # +8% approval likelihood
+
+    poor_reputation:
+      ltv_penalty: -0.10       # -10% LTV
+      rate_penalty: 0.01       # +1% interest rate
+      approval_penalty: -0.20  # -20% approval likelihood
+
+    unacceptable_reputation:
+      auto_reject: true
+      manual_review_required: true
+
+# Alert thresholds
+alerts:
+  reputation_changes:
+    significant_drop: -15  # Alert if reputation drops by 15+ points
+    rapid_decline: -10     # Alert if decline happens within 30 days
+
+  governance_inactivity:
+    voting_absence: 3      # Alert after 3 consecutive voting periods
+    community_silence: 90  # Alert after 90 days of no community activity
+
+  suspicious_activity:
+    sudden_engagement: true    # Flag artificial engagement spikes
+    coordinated_voting: true   # Flag potential voting coordination
+    reputation_manipulation: true  # Flag reputation gaming attempts
+
+# Cache and refresh settings
+cache_settings:
+  governance_data_ttl: 3600      # 1 hour
+  community_data_ttl: 7200       # 2 hours
+  blockchain_data_ttl: 1800      # 30 minutes
+  reputation_score_ttl: 43200    # 12 hours
+
+  refresh_schedule:
+    governance_sync: "0 */6 * * *"    # Every 6 hours
+    community_sync: "0 */12 * * *"    # Every 12 hours
+    reputation_calc: "0 2 * * *"      # Daily at 2 AM

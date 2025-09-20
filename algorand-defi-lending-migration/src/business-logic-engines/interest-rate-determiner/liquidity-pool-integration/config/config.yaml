@@ -1,0 +1,237 @@
+# Liquidity Pool Integration Engine Configuration
+
+# MCP Service URLs for DEX and liquidity data
+mcp_services:
+  algorand_reader_url: "http://localhost:8002"
+  market_data_url: "http://localhost:8003"
+
+# DEX Protocol Configuration
+dex_protocols:
+  tinyman:
+    name: "Tinyman"
+    api_endpoint: "https://mainnet.analytics.tinyman.org/api/v1"
+    enabled: true
+    weight: 0.45  # 45% weight in yield calculations
+    supported_pairs: ["ALGO/USDC", "ALGO/USDT", "USDC/USDT", "ALGO/goBTC"]
+    min_liquidity_threshold: 50000   # $50K minimum liquidity
+    reliability_score: 0.90
+    fee_tier: 0.003  # 0.3% trading fee
+
+  algofi_dex:
+    name: "Algofi DEX"
+    api_endpoint: "https://api.algofi.org/v1/dex"
+    enabled: true
+    weight: 0.35  # 35% weight in yield calculations
+    supported_pairs: ["ALGO/USDC", "ALGO/USDT", "USDC/USDT", "ALGO/goBTC"]
+    min_liquidity_threshold: 100000  # $100K minimum liquidity
+    reliability_score: 0.95
+    fee_tier: 0.0025  # 0.25% trading fee
+
+  pact:
+    name: "Pact"
+    api_endpoint: "https://api.pact.fi/v1"
+    enabled: true
+    weight: 0.20  # 20% weight in yield calculations
+    supported_pairs: ["ALGO/USDC", "ALGO/USDT"]
+    min_liquidity_threshold: 25000   # $25K minimum liquidity
+    reliability_score: 0.85
+    fee_tier: 0.003  # 0.3% trading fee
+
+# Liquidity Pool Yield Components
+yield_components:
+  trading_fees:
+    weight: 0.40                    # 40% from trading fees
+    annualization_method: "volume_based"  # Base on historical volume
+    volatility_adjustment: 0.02     # 2% adjustment for fee volatility
+
+  liquidity_mining:
+    weight: 0.35                    # 35% from liquidity mining rewards
+    token_emission_factor: 1.0      # Factor for token emission rates
+    vesting_adjustment: 0.95        # 5% discount for vesting requirements
+
+  pool_incentives:
+    weight: 0.15                    # 15% from protocol incentives
+    governance_bonus: 0.005         # 0.5% bonus for governance participation
+    loyalty_multiplier: 1.1         # 10% bonus for long-term LPs
+
+  impermanent_loss_insurance:
+    weight: 0.10                    # 10% from IL protection/insurance
+    insurance_premium: 0.008        # 0.8% cost for IL insurance
+    coverage_ratio: 0.80            # 80% IL coverage
+
+# Asset Pair Configuration
+asset_pairs:
+  "ALGO/USDC":
+    target_apy: 0.08               # 8% target APY
+    volatility_factor: 1.2         # Medium volatility
+    correlation_risk: 0.3          # 30% correlation risk
+    liquidity_tier: "high"         # High liquidity tier
+    il_risk_factor: 0.85          # 85% IL risk factor
+
+  "ALGO/USDT":
+    target_apy: 0.075              # 7.5% target APY
+    volatility_factor: 1.2         # Medium volatility
+    correlation_risk: 0.3          # 30% correlation risk
+    liquidity_tier: "high"         # High liquidity tier
+    il_risk_factor: 0.85          # 85% IL risk factor
+
+  "USDC/USDT":
+    target_apy: 0.02               # 2% target APY
+    volatility_factor: 0.3         # Low volatility
+    correlation_risk: 0.1          # 10% correlation risk
+    liquidity_tier: "high"         # High liquidity tier
+    il_risk_factor: 0.95          # 95% IL risk factor (very low)
+
+  "ALGO/goBTC":
+    target_apy: 0.15               # 15% target APY
+    volatility_factor: 2.0         # High volatility
+    correlation_risk: 0.6          # 60% correlation risk
+    liquidity_tier: "medium"       # Medium liquidity tier
+    il_risk_factor: 0.60          # 60% IL risk factor
+
+  default:
+    target_apy: 0.10               # 10% default target APY
+    volatility_factor: 1.5         # Default volatility
+    correlation_risk: 0.5          # 50% default correlation risk
+    liquidity_tier: "medium"       # Medium liquidity tier
+    il_risk_factor: 0.70          # 70% default IL risk factor
+
+# Impermanent Loss Analysis Parameters
+impermanent_loss:
+  calculation_method: "continuous_compound"  # Method for IL calculation
+  price_range_analysis: [-0.50, 0.50]      # ±50% price range analysis
+  confidence_intervals: [0.68, 0.95, 0.99] # 1σ, 2σ, 3σ confidence intervals
+
+  risk_buckets:
+    low: 0.05      # 5% max IL
+    medium: 0.20   # 20% max IL
+    high: 0.50     # 50% max IL
+    extreme: 1.0   # 100% max IL
+
+  hedging_strategies:
+    enabled: true
+    delta_hedge_cost: 0.001        # 0.1% cost for delta hedging
+    options_premium: 0.02          # 2% cost for options protection
+    correlation_hedge_efficiency: 0.85  # 85% hedging efficiency
+
+# Liquidity Mining and Incentives
+liquidity_mining:
+  reward_tokens:
+    YLDY:
+      name: "Yieldly"
+      emission_rate: 1000000        # 1M YLDY per day
+      price_estimate: 0.015         # $0.015 per YLDY
+      vesting_period_days: 30       # 30-day vesting
+
+    PLANETS:
+      name: "PlanetWatch"
+      emission_rate: 500000         # 500K PLANETS per day
+      price_estimate: 0.05          # $0.05 per PLANETS
+      vesting_period_days: 90       # 90-day vesting
+
+    OPUL:
+      name: "Opulous"
+      emission_rate: 100000         # 100K OPUL per day
+      price_estimate: 0.15          # $0.15 per OPUL
+      vesting_period_days: 0        # No vesting
+
+  boost_mechanisms:
+    time_multiplier:
+      enabled: true
+      max_multiplier: 2.0           # 2x max boost
+      time_to_max_days: 365         # 1 year to reach max boost
+
+    volume_multiplier:
+      enabled: true
+      volume_threshold: 1000000     # $1M volume threshold
+      max_multiplier: 1.5           # 1.5x max boost
+
+# Pool Performance Metrics
+performance_metrics:
+  volume_weighted_apy: true        # Calculate volume-weighted APY
+  time_weighted_returns: true      # Calculate time-weighted returns
+  sharpe_ratio_calculation: true   # Calculate risk-adjusted returns
+  maximum_drawdown_analysis: true  # Analyze maximum drawdown periods
+
+  lookback_periods:
+    short_term: 7                  # 7 days
+    medium_term: 30                # 30 days
+    long_term: 90                  # 90 days
+
+# Risk Management Parameters
+risk_management:
+  max_single_pool_exposure: 0.30   # 30% max exposure to single pool
+  max_protocol_exposure: 0.60      # 60% max exposure to single protocol
+  min_diversification_score: 0.7   # 70% minimum diversification
+  correlation_limit: 0.8           # 80% max correlation between pools
+
+  circuit_breakers:
+    max_il_threshold: 0.25         # 25% max IL before circuit breaker
+    volume_drop_threshold: 0.50    # 50% volume drop triggers review
+    price_deviation_threshold: 0.20 # 20% price deviation from oracle
+
+# Historical Data and Caching
+historical_data:
+  retention_days: 180              # Keep 180 days of historical data
+  update_frequency_minutes: 5      # Update every 5 minutes
+  cache_expiry_minutes: 3          # Cache expires after 3 minutes
+  backup_data_sources: ["tinyman_v2", "dex_screener", "coingecko"]
+
+# Market Making and Arbitrage
+market_making:
+  spread_analysis: true            # Analyze bid-ask spreads
+  arbitrage_opportunities: true    # Track arbitrage opportunities
+  slippage_analysis: true          # Analyze slippage for different sizes
+
+  trade_sizes:
+    small: 1000      # $1K trade
+    medium: 10000    # $10K trade
+    large: 100000    # $100K trade
+    whale: 1000000   # $1M trade
+
+# Fee Structure Analysis
+fee_analysis:
+  trading_fee_tiers:
+    - threshold: 0        # $0+ volume
+      fee_rate: 0.003     # 0.30% fee
+    - threshold: 100000   # $100K+ volume
+      fee_rate: 0.0025    # 0.25% fee
+    - threshold: 1000000  # $1M+ volume
+      fee_rate: 0.002     # 0.20% fee
+
+  gas_cost_analysis:
+    algo_transaction_cost: 0.001    # 0.001 ALGO per transaction
+    asset_opt_in_cost: 0.1          # 0.1 ALGO for ASA opt-in
+    liquidity_action_cost: 0.002    # 0.002 ALGO for LP actions
+
+# Integration with External Systems
+external_integrations:
+  enable_oracle_price_feeds: true   # Use oracle prices for IL calculation
+  enable_volume_aggregation: true   # Aggregate volume across DEXes
+  enable_yield_farming_tracking: true # Track yield farming opportunities
+  enable_cross_chain_analysis: false # Disable cross-chain for now
+
+# Alert and Monitoring Configuration
+monitoring:
+  yield_change_alert_threshold: 0.10   # 10% yield change triggers alert
+  liquidity_drop_alert_threshold: 0.25 # 25% liquidity drop triggers alert
+  il_warning_threshold: 0.10           # 10% IL triggers warning
+  volume_spike_threshold: 3.0          # 3x volume spike triggers alert
+
+# Advanced Analytics
+advanced_analytics:
+  enable_ml_yield_prediction: false    # Disable ML predictions for now
+  enable_correlation_analysis: true    # Enable correlation analysis
+  enable_volatility_modeling: true     # Enable volatility modeling
+  enable_liquidity_depth_analysis: true # Enable depth analysis
+
+# Output Configuration
+output_configuration:
+  include_il_projections: true        # Include IL projections in output
+  include_fee_breakdown: true         # Include detailed fee breakdown
+  include_risk_metrics: true          # Include comprehensive risk metrics
+  include_comparative_analysis: true  # Include cross-protocol comparison
+
+  decimal_places: 6                   # 6 decimal places for yields
+  percentage_format: true             # Output yields as percentages
+  timestamp_format: "iso8601"         # ISO 8601 timestamp format

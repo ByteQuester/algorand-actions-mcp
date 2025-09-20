@@ -1,0 +1,128 @@
+{
+  "external_services": {
+    "blockchain": {
+      "algorand_mainnet": {
+        "type": "required",
+        "endpoints": [
+          "https://mainnet-api.algonode.cloud",
+          "https://mainnet-idx.algonode.cloud"
+        ],
+        "fallback_providers": [
+          "PureStake API",
+          "Algorand Foundation nodes"
+        ],
+        "rate_limits": "100 requests/second"
+      },
+      "algorand_testnet": {
+        "type": "development",
+        "endpoints": [
+          "https://testnet-api.algonode.cloud",
+          "https://testnet-idx.algonode.cloud"
+        ]
+      }
+    },
+    "price_oracles": {
+      "chainlink": {
+        "type": "primary",
+        "assets": ["ALGO", "BTC", "ETH", "USDC"],
+        "latency": "< 30 seconds",
+        "reliability": "99.9%"
+      },
+      "coingecko": {
+        "type": "backup",
+        "api_key_required": false,
+        "rate_limit": "100 calls/minute"
+      },
+      "dex_aggregators": {
+        "type": "backup",
+        "sources": ["Tinyman", "Pact", "Humble"]
+      }
+    },
+    "compliance_services": {
+      "kyc_provider": {
+        "type": "optional",
+        "integration_ready": true,
+        "webhook_support": true
+      },
+      "aml_monitoring": {
+        "type": "optional",
+        "real_time": true,
+        "risk_scoring": true
+      }
+    }
+  },
+  "infrastructure_requirements": {
+    "database": {
+      "postgresql": {
+        "min_version": "13.0",
+        "extensions": ["pgcrypto", "uuid-ossp"],
+        "connection_pooling": "required",
+        "backup_strategy": "point-in-time recovery"
+      },
+      "redis": {
+        "min_version": "6.0",
+        "persistence": "AOF + RDB",
+        "clustering": "recommended"
+      }
+    },
+    "compute": {
+      "cpu": "2 cores minimum, 4 cores recommended",
+      "memory": "4GB minimum, 8GB recommended",
+      "storage": "100GB SSD minimum",
+      "network": "1Gbps recommended for blockchain sync"
+    },
+    "security": {
+      "tls_version": "1.3",
+      "certificate_management": "automated renewal",
+      "secrets_management": "HashiCorp Vault or equivalent",
+      "network_policies": "pod-to-pod encryption"
+    }
+  },
+  "software_dependencies": {
+    "python": {
+      "version": "3.8+",
+      "packages": [
+        "algosdk==2.11.0",
+        "pydantic>=1.8.0",
+        "fastapi>=0.68.0",
+        "SQLAlchemy>=1.4.0",
+        "redis>=4.0.0",
+        "cryptography>=3.4.0",
+        "numpy>=1.21.0",
+        "pandas>=1.3.0"
+      ]
+    },
+    "nodejs": {
+      "version": "18.0+",
+      "packages": [
+        "@modelcontextprotocol/sdk",
+        "algosdk",
+        "hono",
+        "zod",
+        "ws"
+      ]
+    },
+    "system_tools": [
+      "git",
+      "docker",
+      "curl",
+      "jq"
+    ]
+  },
+  "monitoring_dependencies": {
+    "metrics": {
+      "prometheus": "required for metrics collection",
+      "grafana": "recommended for visualization"
+    },
+    "logging": {
+      "structured_json": "required",
+      "log_aggregation": "ELK stack or equivalent",
+      "retention": "90 days minimum"
+    },
+    "alerting": {
+      "threshold_alerts": "required",
+      "anomaly_detection": "recommended",
+      "notification_channels": ["email", "slack", "pagerduty"]
+    }
+  }
+}

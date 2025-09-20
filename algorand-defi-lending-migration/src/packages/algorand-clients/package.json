@@ -1,0 +1,32 @@
+{
+  "name": "@algorand-showcase/algorand-clients",
+  "version": "0.1.0",
+  "description": "Algorand SDK wrappers and client abstractions",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "type-check": "tsc --noEmit",
+    "dev": "tsc --watch",
+    "setup-dev": "echo 'Algorand Clients package - no additional dev setup required'",
+    "validate": "npm run type-check"
+  },
+  "dependencies": {
+    "@algorand-showcase/types": "workspace:*",
+    "algosdk": "2.11.0",
+    "algo-msgpack-with-bigint": "^2.1.1"
+  }
+}

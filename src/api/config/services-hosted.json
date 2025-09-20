@@ -1,0 +1,136 @@
+{
+  "services": {
+    "collateral_analyzer": {
+      "name": "collateral_analyzer",
+      "mode": "hosted",
+      "version": "1.0.0",
+      "description": "Collateral analysis and valuation service for loan approvals",
+      "base_url": "http://collateral-analyzer:8001",
+      "endpoints": [
+        {
+          "url": "http://collateral-analyzer:8001",
+          "weight": 100,
+          "max_connections": 100,
+          "current_connections": 0,
+          "avg_response_time": 0.0,
+          "health_check_failures": 0,
+          "status": "unknown"
+        }
+      ],
+      "health_check_url": "http://collateral-analyzer:8001/health",
+      "health_check_interval": 30,
+      "timeout": 30,
+      "retry_attempts": 3,
+      "load_balancing_strategy": "round_robin",
+      "tags": ["lending", "collateral", "analysis", "critical"],
+      "metadata": {
+        "engine_type": "collateral",
+        "priority": "high",
+        "deployment": "kubernetes",
+        "replicas": 3
+      },
+      "created_at": "2024-01-01T00:00:00Z",
+      "last_updated": "2024-01-01T00:00:00Z"
+    },
+    "rate_calculator": {
+      "name": "rate_calculator",
+      "mode": "hosted",
+      "version": "1.0.0",
+      "description": "Interest rate calculation and pricing service",
+      "base_url": "http://rate-calculator:8002",
+      "endpoints": [
+        {
+          "url": "http://rate-calculator:8002",
+          "weight": 100,
+          "max_connections": 150,
+          "current_connections": 0,
+          "avg_response_time": 0.0,
+          "health_check_failures": 0,
+          "status": "unknown"
+        }
+      ],
+      "health_check_url": "http://rate-calculator:8002/health",
+      "health_check_interval": 30,
+      "timeout": 30,
+      "retry_attempts": 3,
+      "load_balancing_strategy": "response_time",
+      "tags": ["lending", "rates", "calculation", "pricing"],
+      "metadata": {
+        "engine_type": "rates",
+        "priority": "high",
+        "deployment": "kubernetes",
+        "replicas": 3
+      },
+      "created_at": "2024-01-01T00:00:00Z",
+      "last_updated": "2024-01-01T00:00:00Z"
+    },
+    "loan_evaluator": {
+      "name": "loan_evaluator",
+      "mode": "hosted",
+      "version": "1.0.0",
+      "description": "Comprehensive loan evaluation and approval decision service",
+      "base_url": "http://loan-evaluator:8003",
+      "endpoints": [
+        {
+          "url": "http://loan-evaluator:8003",
+          "weight": 100,
+          "max_connections": 75,
+          "current_connections": 0,
+          "avg_response_time": 0.0,
+          "health_check_failures": 0,
+          "status": "unknown"
+        }
+      ],
+      "health_check_url": "http://loan-evaluator:8003/health",
+      "health_check_interval": 30,
+      "timeout": 45,
+      "retry_attempts": 3,
+      "load_balancing_strategy": "least_connections",
+      "tags": ["lending", "evaluation", "approval", "critical"],
+      "metadata": {
+        "engine_type": "evaluation",
+        "priority": "critical",
+        "deployment": "kubernetes",
+        "replicas": 2
+      },
+      "created_at": "2024-01-01T00:00:00Z",
+      "last_updated": "2024-01-01T00:00:00Z"
+    },
+    "risk_assessor": {
+      "name": "risk_assessor",
+      "mode": "hosted",
+      "version": "1.0.0",
+      "description": "Risk assessment and analysis service for loan applications",
+      "base_url": "http://risk-assessor:8004",
+      "endpoints": [
+        {
+          "url": "http://risk-assessor:8004",
+          "weight": 100,
+          "max_connections": 100,
+          "current_connections": 0,
+          "avg_response_time": 0.0,
+          "health_check_failures": 0,
+          "status": "unknown"
+        }
+      ],
+      "health_check_url": "http://risk-assessor:8004/health",
+      "health_check_interval": 30,
+      "timeout": 30,
+      "retry_attempts": 3,
+      "load_balancing_strategy": "round_robin",
+      "tags": ["lending", "risk", "assessment", "analysis"],
+      "metadata": {
+        "engine_type": "risk",
+        "priority": "high",
+        "deployment": "kubernetes",
+        "replicas": 3
+      },
+      "created_at": "2024-01-01T00:00:00Z",
+      "last_updated": "2024-01-01T00:00:00Z"
+    }
+  },
+  "default_mode": "hosted",
+  "registry_file": "services-hosted.json",
+  "auto_discovery": true,
+  "health_monitoring": true
+}

@@ -1,0 +1,381 @@
+# Kubernetes Manifests for Algorand DeFi Lending Platform
+# Complete production deployment configuration
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: defi-core
+  labels:
+    name: defi-core
+    environment: production
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: defi-lending-config
+  namespace: defi-core
+data:
+  # Database configuration
+  DATABASE_URL: "postgresql://pgbouncer-service:5432/defi_core_db"
+  USERS_DATABASE_URL: "postgresql://pgbouncer-service:5432/platform_users_db"
+  WALLETS_DATABASE_URL: "postgresql://pgbouncer-service:5432/platform_wallets_db"
+  AUDIT_DATABASE_URL: "postgresql://pgbouncer-service:5432/platform_audit_db"
+
+  # Redis configuration
+  REDIS_URL: "redis://redis-service.shared-infrastructure:6379"
+
+  # Algorand configuration
+  ALGORAND_NETWORK: "mainnet"
+  ALGORAND_ALGOD: "https://mainnet-api.algonode.cloud"
+  ALGORAND_INDEXER: "https://mainnet-idx.algonode.cloud"
+
+  # Application configuration
+  LOG_LEVEL: "info"
+  WORKERS: "4"
+
+  # Monitoring
+  CORRELATION_ID_HEADER: "X-Correlation-ID"
+  USER_ID_HEADER: "X-User-ID"
+  WALLET_ADDRESS_HEADER: "X-Wallet-Address"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: defi-lending-api
+  namespace: defi-core
+  labels:
+    app: defi-lending-api
+    component: api-server
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: defi-lending-api
+  template:
+    metadata:
+      labels:
+        app: defi-lending-api
+        component: api-server
+    spec:
+      serviceAccountName: defi-lending-service-account
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+      containers:
+      - name: api-server
+        image: defi-lending-platform:latest
+        imagePullPolicy: Always
+        args: ["api"]
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 8001
+          name: mcp-reader
+        - containerPort: 8002
+          name: mcp-writer
+        env:
+        - name: PORT
+          value: "8080"
+        envFrom:
+        - configMapRef:
+            name: defi-lending-config
+        - secretRef:
+            name: defi-lending-secrets
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+            ephemeral-storage: 1Gi
+          limits:
+            cpu: 2000m
+            memory: 4Gi
+            ephemeral-storage: 5Gi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        startupProbe:
+          httpGet:
+            path: /startup
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 6
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: tmp-volume
+          mountPath: /tmp
+        - name: logs-volume
+          mountPath: /app/logs
+        - name: data-volume
+          mountPath: /app/data
+      volumes:
+      - name: tmp-volume
+        emptyDir: {}
+      - name: logs-volume
+        emptyDir: {}
+      - name: data-volume
+        emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: defi-lending-api-service
+  namespace: defi-core
+  labels:
+    app: defi-lending-api
+spec:
+  selector:
+    app: defi-lending-api
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+    protocol: TCP
+  - name: mcp-reader
+    port: 8001
+    targetPort: 8001
+    protocol: TCP
+  - name: mcp-writer
+    port: 8002
+    targetPort: 8002
+    protocol: TCP
+  type: ClusterIP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: defi-lending-agents
+  namespace: defi-core
+  labels:
+    app: defi-lending-agents
+    component: agent-system
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: defi-lending-agents
+  template:
+    metadata:
+      labels:
+        app: defi-lending-agents
+        component: agent-system
+    spec:
+      serviceAccountName: defi-lending-service-account
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+      containers:
+      - name: agent-system
+        image: defi-lending-platform:latest
+        imagePullPolicy: Always
+        args: ["agents"]
+        envFrom:
+        - configMapRef:
+            name: defi-lending-config
+        - secretRef:
+            name: defi-lending-secrets
+        resources:
+          requests:
+            cpu: 250m
+            memory: 512Mi
+          limits:
+            cpu: 1000m
+            memory: 2Gi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: tmp-volume
+          mountPath: /tmp
+        - name: logs-volume
+          mountPath: /app/logs
+      volumes:
+      - name: tmp-volume
+        emptyDir: {}
+      - name: logs-volume
+        emptyDir: {}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: defi-lending-ingress
+  namespace: defi-core
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rate-limit: "1000"
+    nginx.ingress.kubernetes.io/rate-limit-burst: "2000"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  tls:
+  - hosts:
+    - defi-lending.example.com
+    secretName: defi-lending-tls
+  rules:
+  - host: defi-lending.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: defi-lending-api-service
+            port:
+              number: 80
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: defi-lending-api-hpa
+  namespace: defi-core
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: defi-lending-api
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Pods
+        value: 2
+        periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Pods
+        value: 1
+        periodSeconds: 300
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: defi-lending-api-pdb
+  namespace: defi-core
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: defi-lending-api
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: defi-lending-service-account
+  namespace: defi-core
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: defi-lending-role
+  namespace: defi-core
+rules:
+- apiGroups: [""]
+  resources: ["configmaps", "secrets"]
+  verbs: ["get", "list"]
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: defi-lending-role-binding
+  namespace: defi-core
+subjects:
+- kind: ServiceAccount
+  name: defi-lending-service-account
+  namespace: defi-core
+roleRef:
+  kind: Role
+  name: defi-lending-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: defi-lending-network-policy
+  namespace: defi-core
+spec:
+  podSelector:
+    matchLabels:
+      app: defi-lending-api
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: shared-infrastructure
+    ports:
+    - protocol: TCP
+      port: 8080
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: shared-infrastructure
+    ports:
+    - protocol: TCP
+      port: 5432  # PostgreSQL
+    - protocol: TCP
+      port: 6379  # Redis
+  - to: []  # Allow external API calls (Algorand, oracles)
+    ports:
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 80

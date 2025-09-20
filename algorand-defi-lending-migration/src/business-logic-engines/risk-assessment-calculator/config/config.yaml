@@ -1,0 +1,297 @@
+# Algorand Risk Assessment Calculator Master Configuration
+
+# Global Settings
+version: "1.0.0"
+environment: "production"  # development, testing, production
+debug: false
+log_level: "INFO"
+
+# Data Sources Configuration
+data_sources:
+  algorand_indexer:
+    enabled: true
+    url: "https://mainnet-idx.algonode.cloud"
+    api_key: null
+    timeout_seconds: 30
+    rate_limit_requests_per_second: 10
+
+  algorand_node:
+    enabled: true
+    url: "https://mainnet-api.algonode.cloud"
+    api_key: null
+    timeout_seconds: 30
+
+  defi_protocols:
+    enabled: true
+    sources:
+      - tinyman
+      - algofi
+      - yieldly
+      - folks_finance
+    update_frequency_minutes: 5
+
+  governance_api:
+    enabled: true
+    url: "https://governance.algorand.foundation/api"
+    update_frequency_minutes: 15
+
+  market_data:
+    enabled: true
+    sources:
+      - coingecko
+      - coinmarketcap
+    update_frequency_minutes: 1
+
+# Risk Engine Weights for Holistic Scoring
+engine_weights:
+  blockchain_behavior: 0.25
+  defi_protocol: 0.25
+  liquidity_cascade: 0.25
+  governance_stability: 0.25
+
+# Risk Thresholds
+risk_thresholds:
+  low: 25
+  medium: 50
+  high: 75
+  critical: 90
+
+# Alert Configuration
+alerts:
+  enabled: true
+  notification_channels:
+    - email
+    - slack
+    - webhook
+
+  severity_thresholds:
+    warning: 50
+    high: 70
+    critical: 85
+    emergency: 95
+
+  escalation_rules:
+    warning:
+      auto_acknowledge: false
+      notify_team: true
+    high:
+      notify_team: true
+      escalate_after_minutes: 30
+    critical:
+      notify_team: true
+      escalate_after_minutes: 10
+      auto_mitigation: true
+    emergency:
+      notify_team: true
+      immediate_escalation: true
+      auto_mitigation: true
+
+# Blockchain Behavior Engine Configuration
+blockchain_behavior:
+  min_transactions_for_analysis: 10
+  burst_detection_threshold: 5  # transactions per minute
+  timing_anomaly_std_threshold: 3.0
+  amount_anomaly_std_threshold: 2.5
+  round_trip_detection_window_minutes: 30
+  suspicious_pattern_confidence_threshold: 0.7
+  max_analysis_transactions: 10000
+
+  # MEV Detection
+  mev_detection:
+    front_running_window_seconds: 30
+    sandwich_detection_window_seconds: 60
+    arbitrage_profit_threshold: 0.01
+    liquidation_bot_frequency_threshold: 5
+    confidence_threshold: 0.6
+
+  # Wallet Clustering
+  wallet_clustering:
+    max_cluster_depth: 3
+    min_shared_transactions: 3
+    timing_correlation_threshold: 0.7
+    creation_time_window_hours: 24
+    min_cluster_size: 2
+    max_wallets_analyzed: 1000
+
+# DeFi Protocol Engine Configuration
+defi_protocol:
+  analysis_depth: "comprehensive"  # basic, standard, comprehensive
+  include_dependencies: true
+  max_protocol_depth: 3
+  tvl_weight_factor: 0.3
+  age_discount_factor: 0.1
+  audit_discount_factor: 0.2
+
+  risk_weights:
+    cross_protocol_exposure: 0.20
+    smart_contract_security: 0.25
+    liquidity_provider: 0.15
+    yield_farming: 0.15
+    flash_loan_vulnerability: 0.15
+    governance: 0.10
+
+# Liquidity Cascade Engine Configuration
+liquidity_cascade:
+  simulation_scenarios: 10
+  stress_test_confidence: 0.95
+  cascade_depth_limit: 5
+  position_size_threshold: 1000000  # $1M
+  enable_monte_carlo: true
+  monte_carlo_iterations: 1000
+
+  risk_weights:
+    liquidation_modeling: 0.25
+    market_depth: 0.20
+    stablecoin_stability: 0.20
+    correlation_amplification: 0.20
+    systemic_contagion: 0.15
+
+# Governance Stability Engine Configuration
+governance_stability:
+  analysis_window_days: 90
+  min_governance_age_days: 30
+  enable_attack_vector_analysis: true
+  enable_threat_intelligence: true
+
+  concentration_thresholds:
+    top_voter_concern: 0.30  # 30% by single voter
+    top_10_concern: 0.70     # 70% by top 10 voters
+    nakamoto_minimum: 7      # Minimum Nakamoto coefficient
+
+  risk_weights:
+    voting_concentration: 0.20
+    proposal_manipulation: 0.15
+    consensus_mechanism: 0.20
+    network_upgrade: 0.15
+    regulatory_compliance: 0.15
+    systemic_ecosystem: 0.15
+
+# Holistic Risk Orchestrator Configuration
+holistic_orchestrator:
+  enable_real_time_monitoring: true
+  enable_cross_engine_correlation: true
+  enable_automated_alerts: true
+  enable_mitigation_recommendations: true
+  analysis_depth: "comprehensive"
+  correlation_threshold: 0.5
+  scenario_analysis_enabled: true
+  trend_analysis_window_days: 30
+  max_concurrent_analyses: 10
+
+# Monitoring Configuration
+monitoring:
+  default_frequency_seconds: 300  # 5 minutes
+
+  frequency_by_risk_level:
+    low: 3600      # 1 hour
+    medium: 900    # 15 minutes
+    high: 300      # 5 minutes
+    critical: 60   # 1 minute
+
+  real_time_data_sources:
+    - algorand_indexer
+    - defi_protocols
+    - governance_api
+    - market_data
+
+  historical_analysis_window_days: 7
+  anomaly_detection_sensitivity: 0.8
+  automated_response_enabled: true
+
+# Storage Configuration
+storage:
+  redis:
+    enabled: true
+    host: "localhost"
+    port: 6379
+    db: 0
+    password: null
+    ttl_seconds: 3600
+
+  database:
+    enabled: false
+    type: "postgresql"
+    host: "localhost"
+    port: 5432
+    database: "algorand_risk"
+    username: "risk_user"
+    password: null
+
+# API Configuration
+api:
+  enabled: true
+  host: "0.0.0.0"
+  port: 8000
+  workers: 4
+  cors_enabled: true
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 100
+
+# Security Configuration
+security:
+  api_key_required: false
+  jwt_secret_key: null
+  encryption_enabled: false
+  ssl_enabled: false
+
+# Performance Configuration
+performance:
+  cache_enabled: true
+  cache_ttl_seconds: 300
+  async_task_queue_size: 1000
+  max_concurrent_requests: 100
+  request_timeout_seconds: 30
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "json"
+  file_enabled: true
+  file_path: "/var/log/algorand-risk/app.log"
+  max_file_size_mb: 100
+  backup_count: 10
+
+# Development Configuration
+development:
+  mock_data_enabled: false
+  test_mode: false
+  debug_correlation_analysis: false
+  save_intermediate_results: false
+
+# Integration Configuration
+integrations:
+  mcp_services:
+    enabled: true
+    algorand_reader_port: 8002
+    algorand_writer_port: 8003
+
+  external_apis:
+    defipulse: false
+    messari: false
+    dune_analytics: false
+
+# Scenario Analysis Configuration
+scenario_analysis:
+  enabled: true
+  scenarios:
+    - name: "market_crash_20"
+      probability: 0.15
+      parameters:
+        price_shock: -0.20
+    - name: "defi_cascade"
+      probability: 0.08
+      parameters:
+        tvl_shock: -0.40
+    - name: "governance_attack"
+      probability: 0.05
+      parameters:
+        concentration: 0.8
+    - name: "regulatory_crackdown"
+      probability: 0.20
+      parameters:
+        regulatory_pressure: 1.0
+    - name: "black_swan"
+      probability: 0.02
+      parameters:
+        market_crash: -0.70

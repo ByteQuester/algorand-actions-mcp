@@ -1,0 +1,243 @@
+# Digital Asset Valuation Engine Configuration
+
+# MCP Service URLs
+mcp_services:
+  algorand_reader_url: "http://localhost:8002"
+  market_data_url: "http://localhost:8003"
+
+# Default collateral ratios by asset type
+default_collateral_ratios:
+  algo_native: 1.5       # 150% for ALGO
+  stablecoin: 1.1        # 110% for stablecoins
+  asa_token: 2.0         # 200% for ASA tokens
+  governance_token: 2.5  # 250% for governance
+  lp_token: 3.0          # 300% for LP tokens
+  liquid_staking: 1.8    # 180% for liquid staking
+
+# Maintenance ratios (liquidation triggers)
+maintenance_ratios:
+  algo_native: 1.25      # 125% maintenance
+  stablecoin: 1.05       # 105% maintenance
+  asa_token: 1.5         # 150% maintenance
+  governance_token: 1.8  # 180% maintenance
+  lp_token: 2.0          # 200% maintenance
+  liquid_staking: 1.4    # 140% maintenance
+
+# Liquidation penalties by asset type
+liquidation_penalties:
+  algo_native: 0.05      # 5% penalty
+  stablecoin: 0.02       # 2% penalty
+  asa_token: 0.08        # 8% penalty
+  governance_token: 0.12 # 12% penalty
+  lp_token: 0.15         # 15% penalty
+  liquid_staking: 0.06   # 6% penalty
+
+# Default haircuts by asset type (percentage reduction in value)
+default_haircuts:
+  algo_native: 0.05      # 5% haircut
+  stablecoin: 0.01       # 1% haircut
+  asa_token: 0.15        # 15% haircut
+  governance_token: 0.25 # 25% haircut
+  lp_token: 0.30         # 30% haircut
+  liquid_staking: 0.08   # 8% haircut
+
+# Risk parameters for different asset categories
+risk_parameters:
+  conservative:
+    max_volatility_30d: 0.3        # 30% max volatility
+    min_liquidity_tier: "medium"   # Medium liquidity minimum
+    max_correlation: 0.7           # 70% max correlation
+    min_market_cap: 100000000      # $100M min market cap
+  moderate:
+    max_volatility_30d: 0.5        # 50% max volatility
+    min_liquidity_tier: "low"      # Low liquidity acceptable
+    max_correlation: 0.8           # 80% max correlation
+    min_market_cap: 50000000       # $50M min market cap
+  aggressive:
+    max_volatility_30d: 0.8        # 80% max volatility
+    min_liquidity_tier: "low"      # Low liquidity acceptable
+    max_correlation: 0.9           # 90% max correlation
+    min_market_cap: 10000000       # $10M min market cap
+
+# Liquidation thresholds and timing
+liquidation_thresholds:
+  warning_threshold: 1.1             # 110% - warning level
+  urgent_threshold: 1.05             # 105% - urgent action needed
+  auto_liquidation: 1.02             # 102% - automatic liquidation
+  max_liquidation_time: 24           # 24 hours max liquidation time
+  preferred_liquidation_time: 4      # 4 hours preferred time
+
+# Default oracle configuration
+oracle_config:
+  primary_oracle: "algorand_native"
+  backup_oracles: ["chainlink", "pyth", "dia"]
+  update_frequency: 60               # 60 seconds
+  reliability_threshold: 0.95        # 95% reliability required
+  max_price_deviation: 0.05          # 5% max deviation
+  fallback_strategy: "median_of_three"
+
+# Algorand ecosystem assets (examples)
+algorand_assets:
+  ALGO:
+    name: "Algorand"
+    type: "algo_native"
+    asset_id: "0"
+    decimals: 6
+    is_native: true
+    typical_volatility: 0.4
+    liquidity_tier: "high"
+  USDC:
+    name: "USD Coin"
+    type: "stablecoin"
+    asset_id: "31566704"
+    decimals: 6
+    is_native: false
+    typical_volatility: 0.02
+    liquidity_tier: "high"
+  USDT:
+    name: "Tether USD"
+    type: "stablecoin"
+    asset_id: "312769"
+    decimals: 6
+    is_native: false
+    typical_volatility: 0.02
+    liquidity_tier: "high"
+  GOBTC:
+    name: "GoETH Bitcoin"
+    type: "asa_token"
+    asset_id: "386192725"
+    decimals: 8
+    is_native: false
+    typical_volatility: 0.6
+    liquidity_tier: "medium"
+
+# Stress test scenarios
+stress_test_scenarios:
+  market_crash:
+    description: "Market-wide 50% drop"
+    algo_impact: -0.5
+    correlation_increase: 0.3
+    liquidity_reduction: 0.5
+  regulatory_shock:
+    description: "Regulatory crackdown"
+    algo_impact: -0.3
+    correlation_increase: 0.2
+    liquidity_reduction: 0.7
+  technical_failure:
+    description: "Network or protocol failure"
+    algo_impact: -0.4
+    correlation_increase: 0.4
+    liquidity_reduction: 0.8
+  liquidity_crisis:
+    description: "Market liquidity dries up"
+    algo_impact: -0.2
+    correlation_increase: 0.1
+    liquidity_reduction: 0.9
+
+# Portfolio diversification targets
+diversification_targets:
+  single_asset_max: 0.4              # 40% max in single asset
+  asset_type_max: 0.6                # 60% max in single asset type
+  min_asset_count: 3                 # Minimum 3 different assets
+  correlation_limit: 0.7             # 70% max average correlation
+  liquidity_reserve: 0.1             # 10% in high-liquidity assets
+
+# Market condition adjustments
+market_condition_multipliers:
+  bull_market:
+    collateral_ratio_adjustment: -0.1  # Reduce by 10%
+    liquidation_buffer: 0.02           # 2% buffer
+  bear_market:
+    collateral_ratio_adjustment: 0.2   # Increase by 20%
+    liquidation_buffer: 0.05           # 5% buffer
+  high_volatility:
+    collateral_ratio_adjustment: 0.15  # Increase by 15%
+    liquidation_buffer: 0.03           # 3% buffer
+  low_volatility:
+    collateral_ratio_adjustment: -0.05 # Reduce by 5%
+    liquidation_buffer: 0.01           # 1% buffer
+
+# Market condition adjustments for calculations
+market_condition_adjustments:
+  bull: -0.02    # Reduce haircuts in bull markets
+  normal: 0.0    # No adjustment in normal markets
+  bear: 0.05     # Increase haircuts in bear markets
+  crisis: 0.15   # Significant increase in crisis
+
+# Liquidity tiers adjustment factors
+liquidity_tier_adjustments:
+  high: 0.0      # No adjustment for high liquidity
+  medium: 0.02   # 2% additional haircut for medium liquidity
+  low: 0.05      # 5% additional haircut for low liquidity
+
+# Volatility assessment parameters
+volatility_parameters:
+  max_volatility_adjustment: 0.2  # Cap volatility adjustment at 20%
+  volatility_multiplier: 0.5      # Scale factor for volatility impact
+
+# Asset valuation methods and weights
+valuation_methods:
+  oracle_weight: 0.7               # 70% weight for oracle prices
+  market_weight: 0.2               # 20% weight for market prices
+  fallback_weight: 0.1             # 10% weight for fallback prices
+
+# Price feed configuration
+price_feeds:
+  update_interval_seconds: 30      # Update prices every 30 seconds
+  max_staleness_seconds: 300       # Prices older than 5 minutes are stale
+  price_deviation_threshold: 0.1   # 10% deviation triggers alert
+
+# Analysis parameters
+analysis:
+  default_confidence_score: 0.8
+  data_quality_score: 0.85
+  safety_buffer: 0.1               # 10% safety buffer on final calculations
+  max_position_concentration: 0.6  # 60% max in single position
+  diversification_bonus_factor: 0.05
+  cache_expiry_minutes: 5
+
+# Database configuration
+database:
+  default_path: "notebooks/digital_asset_valuation.db"
+  max_history_limit: 1000
+
+# Fallback asset prices (USD) - used when oracles are unavailable
+fallback_prices:
+  USDC: 1.00
+  USDT: 1.00
+  ALGO: 0.25
+  goBTC: 45000.0
+  goETH: 3000.0
+
+# Default volatility estimates for assets
+volatility_estimates:
+  ALGO:
+    volatility_30d: 0.45
+    volatility_7d: 0.35
+    max_drawdown_30d: 0.25
+    value_at_risk_95: 0.15
+  USDC:
+    volatility_30d: 0.02
+    volatility_7d: 0.01
+    max_drawdown_30d: 0.01
+    value_at_risk_95: 0.005
+  default:
+    volatility_30d: 0.60
+    volatility_7d: 0.50
+    max_drawdown_30d: 0.40
+    value_at_risk_95: 0.25
+
+# Default liquidity estimates for assets
+liquidity_estimates:
+  ALGO:
+    daily_volume_usd: 50000000
+    market_cap_usd: 2000000000
+    liquidity_tier: "high"
+  USDC:
+    daily_volume_usd: 5000000
+    market_cap_usd: 500000000
+    liquidity_tier: "high"
+  default:
+    daily_volume_usd: 100000
+    market_cap_usd: 10000000
+    liquidity_tier: "medium"

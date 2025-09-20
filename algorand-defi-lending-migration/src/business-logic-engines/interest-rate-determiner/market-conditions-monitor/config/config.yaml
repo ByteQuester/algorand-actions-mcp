@@ -1,0 +1,545 @@
+# Market Conditions Monitor Engine Configuration
+
+# MCP Service URLs for live data
+mcp_services:
+  algorand_reader_url: "http://localhost:8002"
+  market_data_url: "http://localhost:8003"
+
+# Real-time market volatility tracking
+volatility_monitoring:
+  # Volatility calculation methods
+  calculation_methods:
+    - "realized_volatility"    # Historical price-based volatility
+    - "garch_volatility"       # GARCH model volatility
+    - "exponential_smoothing"  # Exponentially weighted volatility
+    - "parkinson_estimator"    # High-low range estimator
+
+  # Time windows for volatility calculation
+  time_windows:
+    intraday: 24      # 24 hours
+    short_term: 168   # 1 week (hours)
+    medium_term: 720  # 30 days (hours)
+    long_term: 2160   # 90 days (hours)
+
+  # Volatility thresholds for regime classification
+  thresholds:
+    low_volatility: 0.15      # Below 15% annualized
+    normal_volatility: 0.30   # 15-30% annualized
+    high_volatility: 0.50     # 30-50% annualized
+    extreme_volatility: 0.75  # Above 50% annualized
+
+  # Assets to monitor for volatility
+  monitored_assets:
+    algorand_native:
+      - "ALGO"
+    crypto_majors:
+      - "BTC"
+      - "ETH"
+    stablecoins:
+      - "USDC"
+      - "USDT"
+      - "DAI"
+    algorand_ecosystem:
+      - "goBTC"
+      - "goETH"
+      - "PLANET"
+      - "OPUL"
+
+# Algorand ecosystem health monitoring
+algorand_ecosystem:
+  # Network health metrics
+  network_metrics:
+    transaction_throughput:
+      enabled: true
+      threshold_low: 1000    # TPS below this triggers concern
+      threshold_high: 5000   # TPS above this is excellent
+      update_frequency_minutes: 5
+
+    block_time_consistency:
+      enabled: true
+      target_block_time: 3.3  # seconds
+      acceptable_deviation: 0.5  # seconds
+      alert_threshold: 1.0    # seconds deviation triggers alert
+
+    finality_time:
+      enabled: true
+      target_finality: 4.5    # seconds
+      alert_threshold: 10.0   # seconds
+
+    network_participation:
+      enabled: true
+      minimum_participation: 0.70  # 70% participation rate
+      healthy_participation: 0.85  # 85% is considered healthy
+
+  # DeFi protocol health
+  defi_protocols:
+    folks_finance:
+      enabled: true
+      health_endpoints:
+        - "https://api.folks.finance/health"
+      key_metrics:
+        - "total_value_locked"
+        - "lending_utilization"
+        - "borrowing_demand"
+      alert_thresholds:
+        tvl_drop_percent: 0.20      # 20% TVL drop
+        utilization_high: 0.90      # 90% utilization
+        utilization_low: 0.10       # 10% utilization
+
+    tinyman:
+      enabled: true
+      health_endpoints:
+        - "https://api.tinyman.org/v1/status"
+      key_metrics:
+        - "total_liquidity"
+        - "trading_volume_24h"
+        - "active_pools"
+      alert_thresholds:
+        liquidity_drop_percent: 0.25  # 25% liquidity drop
+        volume_drop_percent: 0.40     # 40% volume drop
+
+    pact:
+      enabled: true
+      key_metrics:
+        - "trading_pairs"
+        - "liquidity_depth"
+      alert_thresholds:
+        liquidity_drop_percent: 0.30
+
+# Correlation analysis between traditional and crypto markets
+correlation_analysis:
+  # Traditional market indices to track
+  traditional_indices:
+    us_equity:
+      - symbol: "SPY"    # S&P 500
+        name: "S&P 500 ETF"
+        weight: 0.4
+      - symbol: "QQQ"    # NASDAQ
+        name: "NASDAQ ETF"
+        weight: 0.3
+      - symbol: "IWM"    # Russell 2000
+        name: "Russell 2000 ETF"
+        weight: 0.3
+
+    bonds:
+      - symbol: "TLT"    # 20+ Year Treasury
+        name: "Long Treasury ETF"
+        weight: 0.6
+      - symbol: "HYG"    # High Yield Corporate
+        name: "High Yield ETF"
+        weight: 0.4
+
+    commodities:
+      - symbol: "GLD"    # Gold
+        name: "Gold ETF"
+        weight: 0.5
+      - symbol: "DBC"    # Commodities
+        name: "Commodities ETF"
+        weight: 0.5
+
+  # Crypto market indices
+  crypto_indices:
+    major_crypto:
+      - symbol: "BTC"
+        name: "Bitcoin"
+        weight: 0.6
+      - symbol: "ETH"
+        name: "Ethereum"
+        weight: 0.4
+
+    defi_tokens:
+      - symbol: "UNI"
+        name: "Uniswap"
+        weight: 0.25
+      - symbol: "AAVE"
+        name: "Aave"
+        weight: 0.25
+      - symbol: "COMP"
+        name: "Compound"
+        weight: 0.25
+      - symbol: "MKR"
+        name: "Maker"
+        weight: 0.25
+
+  # Correlation calculation parameters
+  calculation_parameters:
+    correlation_windows:
+      short_term: 30    # 30 days
+      medium_term: 90   # 90 days
+      long_term: 252    # 1 year
+
+    significance_threshold: 0.05  # p-value threshold
+    high_correlation_threshold: 0.7
+    low_correlation_threshold: 0.3
+
+    update_frequency_hours: 6  # Update correlations every 6 hours
+
+# Market stress indicators and regime detection
+stress_indicators:
+  # VIX and volatility indices
+  volatility_indices:
+    vix:
+      symbol: "VIX"
+      thresholds:
+        low_fear: 15      # VIX below 15 (complacency)
+        normal: 25        # VIX 15-25 (normal)
+        elevated: 35      # VIX 25-35 (elevated fear)
+        panic: 50         # VIX above 35 (panic)
+      weight: 0.4
+
+    crypto_fear_greed:
+      api_endpoint: "https://api.alternative.me/fng/"
+      thresholds:
+        extreme_greed: 75
+        greed: 55
+        neutral: 45
+        fear: 25
+        extreme_fear: 10
+      weight: 0.3
+
+  # Credit and liquidity stress indicators
+  credit_indicators:
+    investment_grade_spreads:
+      symbol: "LQD"  # Investment Grade Corporate Bonds
+      treasury_benchmark: "TLT"
+      thresholds:
+        tight: 100      # Below 100 bps
+        normal: 200     # 100-200 bps
+        wide: 300       # 200-300 bps
+        stressed: 500   # Above 300 bps
+      weight: 0.2
+
+    high_yield_spreads:
+      symbol: "HYG"
+      treasury_benchmark: "TLT"
+      thresholds:
+        tight: 300      # Below 300 bps
+        normal: 500     # 300-500 bps
+        wide: 800       # 500-800 bps
+        distressed: 1200  # Above 800 bps
+      weight: 0.3
+
+  # Liquidity and flow indicators
+  liquidity_indicators:
+    bid_ask_spreads:
+      enabled: true
+      assets_to_monitor:
+        - "ALGO"
+        - "BTC"
+        - "ETH"
+        - "USDC"
+      alert_thresholds:
+        normal_spread_bps: 10      # Below 10 bps is normal
+        elevated_spread_bps: 50    # Above 50 bps is concerning
+        wide_spread_bps: 100       # Above 100 bps is stressed
+
+    trading_volume:
+      enabled: true
+      lookback_days: 30
+      volume_drop_threshold: 0.30  # 30% volume drop from average
+      volume_spike_threshold: 2.0  # 200% volume spike
+
+# Market regime classification (bull, bear, sideways, crisis)
+regime_detection:
+  # Regime classification methods
+  classification_methods:
+    trend_based:
+      enabled: true
+      lookback_periods:
+        short_term: 30   # 30 days
+        medium_term: 90  # 90 days
+        long_term: 252   # 1 year
+
+      trend_thresholds:
+        bull_market: 0.15        # 15% positive trend
+        bear_market: -0.15       # 15% negative trend
+        sideways_threshold: 0.05 # +/- 5% is sideways
+
+      weight: 0.4
+
+    volatility_based:
+      enabled: true
+      regime_thresholds:
+        low_vol_regime: 0.15     # Below 15% volatility
+        normal_vol_regime: 0.30  # 15-30% volatility
+        high_vol_regime: 0.50    # Above 30% volatility
+      weight: 0.3
+
+    momentum_based:
+      enabled: true
+      momentum_periods: [20, 50, 200]  # days
+      momentum_thresholds:
+        strong_momentum: 0.10    # 10% momentum
+        weak_momentum: 0.02      # 2% momentum
+      weight: 0.3
+
+  # Crisis detection parameters
+  crisis_detection:
+    enabled: true
+    crisis_indicators:
+      price_drop_threshold: 0.20      # 20% drop in key assets
+      volatility_spike_threshold: 2.0 # 2x normal volatility
+      correlation_spike_threshold: 0.8 # High correlation across assets
+      volume_spike_threshold: 3.0     # 3x normal volume
+
+    crisis_duration_hours: 72         # Crisis must persist 72 hours
+    recovery_threshold: 0.10          # 10% recovery to exit crisis
+
+  # Regime persistence and smoothing
+  regime_smoothing:
+    enabled: true
+    minimum_regime_duration_days: 5   # Minimum 5 days in regime
+    regime_change_threshold: 0.7      # 70% confidence to change regime
+
+# Alert system for significant market changes
+alert_system:
+  # Alert levels and thresholds
+  alert_levels:
+    info:
+      volatility_change: 0.05         # 5% volatility change
+      correlation_change: 0.10        # 10% correlation change
+      regime_probability_change: 0.15  # 15% regime probability change
+
+    warning:
+      volatility_change: 0.10         # 10% volatility change
+      correlation_change: 0.20        # 20% correlation change
+      price_change_1h: 0.05           # 5% price change in 1 hour
+      volume_spike: 2.0               # 2x normal volume
+
+    critical:
+      volatility_change: 0.20         # 20% volatility change
+      price_change_1h: 0.10           # 10% price change in 1 hour
+      regime_change: true             # Any regime change
+      crisis_detected: true           # Crisis detection triggered
+      network_issue: true             # Algorand network issues
+
+  # Alert delivery methods
+  delivery_methods:
+    database_log:
+      enabled: true
+      retention_days: 90
+
+    webhook:
+      enabled: false
+      url: "https://hooks.slack.com/webhook-url"
+
+    email:
+      enabled: false
+      smtp_server: "smtp.gmail.com"
+      recipients:
+        - "alerts@lending-platform.com"
+
+  # Alert rate limiting
+  rate_limiting:
+    max_alerts_per_hour: 10
+    duplicate_alert_cooldown_minutes: 15
+    critical_alert_bypass: true  # Critical alerts bypass rate limits
+
+# Data sources and API configuration
+data_sources:
+  # Primary market data sources
+  primary_sources:
+    yahoo_finance:
+      enabled: true
+      api_endpoint: "https://query1.finance.yahoo.com/v8/finance/chart"
+      rate_limit_per_hour: 1000
+      symbols:
+        - "SPY"
+        - "QQQ"
+        - "VIX"
+        - "TLT"
+        - "GLD"
+
+    alpha_vantage:
+      enabled: false  # Requires API key
+      api_endpoint: "https://www.alphavantage.co/query"
+      rate_limit_per_minute: 5
+
+    binance:
+      enabled: true
+      api_endpoint: "https://api.binance.com/api/v3"
+      rate_limit_per_minute: 1200
+      symbols:
+        - "BTCUSDT"
+        - "ETHUSDT"
+        - "ALGOUSDT"
+
+    coinbase:
+      enabled: true
+      api_endpoint: "https://api.exchange.coinbase.com"
+      rate_limit_per_second: 10
+      symbols:
+        - "BTC-USD"
+        - "ETH-USD"
+        - "ALGO-USD"
+
+  # Backup/fallback sources
+  fallback_sources:
+    coingecko:
+      enabled: true
+      api_endpoint: "https://api.coingecko.com/api/v3"
+      rate_limit_per_minute: 100
+
+    cached_data:
+      enabled: true
+      max_cache_age_minutes: 30
+      fallback_data_path: "fallback_market_data.json"
+
+# Real-time monitoring configuration
+real_time_monitoring:
+  # Update frequencies for different data types
+  update_frequencies:
+    price_data_seconds: 60          # Update prices every minute
+    volatility_calculation_minutes: 5  # Calculate volatility every 5 minutes
+    correlation_update_hours: 1      # Update correlations hourly
+    regime_detection_hours: 6       # Detect regime changes every 6 hours
+    stress_indicators_minutes: 15   # Update stress indicators every 15 minutes
+
+  # Data validation and quality checks
+  data_validation:
+    max_price_change_percent: 0.50  # Flag price changes > 50%
+    min_trading_volume: 1000        # Minimum daily volume threshold
+    stale_data_threshold_minutes: 10 # Flag data older than 10 minutes
+    outlier_detection_enabled: true
+    outlier_threshold_std_devs: 3   # Flag outliers > 3 standard deviations
+
+  # Circuit breakers for extreme conditions
+  circuit_breakers:
+    enabled: true
+    extreme_volatility_threshold: 1.0  # 100% volatility triggers circuit breaker
+    flash_crash_threshold: 0.20        # 20% drop in 5 minutes
+    circuit_breaker_duration_minutes: 15
+
+# Historical data analysis and storage
+historical_analysis:
+  # Data retention policies
+  data_retention:
+    raw_data_days: 30              # Raw market data retention
+    calculated_metrics_days: 90    # Volatility, correlations, etc.
+    regime_history_days: 365       # Market regime history
+    alert_history_days: 180        # Alert history
+
+  # Analysis parameters
+  trend_analysis:
+    enabled: true
+    trend_periods: [7, 30, 90, 252]  # Days for trend analysis
+    trend_significance_threshold: 0.05
+
+  seasonal_analysis:
+    enabled: true
+    seasonal_periods:
+      - "day_of_week"
+      - "month_of_year"
+      - "quarter"
+
+  # Backtesting configuration
+  backtesting:
+    enabled: true
+    backtest_periods: [30, 90, 252]  # Days to backtest
+    regime_accuracy_threshold: 0.70  # 70% accuracy required
+
+# Performance and monitoring
+performance_monitoring:
+  # Calculation performance tracking
+  performance_metrics:
+    max_calculation_time_seconds: 30  # Maximum time for calculations
+    memory_usage_limit_mb: 500       # Memory usage limit
+    error_rate_threshold: 0.05       # 5% error rate threshold
+
+  # Health check configuration
+  health_checks:
+    data_freshness_minutes: 10       # Data must be fresh within 10 minutes
+    calculation_success_rate: 0.95   # 95% calculation success rate
+    api_response_time_seconds: 5     # API responses within 5 seconds
+
+# Database configuration
+database:
+  default_path: "notebooks/market_conditions_monitor.db"
+  backup_enabled: true
+  backup_frequency_hours: 6
+  max_history_limit: 50000
+
+  # Table-specific configurations
+  tables:
+    market_data:
+      partition_by: "date"
+      index_columns: ["timestamp", "symbol"]
+
+    volatility_calculations:
+      partition_by: "date"
+      index_columns: ["timestamp", "asset", "window"]
+
+    regime_classifications:
+      index_columns: ["timestamp", "regime_type"]
+
+    alerts:
+      index_columns: ["timestamp", "alert_level", "alert_type"]
+
+# Development and testing configuration
+development:
+  # Mock data for testing
+  mock_data_enabled: false
+  mock_data_path: "test_data/"
+
+  # Logging configuration
+  log_level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  log_calculations: true
+  log_api_calls: false
+  log_alerts: true
+
+  # Testing scenarios
+  test_scenarios:
+    normal_market:
+      vix_level: 20
+      btc_volatility: 0.40
+      algo_correlation_btc: 0.60
+      expected_regime: "normal"
+
+    stressed_market:
+      vix_level: 40
+      btc_volatility: 0.80
+      algo_correlation_btc: 0.85
+      expected_regime: "crisis"
+
+    bull_market:
+      trend_30d: 0.20
+      volatility_level: 0.25
+      fear_greed_index: 80
+      expected_regime: "bull"
+
+    bear_market:
+      trend_30d: -0.25
+      volatility_level: 0.45
+      fear_greed_index: 20
+      expected_regime: "bear"
+
+# Analysis output configuration
+analysis:
+  default_confidence_score: 0.80
+  regime_confidence_threshold: 0.70
+  alert_confidence_threshold: 0.75
+  cache_expiry_minutes: 10
+
+# Integration settings
+integration:
+  # Base rate calculation engine integration
+  base_rate_engine:
+    enabled: true
+    volatility_adjustment_factor: 0.5  # How much volatility affects rates
+    regime_adjustment_factors:
+      bull: -0.005      # Reduce rates in bull markets
+      normal: 0.000     # No adjustment in normal markets
+      bear: 0.010       # Increase rates in bear markets
+      crisis: 0.020     # Significant increase in crisis
+
+  # External system webhooks
+  webhooks:
+    lending_platform:
+      enabled: false
+      url: "http://localhost:8080/market-conditions"
+      timeout_seconds: 5
+
+    risk_management:
+      enabled: false
+      url: "http://localhost:8081/risk-alerts"
+      timeout_seconds: 3

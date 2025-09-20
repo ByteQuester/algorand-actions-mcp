@@ -1,0 +1,369 @@
+{
+  "name": "Algorand ADK Lending Platform",
+  "description": "Google ADK-powered lending platform for Algorand blockchain",
+  "version": "1.0.0",
+
+  "web_configuration": {
+    "title": "Algorand Lending Agents",
+    "subtitle": "AI-Powered DeFi Lending with Google ADK",
+    "port": 3000,
+    "host": "localhost",
+    "theme": "algorand_defi",
+    "branding": {
+      "primary_color": "#00D4FF",
+      "secondary_color": "#1E1E1E",
+      "accent_color": "#00FF88",
+      "logo_url": "/assets/algorand-logo.svg"
+    }
+  },
+
+  "navigation": {
+    "main_sections": [
+      {
+        "name": "Dashboard",
+        "path": "/",
+        "icon": "dashboard",
+        "description": "Overview of lending operations and system status"
+      },
+      {
+        "name": "Loan Request",
+        "path": "/loan-request",
+        "icon": "request",
+        "description": "Submit new loan requests to the AI agents"
+      },
+      {
+        "name": "Agent Monitor",
+        "path": "/agents",
+        "icon": "agents",
+        "description": "Real-time monitoring of ADK agents"
+      },
+      {
+        "name": "Workflows",
+        "path": "/workflows",
+        "icon": "workflow",
+        "description": "Active and completed lending workflows"
+      },
+      {
+        "name": "Analytics",
+        "path": "/analytics",
+        "icon": "analytics",
+        "description": "Performance metrics and lending analytics"
+      }
+    ]
+  },
+
+  "agent_integrations": [
+    {
+      "agent_name": "lending_coordinator",
+      "display_name": "Lending Coordinator",
+      "description": "Master orchestrator for lending operations",
+      "status_endpoint": "/api/agents/lending_coordinator/status",
+      "health_endpoint": "/api/agents/lending_coordinator/health",
+      "process_endpoint": "/api/agents/lending_coordinator/process",
+      "monitoring": {
+        "real_time_updates": true,
+        "performance_tracking": true,
+        "error_alerting": true
+      },
+      "ui_components": {
+        "status_widget": "CoordinatorStatusWidget",
+        "workflow_monitor": "WorkflowProgressMonitor",
+        "metrics_dashboard": "CoordinatorMetricsDashboard"
+      }
+    },
+    {
+      "agent_name": "negotiation_agent",
+      "display_name": "Negotiation Agent",
+      "description": "AI-powered loan term negotiation",
+      "status_endpoint": "/api/agents/negotiation_agent/status",
+      "ui_components": {
+        "risk_display": "RiskAssessmentDisplay",
+        "rate_calculator": "InterestRateCalculator",
+        "terms_negotiator": "TermsNegotiationWidget"
+      }
+    },
+    {
+      "agent_name": "liquidity_agent",
+      "display_name": "Liquidity Agent",
+      "description": "Lender discovery and matching",
+      "status_endpoint": "/api/agents/liquidity_agent/status",
+      "ui_components": {
+        "lender_grid": "AvailableLendersGrid",
+        "credit_score": "CreditScoreDisplay",
+        "market_depth": "MarketDepthIndicator"
+      }
+    },
+    {
+      "agent_name": "execution_agent",
+      "display_name": "Execution Agent",
+      "description": "Blockchain transaction execution",
+      "status_endpoint": "/api/agents/execution_agent/status",
+      "ui_components": {
+        "transaction_viewer": "TransactionGroupViewer",
+        "cost_estimator": "CostEstimationWidget",
+        "execution_status": "ExecutionStatusTracker"
+      }
+    }
+  ],
+
+  "workflow_ui": {
+    "complete_lending_workflow": {
+      "display_name": "Complete Lending Process",
+      "description": "End-to-end loan processing with AI agents",
+      "steps_visualization": true,
+      "real_time_progress": true,
+      "step_components": [
+        {
+          "step_id": "1_health_check",
+          "component": "HealthCheckStatus",
+          "show_details": true
+        },
+        {
+          "step_id": "2_borrower_assessment",
+          "component": "BorrowerAssessmentCard",
+          "show_details": true
+        },
+        {
+          "step_id": "3_liquidity_discovery",
+          "component": "LiquidityDiscoveryProgress",
+          "show_details": true
+        },
+        {
+          "step_id": "4_term_negotiation",
+          "component": "NegotiationProgress",
+          "show_details": true
+        },
+        {
+          "step_id": "5_execution_preparation",
+          "component": "ExecutionPreparation",
+          "show_details": true
+        },
+        {
+          "step_id": "6_final_coordination",
+          "component": "FinalCoordination",
+          "show_details": true
+        }
+      ]
+    }
+  },
+
+  "forms": {
+    "loan_request_form": {
+      "title": "New Loan Request",
+      "description": "Submit a loan request to be processed by AI agents",
+      "fields": [
+        {
+          "name": "borrower_address",
+          "label": "Borrower Address",
+          "type": "text",
+          "required": true,
+          "validation": "algorand_address",
+          "placeholder": "Enter valid Algorand address (58 characters)",
+          "help_text": "Your Algorand wallet address that will receive the loan"
+        },
+        {
+          "name": "amount_algos",
+          "label": "Loan Amount (ALGO)",
+          "type": "number",
+          "required": true,
+          "min": 0.1,
+          "max": 100000,
+          "step": 0.1,
+          "placeholder": "Enter amount between 0.1 and 100,000 ALGO"
+        },
+        {
+          "name": "duration_days",
+          "label": "Loan Duration (Days)",
+          "type": "number",
+          "required": true,
+          "min": 1,
+          "max": 365,
+          "placeholder": "Enter duration between 1 and 365 days"
+        },
+        {
+          "name": "max_interest_rate",
+          "label": "Maximum Interest Rate (%)",
+          "type": "number",
+          "required": false,
+          "min": 0.1,
+          "max": 50,
+          "step": 0.1,
+          "default": 15.0,
+          "placeholder": "Maximum acceptable annual interest rate"
+        },
+        {
+          "name": "collateral_type",
+          "label": "Collateral Type",
+          "type": "select",
+          "required": false,
+          "default": "ALGO",
+          "options": [
+            {"value": "ALGO", "label": "ALGO - Native Algorand token"},
+            {"value": "USDC", "label": "USDC - USD Coin stablecoin"},
+            {"value": "BTC", "label": "BTC - Wrapped Bitcoin"},
+            {"value": "ETH", "label": "ETH - Wrapped Ethereum"},
+            {"value": "OTHER", "label": "Other - Custom asset"}
+          ]
+        },
+        {
+          "name": "lender_address",
+          "label": "Preferred Lender (Optional)",
+          "type": "text",
+          "required": false,
+          "validation": "algorand_address",
+          "placeholder": "Specific lender address (leave blank for auto-matching)"
+        }
+      ],
+      "submit_button": "Process Loan Request",
+      "submit_endpoint": "/api/workflows/complete_lending_workflow/start"
+    }
+  },
+
+  "monitoring_widgets": [
+    {
+      "name": "system_health_overview",
+      "title": "System Health",
+      "type": "status_grid",
+      "data_source": "/api/health/overview",
+      "refresh_interval": 5000,
+      "components": ["mcp_services", "agent_status", "network_conditions"]
+    },
+    {
+      "name": "recent_workflows",
+      "title": "Recent Workflows",
+      "type": "table",
+      "data_source": "/api/workflows/recent",
+      "refresh_interval": 10000,
+      "max_rows": 10
+    },
+    {
+      "name": "performance_metrics",
+      "title": "Performance Metrics",
+      "type": "charts",
+      "data_source": "/api/metrics/performance",
+      "refresh_interval": 15000,
+      "charts": [
+        "success_rate_chart",
+        "response_time_chart",
+        "agent_utilization_chart"
+      ]
+    },
+    {
+      "name": "lending_analytics",
+      "title": "Lending Analytics",
+      "type": "dashboard",
+      "data_source": "/api/analytics/lending",
+      "refresh_interval": 30000,
+      "components": [
+        "total_loans_processed",
+        "average_loan_amount",
+        "success_rate",
+        "average_interest_rate"
+      ]
+    }
+  ],
+
+  "api_endpoints": [
+    {
+      "path": "/api/health",
+      "method": "GET",
+      "description": "Overall system health status",
+      "response_type": "json"
+    },
+    {
+      "path": "/api/agents/:agent_name/status",
+      "method": "GET",
+      "description": "Individual agent status",
+      "response_type": "json"
+    },
+    {
+      "path": "/api/workflows/:workflow_id/status",
+      "method": "GET",
+      "description": "Workflow execution status",
+      "response_type": "json"
+    },
+    {
+      "path": "/api/workflows/complete_lending_workflow/start",
+      "method": "POST",
+      "description": "Start new lending workflow",
+      "request_body": "loan_request_schema",
+      "response_type": "json"
+    },
+    {
+      "path": "/api/metrics/performance",
+      "method": "GET",
+      "description": "System performance metrics",
+      "response_type": "json"
+    },
+    {
+      "path": "/api/analytics/lending",
+      "method": "GET",
+      "description": "Lending analytics and statistics",
+      "response_type": "json"
+    }
+  ],
+
+  "real_time_features": {
+    "websocket_endpoint": "/ws",
+    "channels": [
+      "workflow_updates",
+      "agent_status_changes",
+      "system_alerts",
+      "performance_metrics"
+    ],
+    "event_types": [
+      "workflow_started",
+      "workflow_step_completed",
+      "workflow_completed",
+      "workflow_failed",
+      "agent_status_changed",
+      "system_alert",
+      "metrics_updated"
+    ]
+  },
+
+  "security": {
+    "authentication": "optional",
+    "rate_limiting": {
+      "enabled": true,
+      "requests_per_minute": 60,
+      "burst_limit": 10
+    },
+    "cors": {
+      "enabled": true,
+      "allowed_origins": ["http://localhost:3000", "http://127.0.0.1:3000"]
+    },
+    "input_validation": "strict",
+    "output_sanitization": true
+  },
+
+  "development": {
+    "hot_reload": true,
+    "debug_mode": true,
+    "api_documentation": true,
+    "test_data_generation": true,
+    "mock_mode": {
+      "enabled": true,
+      "description": "Use mock data when real services unavailable"
+    }
+  },
+
+  "production": {
+    "logging": {
+      "level": "INFO",
+      "format": "structured_json",
+      "destinations": ["console", "file", "external_service"]
+    },
+    "monitoring": {
+      "health_checks": true,
+      "performance_tracking": true,
+      "error_reporting": true,
+      "uptime_monitoring": true
+    },
+    "caching": {
+      "enabled": true,
+      "static_assets_ttl": 3600,
+      "api_response_ttl": 300
+    }
+  }
+}

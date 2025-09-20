@@ -1,0 +1,208 @@
+# Portfolio Diversification Engine Configuration
+
+# MCP Service URLs
+mcp_services:
+  algorand_reader_url: "http://localhost:8002"
+  market_data_url: "http://localhost:8003"
+
+# Herfindahl-Hirschman Index (HHI) calculation parameters
+hhi_calculation:
+  min_hhi: 0.2                            # Minimum HHI (equally distributed across 5 types)
+  max_hhi: 1.0                            # Maximum HHI (single asset concentration)
+  perfect_diversification_types: 5        # Number of asset types for perfect diversification
+
+# Asset type categories and their characteristics
+asset_type_categories:
+  cryptocurrency:
+    base_weight: 1.0
+    volatility_multiplier: 1.2
+    liquidity_factor: 0.8
+
+  stablecoin:
+    base_weight: 0.8
+    volatility_multiplier: 0.3
+    liquidity_factor: 1.0
+
+  defi_token:
+    base_weight: 1.1
+    volatility_multiplier: 1.5
+    liquidity_factor: 0.6
+
+  nft:
+    base_weight: 1.3
+    volatility_multiplier: 2.0
+    liquidity_factor: 0.3
+
+  governance_token:
+    base_weight: 1.0
+    volatility_multiplier: 1.3
+    liquidity_factor: 0.7
+
+# Portfolio concentration limits
+concentration_limits:
+  single_asset_max: 0.40                  # 40% maximum for any single asset
+  single_type_max: 0.60                   # 60% maximum for any single asset type
+  correlated_assets_max: 0.50             # 50% maximum for highly correlated assets
+  low_liquidity_max: 0.30                 # 30% maximum for low-liquidity assets
+
+# Minimum position thresholds
+position_thresholds:
+  minimum_position_usd: 100.0             # $100 minimum position size
+  minimum_portfolio_usd: 1000.0           # $1,000 minimum portfolio size
+  dust_threshold_usd: 10.0                # $10 dust threshold
+  rebalancing_threshold: 0.05             # 5% deviation triggers rebalancing recommendation
+
+# Diversification scoring parameters
+diversification_scoring:
+  excellent_threshold: 0.8                # 80%+ score = excellent diversification
+  good_threshold: 0.6                     # 60%+ score = good diversification
+  adequate_threshold: 0.4                 # 40%+ score = adequate diversification
+  poor_threshold: 0.2                     # 20%+ score = poor diversification
+  # Below 20% = very poor diversification
+
+# Risk adjustment factors based on diversification
+risk_adjustments:
+  excellent_diversification:
+    collateral_ratio_reduction: 0.10       # 10% reduction in required collateral
+    confidence_bonus: 0.15                 # 15% confidence bonus
+
+  good_diversification:
+    collateral_ratio_reduction: 0.05       # 5% reduction in required collateral
+    confidence_bonus: 0.10                 # 10% confidence bonus
+
+  adequate_diversification:
+    collateral_ratio_reduction: 0.00       # No adjustment
+    confidence_bonus: 0.00                 # No bonus
+
+  poor_diversification:
+    collateral_ratio_increase: 0.10        # 10% increase in required collateral
+    confidence_penalty: 0.15               # 15% confidence penalty
+
+  very_poor_diversification:
+    collateral_ratio_increase: 0.20        # 20% increase in required collateral
+    confidence_penalty: 0.25               # 25% confidence penalty
+
+# Correlation analysis parameters
+correlation_analysis:
+  high_correlation_threshold: 0.70        # 70%+ correlation = high correlation
+  medium_correlation_threshold: 0.40      # 40%+ correlation = medium correlation
+  correlation_lookback_days: 90           # 90-day correlation analysis window
+  min_data_points: 30                     # Minimum data points for correlation calculation
+
+# Asset type correlation matrix (simplified)
+asset_type_correlations:
+  cryptocurrency:
+    cryptocurrency: 0.75
+    stablecoin: 0.20
+    defi_token: 0.65
+    nft: 0.45
+    governance_token: 0.60
+
+  stablecoin:
+    cryptocurrency: 0.20
+    stablecoin: 0.90
+    defi_token: 0.25
+    nft: 0.15
+    governance_token: 0.20
+
+  defi_token:
+    cryptocurrency: 0.65
+    stablecoin: 0.25
+    defi_token: 0.80
+    nft: 0.40
+    governance_token: 0.70
+
+  nft:
+    cryptocurrency: 0.45
+    stablecoin: 0.15
+    defi_token: 0.40
+    nft: 0.60
+    governance_token: 0.35
+
+  governance_token:
+    cryptocurrency: 0.60
+    stablecoin: 0.20
+    defi_token: 0.70
+    nft: 0.35
+    governance_token: 0.75
+
+# Liquidity tier definitions
+liquidity_tiers:
+  high:
+    daily_volume_threshold: 10000000       # $10M+ daily volume
+    bid_ask_spread_max: 0.005              # 0.5% max spread
+    market_depth_min: 1000000              # $1M+ market depth
+
+  medium:
+    daily_volume_threshold: 1000000        # $1M+ daily volume
+    bid_ask_spread_max: 0.02               # 2% max spread
+    market_depth_min: 100000               # $100K+ market depth
+
+  low:
+    daily_volume_threshold: 100000         # $100K+ daily volume
+    bid_ask_spread_max: 0.05               # 5% max spread
+    market_depth_min: 10000                # $10K+ market depth
+
+# Portfolio optimization recommendations
+optimization_recommendations:
+  rebalancing:
+    frequency_days: 30                     # Recommend rebalancing every 30 days
+    threshold_deviation: 0.10              # 10% deviation from target allocation
+    min_trade_size: 1000.0                 # $1,000 minimum trade size
+
+  diversification_targets:
+    target_asset_types: 5                  # Target 5 different asset types
+    max_single_asset: 0.25                 # 25% maximum single asset allocation
+    min_stablecoin_allocation: 0.15        # 15% minimum stablecoin allocation
+
+  risk_management:
+    volatility_budget: 0.40                # 40% maximum portfolio volatility
+    correlation_limit: 0.60                # 60% maximum average correlation
+    liquidity_requirement: 0.20            # 20% must be high-liquidity assets
+
+# Analysis and reporting parameters
+analysis:
+  default_confidence_score: 0.75          # Default confidence level
+  data_quality_threshold: 0.80            # 80% minimum data quality
+  monte_carlo_simulations: 1000           # Number of Monte Carlo iterations
+  stress_test_scenarios: 10               # Number of stress test scenarios
+  cache_expiry_minutes: 5                 # 5-minute cache for real-time data
+  historical_lookback_days: 365           # 1 year historical analysis
+
+# Database configuration
+database:
+  default_path: "notebooks/portfolio_diversification.db"
+  max_history_records: 1000               # Maximum historical records to store
+  backup_enabled: true                    # Enable automatic backups
+  backup_interval_hours: 12               # Backup every 12 hours
+
+# API integration settings
+api_integration:
+  rate_limit_requests_per_minute: 60      # 60 requests per minute limit
+  timeout_seconds: 30                     # 30-second timeout for API calls
+  retry_attempts: 3                       # 3 retry attempts for failed calls
+  retry_delay_seconds: 1                  # 1-second delay between retries
+
+# Alerting and monitoring
+alerting:
+  concentration_alert_threshold: 0.35     # Alert if single asset > 35%
+  correlation_spike_threshold: 0.80       # Alert if correlation > 80%
+  liquidity_drop_threshold: 0.50          # Alert if liquidity drops > 50%
+  diversification_warning_threshold: 0.30 # Warning if diversification < 30%
+
+# Emergency scenarios and overrides
+emergency_scenarios:
+  market_crash:
+    volatility_spike_threshold: 0.50       # 50% volatility spike
+    correlation_increase_threshold: 0.90   # 90% correlation increase
+    emergency_rebalancing: true            # Force emergency rebalancing
+
+  liquidity_crisis:
+    liquidity_drop_threshold: 0.70         # 70% liquidity drop
+    high_liquidity_requirement: 0.50       # 50% must be high-liquidity
+    restrict_low_liquidity: true           # Restrict low-liquidity positions
+
+  black_swan:
+    disable_normal_rules: true             # Override normal diversification rules
+    emergency_exit_strategy: true          # Enable emergency exit strategy
+    minimum_stablecoin_allocation: 0.30    # 30% minimum stablecoin allocation

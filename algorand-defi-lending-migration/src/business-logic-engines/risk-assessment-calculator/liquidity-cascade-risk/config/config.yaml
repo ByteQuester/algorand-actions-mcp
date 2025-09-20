@@ -1,0 +1,385 @@
+# Liquidity Cascade Risk Assessment Configuration
+# Comprehensive configuration for modeling liquidation cascades and market risks
+
+# Server Configuration
+server:
+  host: "0.0.0.0"
+  port: 8015
+  debug: true
+  cors_enabled: true
+
+# MCP Integration
+mcp:
+  reader_port: 8002  # Market data MCP service
+  writer_port: 8003  # Transaction MCP service
+  retry_attempts: 3
+  timeout: 30
+
+# Liquidation Cascade Parameters
+cascade:
+  # Basic liquidation thresholds
+  liquidation_ratio: 0.15  # 15% collateral buffer
+  liquidation_bonus: 0.05  # 5% liquidation bonus
+
+  # Cascade modeling parameters
+  max_cascade_depth: 10  # Maximum cascade propagation levels
+  cascade_dampening: 0.95  # Dampening factor per level
+  contagion_threshold: 0.02  # 2% threshold for contagion spread
+
+  # Time parameters
+  liquidation_window: 300  # 5 minutes liquidation window
+  cascade_propagation_delay: 30  # 30 seconds between cascade levels
+  recovery_period: 3600  # 1 hour recovery period
+
+  # Protocol interaction parameters
+  cross_protocol_impact: 0.7  # Cross-protocol impact factor
+  protocol_coupling_strength: 0.85  # How tightly protocols are coupled
+
+# Market Depth Analysis
+market_depth:
+  # DEX configurations
+  dexes:
+    tinyman:
+      api_endpoint: "https://mainnet.analytics.tinyman.org/api/v1/"
+      weight: 0.35  # Market share weight
+      slippage_multiplier: 1.0
+
+    pact:
+      api_endpoint: "https://api.pact.fi/api/"
+      weight: 0.25
+      slippage_multiplier: 1.1
+
+    algofi_dex:
+      api_endpoint: "https://api.algofi.org/v1/"
+      weight: 0.20
+      slippage_multiplier: 1.05
+
+    algodex:
+      api_endpoint: "https://api.algodex.com/v1/"
+      weight: 0.15
+      slippage_multiplier: 1.15
+
+    humble:
+      api_endpoint: "https://api.humble.sh/v1/"
+      weight: 0.05
+      slippage_multiplier: 1.2
+
+  # Depth analysis parameters
+  depth_levels: [0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0]  # % price impact levels
+  min_liquidity_threshold: 10000  # Minimum USD liquidity
+  max_order_size: 1000000  # Maximum order size for analysis
+
+  # Real-time monitoring
+  refresh_interval: 15  # seconds
+  depth_cache_ttl: 60  # seconds
+
+# Slippage and Price Impact
+slippage:
+  # Price impact models
+  models:
+    linear:
+      enabled: true
+      slope_factor: 0.001  # Linear price impact slope
+
+    sqrt:
+      enabled: true
+      coefficient: 0.05  # Square root model coefficient
+
+    exponential:
+      enabled: true
+      decay_factor: 0.1  # Exponential decay factor
+
+  # Order size categories
+  order_categories:
+    small: 1000      # < $1k
+    medium: 10000    # $1k - $10k
+    large: 100000    # $10k - $100k
+    whale: 1000000   # > $100k
+
+  # Slippage thresholds
+  warning_threshold: 0.005  # 0.5% slippage warning
+  critical_threshold: 0.02  # 2% slippage critical
+  extreme_threshold: 0.05   # 5% slippage extreme
+
+# Cross-Asset Correlation Analysis
+correlation:
+  # Asset categories for correlation analysis
+  asset_groups:
+    major_tokens: ["ALGO", "USDC", "USDT", "GOBTC", "GOETH"]
+    defi_tokens: ["GARD", "BANK", "OPUL", "SMILE", "DEGEN"]
+    stablecoins: ["USDC", "USDT", "GARD", "STBL"]
+    governance: ["VOTE", "PLANET", "CHOICE"]
+
+  # Correlation parameters
+  lookback_periods: [24, 168, 720, 8760]  # Hours: 1d, 1w, 1m, 1y
+  correlation_threshold: 0.7  # High correlation threshold
+  regime_change_threshold: 0.3  # Correlation regime change
+
+  # Stress correlation adjustments
+  stress_multipliers:
+    normal: 1.0
+    stressed: 1.5
+    crisis: 2.0
+
+# Stablecoin Risk Assessment
+stablecoin:
+  # Monitored stablecoins
+  coins:
+    usdc:
+      target_peg: 1.0
+      tolerance: 0.002  # 0.2% tolerance
+      backing_type: "fiat"
+      reserve_ratio: 1.0
+
+    usdt:
+      target_peg: 1.0
+      tolerance: 0.003  # 0.3% tolerance
+      backing_type: "mixed"
+      reserve_ratio: 0.95
+
+    gard:
+      target_peg: 1.0
+      tolerance: 0.005  # 0.5% tolerance
+      backing_type: "algorithmic"
+      reserve_ratio: 1.5
+
+    stbl:
+      target_peg: 1.0
+      tolerance: 0.004  # 0.4% tolerance
+      backing_type: "crypto"
+      reserve_ratio: 1.2
+
+  # Depeg risk parameters
+  depeg_warning: 0.01    # 1% depeg warning
+  depeg_critical: 0.03   # 3% depeg critical
+  depeg_severe: 0.05     # 5% depeg severe
+
+  # Stability mechanisms
+  arbitrage_efficiency: 0.85  # How efficiently arbitrage works
+  redemption_capacity: 0.9    # Redemption mechanism capacity
+
+  # Recovery modeling
+  recovery_half_life: 7200    # 2 hours typical recovery time
+  max_recovery_time: 86400    # 24 hours maximum recovery
+
+# Stress Testing and Black Swan Events
+stress_testing:
+  # Scenario definitions
+  scenarios:
+    market_crash:
+      description: "50% market crash over 24 hours"
+      price_shock: -0.5
+      volume_spike: 3.0
+      correlation_increase: 1.8
+      duration_hours: 24
+
+    flash_crash:
+      description: "20% flash crash in 1 hour"
+      price_shock: -0.2
+      volume_spike: 10.0
+      correlation_increase: 2.5
+      duration_hours: 1
+
+    stablecoin_depeg:
+      description: "Major stablecoin depegs 10%"
+      target_coin: "USDC"
+      depeg_magnitude: 0.1
+      contagion_factor: 1.5
+      duration_hours: 12
+
+    liquidity_crisis:
+      description: "Liquidity dries up across DEXs"
+      liquidity_reduction: 0.8
+      spread_increase: 5.0
+      depth_reduction: 0.7
+      duration_hours: 6
+
+    protocol_hack:
+      description: "Major lending protocol compromised"
+      affected_protocol: "algofi"
+      confidence_loss: 0.6
+      capital_flight: 0.4
+      duration_hours: 72
+
+  # Monte Carlo parameters
+  monte_carlo:
+    num_simulations: 10000
+    random_seed: 42
+    confidence_levels: [0.95, 0.99, 0.999]
+
+  # Stress test execution
+  execution:
+    parallel_scenarios: true
+    max_workers: 4
+    timeout_per_scenario: 300  # 5 minutes per scenario
+
+# Contagion Detection and Modeling
+contagion:
+  # Network modeling
+  network:
+    protocols: ["algofi", "folks_finance", "tinyman", "pact"]
+    connection_strength: 0.75  # How connected protocols are
+    network_density: 0.6       # Network connectivity density
+
+  # Contagion propagation
+  propagation:
+    initial_shock_threshold: 0.05  # 5% shock to trigger contagion
+    propagation_speed: 0.8         # How fast contagion spreads
+    decay_rate: 0.9                # Contagion decay per hop
+    amplification_factor: 1.2      # Amplification in stressed conditions
+
+  # Detection parameters
+  detection:
+    correlation_spike_threshold: 0.3  # Correlation increase for detection
+    volume_spike_threshold: 2.0       # Volume increase threshold
+    volatility_cluster_threshold: 1.5 # Volatility clustering threshold
+
+  # Early warning system
+  early_warning:
+    lookback_window: 24    # Hours to look back
+    alert_threshold: 0.7   # Alert threshold (0-1)
+    escalation_threshold: 0.9  # Escalation threshold
+
+# Risk Metrics and VaR
+risk_metrics:
+  # Value at Risk (VaR)
+  var:
+    confidence_levels: [0.95, 0.99, 0.999]
+    time_horizons: [1, 7, 30]  # Days
+    method: "historical"  # historical, parametric, monte_carlo
+
+  # Expected Shortfall (ES)
+  expected_shortfall:
+    confidence_levels: [0.95, 0.99]
+    method: "historical"
+
+  # Volatility modeling
+  volatility:
+    model: "garch"  # garch, ewma, simple
+    window_size: 252  # Trading days
+    decay_factor: 0.94  # EWMA decay factor
+
+  # Tail risk metrics
+  tail_risk:
+    extreme_threshold: 0.01  # 1% extreme event threshold
+    tail_index_estimation: "hill"  # hill, pickands
+    block_maxima_size: 30    # Block size for extreme value analysis
+
+# Alert and Notification System
+alerts:
+  # Alert levels
+  levels:
+    info: 0.3      # Informational alerts
+    warning: 0.6   # Warning level
+    critical: 0.8  # Critical level
+    emergency: 0.95 # Emergency level
+
+  # Alert channels
+  channels:
+    console: true
+    file: true
+    webhook: false  # Set webhook URL if needed
+
+  # Alert rules
+  rules:
+    cascade_risk_high:
+      metric: "cascade_probability"
+      threshold: 0.7
+      level: "warning"
+
+    liquidity_crisis:
+      metric: "aggregate_liquidity"
+      threshold: 0.3
+      level: "critical"
+
+    stablecoin_depeg:
+      metric: "max_depeg_magnitude"
+      threshold: 0.02
+      level: "warning"
+
+    contagion_detected:
+      metric: "contagion_probability"
+      threshold: 0.8
+      level: "critical"
+
+# Performance and Optimization
+performance:
+  # Caching
+  cache:
+    enabled: true
+    ttl: 300  # 5 minutes default TTL
+    max_size: 1000  # Maximum cache entries
+
+  # Database
+  database:
+    pool_size: 10
+    max_overflow: 20
+    pool_timeout: 30
+
+  # Parallel processing
+  parallel:
+    enabled: true
+    max_workers: 8
+    chunk_size: 100
+
+  # Memory management
+  memory:
+    max_memory_mb: 4096
+    gc_threshold: 0.8
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "liquidity_cascade_risk.log"
+  max_size_mb: 100
+  backup_count: 5
+
+  # Component-specific logging
+  components:
+    cascade_modeler: "INFO"
+    market_depth: "DEBUG"
+    slippage_calculator: "INFO"
+    correlation_analyzer: "INFO"
+    stablecoin_risk: "INFO"
+    stress_tester: "INFO"
+    contagion_detector: "WARNING"
+    liquidity_engine: "INFO"
+
+# Development and Testing
+development:
+  mock_data: false
+  simulate_delays: false
+  test_mode: false
+
+  # Test scenarios
+  test_scenarios:
+    - "small_liquidation"
+    - "medium_cascade"
+    - "large_market_shock"
+    - "stablecoin_stress"
+    - "cross_protocol_contagion"
+
+# External Data Sources
+data_sources:
+  # Price data
+  price_feeds:
+    primary: "coinmarketcap"
+    secondary: "coingecko"
+    fallback: "defillama"
+
+  # Blockchain data
+  blockchain:
+    algorand_node: "https://mainnet-api.algonode.cloud"
+    indexer: "https://mainnet-idx.algonode.cloud"
+
+  # Market data
+  market_data:
+    refresh_interval: 30  # seconds
+    historical_days: 365
+
+  # API rate limits
+  rate_limits:
+    requests_per_minute: 60
+    burst_limit: 10
+    backoff_factor: 2

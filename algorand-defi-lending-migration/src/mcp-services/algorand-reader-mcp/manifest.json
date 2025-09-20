@@ -1,0 +1,124 @@
+{
+  "id": "algorand-reader-mcp",
+  "name": "Algorand Blockchain Reader",
+  "description": "READ ONLY access to Algorand blockchain data via indexer and algod APIs",
+  "version": "1.2.0",
+  "type": "reader",
+  "capabilities": {
+    "read_only": true,
+    "supports_pagination": true,
+    "supports_oauth": true
+  },
+  "tools": [
+    {
+      "name": "search_accounts",
+      "description": "Search for Algorand accounts by various criteria",
+      "parameters": {
+        "address": "string (optional) - Account address",
+        "limit": "number (optional) - Maximum number of results",
+        "next_token": "string (optional) - Pagination token"
+      }
+    },
+    {
+      "name": "get_account",
+      "description": "Get detailed information about a specific account",
+      "parameters": {
+        "address": "string (required) - Account address"
+      }
+    },
+    {
+      "name": "search_transactions",
+      "description": "Search for transactions by various criteria",
+      "parameters": {
+        "address": "string (optional) - Account address",
+        "asset_id": "number (optional) - Asset ID",
+        "tx_type": "string (optional) - Transaction type",
+        "min_round": "number (optional) - Minimum round",
+        "max_round": "number (optional) - Maximum round",
+        "limit": "number (optional) - Maximum number of results",
+        "next_token": "string (optional) - Pagination token"
+      }
+    },
+    {
+      "name": "get_transaction",
+      "description": "Get detailed information about a specific transaction",
+      "parameters": {
+        "txid": "string (required) - Transaction ID"
+      }
+    },
+    {
+      "name": "search_assets",
+      "description": "Search for Algorand Standard Assets (ASAs)",
+      "parameters": {
+        "asset_id": "number (optional) - Asset ID",
+        "name": "string (optional) - Asset name",
+        "unit": "string (optional) - Asset unit name",
+        "creator": "string (optional) - Creator address",
+        "limit": "number (optional) - Maximum number of results",
+        "next_token": "string (optional) - Pagination token"
+      }
+    },
+    {
+      "name": "get_asset",
+      "description": "Get detailed information about a specific asset",
+      "parameters": {
+        "asset_id": "number (required) - Asset ID"
+      }
+    },
+    {
+      "name": "search_applications",
+      "description": "Search for Algorand applications",
+      "parameters": {
+        "application_id": "number (optional) - Application ID",
+        "creator": "string (optional) - Creator address",
+        "limit": "number (optional) - Maximum number of results",
+        "next_token": "string (optional) - Pagination token"
+      }
+    },
+    {
+      "name": "get_application",
+      "description": "Get detailed information about a specific application",
+      "parameters": {
+        "application_id": "number (required) - Application ID"
+      }
+    },
+    {
+      "name": "get_block",
+      "description": "Get block information for a specific round",
+      "parameters": {
+        "round": "number (required) - Block round number"
+      }
+    },
+    {
+      "name": "get_health",
+      "description": "Check the health status of the service",
+      "parameters": {}
+    }
+  ],
+  "endpoints": [
+    "GET /health - Service health check",
+    "GET /accounts/{address} - Account information",
+    "GET /accounts - Search accounts",
+    "GET /transactions/{txid} - Transaction details",
+    "GET /transactions - Search transactions",
+    "GET /assets/{asset_id} - Asset information",
+    "GET /assets - Search assets",
+    "GET /applications/{app_id} - Application information",
+    "GET /applications - Search applications",
+    "GET /blocks/{round} - Block information"
+  ],
+  "auth": {
+    "oauth2": {
+      "enabled": true,
+      "scopes": ["read:blockchain"]
+    }
+  },
+  "network": {
+    "default": "testnet",
+    "supported": ["testnet", "mainnet"]
+  },
+  "ports": {
+    "development": 8002,
+    "production": 8002
+  }
+}

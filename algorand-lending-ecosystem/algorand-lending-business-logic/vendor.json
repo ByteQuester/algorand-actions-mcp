@@ -1,0 +1,8 @@
+{
+  "name": "algorand-lending-business-logic",
+  "version": "1.0.0",
+  "description": "Algorand lending engines",
+  "integration": "from algorand_lending_bl import AlgorandLendingService",
+  "dependencies": ["algorand-sdk", "pyyaml"],
+  "min_python": "3.9"
+}

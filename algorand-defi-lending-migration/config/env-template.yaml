@@ -1,0 +1,88 @@
+# Algorand DeFi Lending Platform - Environment Configuration Template
+
+# Database Configuration (PostgreSQL Cluster)
+database:
+  url: "postgresql://pgbouncer-service:5432/defi_core_db"
+  users_db: "postgresql://pgbouncer-service:5432/platform_users_db"
+  wallets_db: "postgresql://pgbouncer-service:5432/platform_wallets_db"
+  audit_db: "postgresql://pgbouncer-service:5432/platform_audit_db"
+  pool_size: 20
+  timeout: 30000
+
+# Redis Cache Configuration
+cache:
+  url: "redis://redis-service.shared-infrastructure:6379"
+  session_ttl: 3600
+  price_cache_ttl: 60
+
+# Algorand Blockchain Configuration
+algorand:
+  network: "mainnet"  # or "testnet" for development
+  algod_url: "https://mainnet-api.algonode.cloud"
+  indexer_url: "https://mainnet-idx.algonode.cloud"
+  token: ""  # API token if using private node
+
+# Price Oracle Configuration
+oracles:
+  primary: "chainlink"
+  backup_sources:
+    - "coingecko"
+    - "dex_aggregator"
+  update_frequency: 30  # seconds
+  price_deviation_threshold: 0.02  # 2%
+
+# Risk Management Parameters
+risk:
+  max_loan_to_value: 0.75  # 75%
+  liquidation_threshold: 0.85  # 85%
+  minimum_collateral_ratio: 1.5  # 150%
+  stress_test_scenarios:
+    - "crypto_crash_50"
+    - "algo_depegging"
+    - "liquidity_crisis"
+
+# Interest Rate Configuration
+interest_rates:
+  base_rate: 0.02  # 2% annual
+  risk_premium_range: [0.01, 0.15]  # 1-15% based on risk
+  utilization_curve:
+    optimal_ratio: 0.8
+    slope1: 0.04
+    slope2: 0.6
+
+# Security Configuration
+security:
+  encryption_key: "${COOKIE_ENCRYPTION_KEY}"
+  jwt_secret: "${JWT_SECRET}"
+  oauth:
+    google_client_id: "${GOOGLE_CLIENT_ID}"
+    google_client_secret: "${GOOGLE_CLIENT_SECRET}"
+
+# Monitoring & Compliance
+monitoring:
+  correlation_id_header: "X-Correlation-ID"
+  user_id_header: "X-User-ID"
+  wallet_address_header: "X-Wallet-Address"
+  log_level: "info"
+  structured_logging: true
+
+# Service Configuration
+services:
+  port: 8080
+  health_check_path: "/health"
+  metrics_path: "/metrics"
+  graceful_shutdown_timeout: 30000
+
+# Feature Flags
+features:
+  kyc_required: true
+  aml_monitoring: true
+  transaction_limits:
+    daily_limit_usd: 50000
+    single_transaction_limit_usd: 10000
+  supported_assets:
+    - "ALGO"
+    - "USDC"
+    - "USDT"
+    - "goBTC"
+    - "goETH"

@@ -1,0 +1,61 @@
+{
+  "lending": {
+    "default_interest_rate": 7.5,
+    "max_loan_amount": 100000000000,
+    "min_collateral_ratio": 1.3,
+    "supported_collateral": ["ALGO", "USDC"],
+    "max_loan_duration_days": 365,
+    "min_loan_duration_days": 1
+  },
+  "mcp_services": {
+    "algorand_reader": {
+      "endpoint": "http://localhost:8002",
+      "health_path": "/health",
+      "timeout": 30000
+    },
+    "algorand_writer": {
+      "endpoint": "http://localhost:3001",
+      "health_path": "/health",
+      "timeout": 30000
+    },
+    "lending_toolbox": {
+      "endpoint": "http://127.0.0.1:5001",
+      "health_path": "/health",
+      "timeout": 30000
+    }
+  },
+  "agents": {
+    "model": "gemini-2.0-flash-exp",
+    "max_retries": 3,
+    "timeout": 60000,
+    "coordination": {
+      "name": "algorand_lending_coordinator",
+      "model": "gemini-2.0-flash-exp"
+    },
+    "negotiation": {
+      "name": "algorand_lending_negotiation_agent",
+      "model": "gemini-2.5-flash"
+    },
+    "liquidity": {
+      "name": "algorand_lending_liquidity_agent",
+      "model": "gemini-2.5-flash"
+    },
+    "execution": {
+      "name": "algorand_lending_execution_agent",
+      "model": "gemini-2.5-flash"
+    }
+  },
+  "logging": {
+    "level": "INFO",
+    "format": "structured",
+    "console": true,
+    "file": false,
+    "max_file_size": "10MB",
+    "max_files": 5
+  },
+  "monitoring": {
+    "health_check_interval": 30,
+    "metrics_enabled": true,
+    "performance_tracking": true
+  }
+}
