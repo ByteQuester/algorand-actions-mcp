@@ -1,0 +1,69 @@
+[
+  {
+    "event_id": "dbc7dbc2-fe6b-4fa7-9ef5-ad1b56b54f32",
+    "loan_id": "LOAN-353FCE77",
+    "event_type": "APPLICATION_RECEIVED",
+    "event_data": {
+      "borrower_name": "John API Success",
+      "borrower_address": "ALGO_JOHN_789",
+      "amount": 5000.0,
+      "duration_days": 60,
+      "purpose": "working_capital",
+      "credit_score": 750,
+      "debt_to_income": null,
+      "payment_history": null,
+      "collateral_offered": null
+    },
+    "timestamp": "2025-09-16T15:51:47.155268"
+  },
+  {
+    "event_id": "779939b4-5113-4946-90b6-04bfd7127e92",
+    "loan_id": "LOAN-353FCE77",
+    "event_type": "RISK_ASSESSED",
+    "event_data": {
+      "credit_score": 750,
+      "debt_to_income": null,
+      "payment_history_score": null,
+      "collateral_value": null,
+      "final_risk_score": 70,
+      "risk_level": "MEDIUM",
+      "components": {
+        "credit_score_weight": 40,
+        "dti_weight": 30,
+        "payment_history_weight": 20,
+        "collateral_weight": 10
+      }
+    },
+    "timestamp": "2025-09-16T15:51:47.160998"
+  },
+  {
+    "event_id": "478011f8-723e-4ad4-8f33-6c7f35d5171a",
+    "loan_id": "LOAN-353FCE77",
+    "event_type": "RATE_CALCULATED",
+    "event_data": {
+      "interest_rate": 5.0
+    },
+    "timestamp": "2025-09-16T15:51:47.167377"
+  },
+  {
+    "event_id": "8f1e63ce-5043-4520-b990-cb09185d4f43",
+    "loan_id": "LOAN-353FCE77",
+    "event_type": "COLLATERAL_CALCULATED",
+    "event_data": {
+      "required": 6500.0
+    },
+    "timestamp": "2025-09-16T15:51:47.172767"
+  },
+  {
+    "event_id": "353934ed-2b27-4324-b168-87b8ed81f956",
+    "loan_id": "LOAN-353FCE77",
+    "event_type": "DECISION_MADE",
+    "event_data": {
+      "status": "approved",
+      "reason": "Approved with risk score 70",
+      "interest_rate": 5.0,
+      "collateral_required": 6500.0
+    },
+    "timestamp": "2025-09-16T15:51:47.181566"
+  }
+]

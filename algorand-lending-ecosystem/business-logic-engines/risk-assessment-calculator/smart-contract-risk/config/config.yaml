@@ -1,0 +1,417 @@
+# Smart Contract Risk Engine Configuration
+
+# MCP Service URLs
+mcp_services:
+  algorand_reader_url: "http://localhost:8002"
+  market_data_url: "http://localhost:8003"
+
+# Contract Risk Parameters
+contract_risk_parameters:
+  audit_requirements:
+    tier_1_protocols:
+      min_audits: 2
+      max_audit_age_months: 12
+      required_auditors: ["runtime_verification", "certik", "halborn", "trail_of_bits"]
+      min_audit_score: 85
+
+    tier_2_protocols:
+      min_audits: 1
+      max_audit_age_months: 18
+      required_auditors: ["runtime_verification", "certik", "halborn", "trail_of_bits", "immunefi"]
+      min_audit_score: 75
+
+    tier_3_protocols:
+      min_audits: 1
+      max_audit_age_months: 24
+      min_audit_score: 60
+
+  security_thresholds:
+    critical_vulnerability_max: 0
+    high_vulnerability_max: 1
+    medium_vulnerability_max: 3
+    low_vulnerability_max: 10
+
+  interaction_risk_thresholds:
+    max_external_calls_per_function: 5
+    max_contract_dependency_depth: 3
+    max_admin_functions_per_contract: 10
+    min_timelock_hours: 24
+
+# Smart Contract Categories and Risk Profiles
+contract_categories:
+  core_protocol:
+    description: "Core protocol contracts (main logic)"
+    base_risk_multiplier: 1.0
+    critical_functions: ["deposit", "withdraw", "liquidate", "borrow", "repay"]
+    max_complexity_score: 80
+    required_features: ["emergency_pause", "access_control", "reentrancy_protection"]
+
+  governance:
+    description: "Governance and voting contracts"
+    base_risk_multiplier: 1.2
+    critical_functions: ["propose", "vote", "execute", "delegate"]
+    max_complexity_score: 60
+    required_features: ["timelock", "multisig", "proposal_threshold"]
+
+  token_contracts:
+    description: "Token and asset management contracts"
+    base_risk_multiplier: 0.8
+    critical_functions: ["transfer", "mint", "burn", "approve"]
+    max_complexity_score: 40
+    required_features: ["standard_compliance", "access_control"]
+
+  oracle_integration:
+    description: "Price oracle and data feed contracts"
+    base_risk_multiplier: 1.5
+    critical_functions: ["update_price", "get_price", "validate_data"]
+    max_complexity_score: 50
+    required_features: ["staleness_check", "deviation_check", "fallback_oracle"]
+
+  bridge_contracts:
+    description: "Cross-chain bridge contracts"
+    base_risk_multiplier: 2.0
+    critical_functions: ["lock", "unlock", "mint", "burn", "validate_proof"]
+    max_complexity_score: 90
+    required_features: ["multisig_validation", "timelock", "emergency_pause"]
+
+  liquidity_pools:
+    description: "DEX and liquidity pool contracts"
+    base_risk_multiplier: 1.1
+    critical_functions: ["swap", "add_liquidity", "remove_liquidity"]
+    max_complexity_score: 70
+    required_features: ["slippage_protection", "access_control"]
+
+# Known Algorand Smart Contract Patterns
+algorand_contract_patterns:
+  stateful_apps:
+    typical_complexity: 60
+    common_vulnerabilities: ["state_manipulation", "logic_bomb", "access_control"]
+    security_requirements: ["state_validation", "access_control", "input_sanitization"]
+
+  atomic_transfers:
+    typical_complexity: 30
+    common_vulnerabilities: ["reentrancy", "front_running", "logic_errors"]
+    security_requirements: ["atomicity_check", "fee_validation"]
+
+  asset_contracts:
+    typical_complexity: 40
+    common_vulnerabilities: ["unauthorized_minting", "transfer_validation", "freeze_logic"]
+    security_requirements: ["role_based_access", "supply_validation"]
+
+# Audit Database Configuration
+audit_database:
+  known_auditors:
+    runtime_verification:
+      reputation_score: 95
+      specialization: ["formal_verification", "algorand", "defi"]
+      avg_audit_duration_weeks: 8
+
+    certik:
+      reputation_score: 90
+      specialization: ["security_audit", "defi", "bridge"]
+      avg_audit_duration_weeks: 6
+
+    halborn:
+      reputation_score: 88
+      specialization: ["penetration_testing", "defi", "smart_contracts"]
+      avg_audit_duration_weeks: 4
+
+    trail_of_bits:
+      reputation_score: 92
+      specialization: ["formal_verification", "cryptography", "security"]
+      avg_audit_duration_weeks: 6
+
+    immunefi:
+      reputation_score: 85
+      specialization: ["bug_bounty", "community_audit", "defi"]
+      avg_audit_duration_weeks: 2
+
+  audit_categories:
+    formal_verification:
+      weight: 1.0
+      min_score_threshold: 90
+
+    security_audit:
+      weight: 0.9
+      min_score_threshold: 85
+
+    code_review:
+      weight: 0.7
+      min_score_threshold: 75
+
+    bug_bounty:
+      weight: 0.6
+      min_score_threshold: 70
+
+# Exploit Database and Vulnerability Patterns
+exploit_database:
+  algorand_specific_exploits:
+    logic_bomb_attack:
+      severity: "critical"
+      affected_contracts: ["stateful_apps"]
+      mitigation: "formal_verification"
+      historical_frequency: 0.02
+
+    state_manipulation:
+      severity: "high"
+      affected_contracts: ["stateful_apps", "governance"]
+      mitigation: "access_control"
+      historical_frequency: 0.05
+
+    oracle_manipulation:
+      severity: "high"
+      affected_contracts: ["oracle_integration"]
+      mitigation: "multiple_oracles"
+      historical_frequency: 0.03
+
+    reentrancy_attack:
+      severity: "high"
+      affected_contracts: ["core_protocol", "liquidity_pools"]
+      mitigation: "reentrancy_guards"
+      historical_frequency: 0.04
+
+  cross_protocol_exploits:
+    flash_loan_attack:
+      severity: "critical"
+      affected_protocols: ["lending", "dex"]
+      mitigation: "price_oracle_validation"
+      historical_frequency: 0.08
+
+    governance_attack:
+      severity: "critical"
+      affected_protocols: ["all"]
+      mitigation: "timelock_governance"
+      historical_frequency: 0.01
+
+    bridge_exploit:
+      severity: "critical"
+      affected_protocols: ["bridge"]
+      mitigation: "multisig_validation"
+      historical_frequency: 0.15
+
+# Contract Interaction Risk Matrix
+interaction_patterns:
+  direct_call:
+    risk_multiplier: 1.0
+    validation_requirements: ["input_validation", "access_control"]
+
+  delegated_call:
+    risk_multiplier: 1.8
+    validation_requirements: ["implementation_validation", "storage_layout"]
+
+  cross_contract_call:
+    risk_multiplier: 1.4
+    validation_requirements: ["target_validation", "return_validation"]
+
+  atomic_group:
+    risk_multiplier: 1.2
+    validation_requirements: ["atomicity_validation", "fee_calculation"]
+
+  recursive_call:
+    risk_multiplier: 2.0
+    validation_requirements: ["recursion_depth_limit", "gas_limit"]
+
+# Dependency Risk Assessment
+dependency_analysis:
+  external_libraries:
+    pyteal:
+      risk_level: "low"
+      audit_status: "audited"
+      update_frequency: "regular"
+
+    algosdk:
+      risk_level: "low"
+      audit_status: "audited"
+      update_frequency: "regular"
+
+    custom_libraries:
+      risk_level: "high"
+      audit_status: "varies"
+      update_frequency: "varies"
+
+  oracle_dependencies:
+    algorand_native:
+      reliability: 0.99
+      manipulation_resistance: 0.95
+      update_frequency_seconds: 60
+
+    chainlink:
+      reliability: 0.98
+      manipulation_resistance: 0.90
+      update_frequency_seconds: 300
+
+    pyth:
+      reliability: 0.96
+      manipulation_resistance: 0.88
+      update_frequency_seconds: 100
+
+    custom_oracle:
+      reliability: 0.85
+      manipulation_resistance: 0.70
+      update_frequency_seconds: 900
+
+# Upgrade Risk Parameters
+upgrade_patterns:
+  immutable_contracts:
+    upgrade_risk: 0.0
+    governance_risk: 0.0
+    centralization_risk: 0.0
+
+  proxy_upgradeable:
+    upgrade_risk: 0.6
+    governance_risk: 0.4
+    centralization_risk: 0.5
+    required_features: ["timelock", "multisig"]
+
+  admin_upgradeable:
+    upgrade_risk: 0.9
+    governance_risk: 0.8
+    centralization_risk: 0.9
+    required_features: ["emergency_only", "strict_timelock"]
+
+  governance_upgradeable:
+    upgrade_risk: 0.3
+    governance_risk: 0.2
+    centralization_risk: 0.1
+    required_features: ["community_voting", "timelock"]
+
+# Admin Key Risk Assessment
+admin_key_patterns:
+  multisig_admin:
+    centralization_risk: 0.2
+    required_signers_min: 3
+    required_signers_recommended: 5
+    key_distribution_requirement: "geographic_distribution"
+
+  timelock_admin:
+    centralization_risk: 0.4
+    min_timelock_hours: 24
+    recommended_timelock_hours: 72
+    emergency_override: false
+
+  dao_admin:
+    centralization_risk: 0.1
+    min_voting_threshold: 0.1
+    min_quorum: 0.2
+    voting_period_hours: 72
+
+  single_admin:
+    centralization_risk: 1.0
+    acceptable_only_for: ["development", "testing"]
+    max_funds_at_risk: 10000
+
+# Complexity Assessment Parameters
+complexity_metrics:
+  lines_of_code:
+    low_threshold: 100
+    medium_threshold: 500
+    high_threshold: 1000
+    critical_threshold: 2000
+
+  cyclomatic_complexity:
+    low_threshold: 5
+    medium_threshold: 10
+    high_threshold: 20
+    critical_threshold: 30
+
+  function_count:
+    low_threshold: 5
+    medium_threshold: 15
+    high_threshold: 30
+    critical_threshold: 50
+
+  external_calls:
+    low_threshold: 2
+    medium_threshold: 5
+    high_threshold: 10
+    critical_threshold: 20
+
+# Historical Exploit Analysis
+exploit_proximity_analysis:
+  time_decay_factor: 0.1  # Reduce exploit relevance by 10% per month
+  category_correlation_factor: 0.8  # 80% correlation within category
+  protocol_correlation_factor: 0.6  # 60% correlation within protocol
+
+  exploit_severity_weights:
+    critical: 1.0
+    high: 0.7
+    medium: 0.4
+    low: 0.2
+
+  mitigation_effectiveness:
+    formal_verification: 0.9  # 90% effective
+    security_audit: 0.8       # 80% effective
+    bug_bounty: 0.6          # 60% effective
+    code_review: 0.5         # 50% effective
+
+# Risk Scoring Weights
+risk_scoring_weights:
+  security_analysis_weight: 0.3
+  interaction_risk_weight: 0.25
+  dependency_risk_weight: 0.2
+  upgrade_risk_weight: 0.15
+  complexity_risk_weight: 0.1
+
+# Alert Thresholds
+alert_thresholds:
+  contract_risk_critical: 0.8
+  contract_risk_high: 0.6
+  contract_risk_medium: 0.4
+
+  exploit_proximity_critical: 0.7
+  exploit_proximity_warning: 0.5
+
+  admin_centralization_warning: 0.6
+  admin_centralization_critical: 0.8
+
+  audit_age_warning_months: 12
+  audit_age_critical_months: 24
+
+# Monitoring Configuration
+monitoring:
+  contract_update_check_hours: 6
+  exploit_database_update_hours: 24
+  audit_database_update_hours: 168  # Weekly
+
+  real_time_monitoring:
+    enabled: true
+    check_interval_minutes: 15
+    alert_conditions:
+      - "new_exploit_detected"
+      - "contract_upgrade_detected"
+      - "admin_key_change_detected"
+      - "unusual_interaction_pattern"
+
+# Integration APIs
+external_apis:
+  exploit_databases:
+    - url: "https://api.defipulse.com/exploits"
+      api_key_required: true
+      update_frequency_hours: 6
+
+    - url: "https://api.rekt.news"
+      api_key_required: false
+      update_frequency_hours: 12
+
+  audit_databases:
+    - url: "https://api.certik.org"
+      api_key_required: true
+      update_frequency_hours: 24
+
+    - url: "https://api.halborn.com"
+      api_key_required: true
+      update_frequency_hours: 24
+
+# Cache Configuration
+caching:
+  contract_analysis_cache_hours: 6
+  exploit_data_cache_hours: 24
+  audit_data_cache_hours: 168
+  dependency_analysis_cache_hours: 48
+
+# Analysis Configuration
+analysis:
+  default_confidence_score: 0.8
+  minimum_data_quality_threshold: 0.7
+  risk_threshold_adjustment_factor: 0.1
+  early_warning_sensitivity: 0.05

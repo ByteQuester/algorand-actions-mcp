@@ -1,0 +1,182 @@
+# Governance Stability and Systemic Risk Configuration
+# Comprehensive risk assessment parameters for Algorand ecosystem
+
+governance_risk:
+  # Voting Power Concentration Thresholds
+  voting_concentration:
+    critical_whale_threshold: 0.20  # 20% single entity control
+    high_risk_threshold: 0.15       # 15% single entity control
+    moderate_risk_threshold: 0.10   # 10% single entity control
+    top_10_dominance_threshold: 0.60 # Top 10 holders control threshold
+    top_50_dominance_threshold: 0.80 # Top 50 holders control threshold
+    gini_coefficient_threshold: 0.85 # Distribution inequality threshold
+
+  # Proposal Manipulation Detection
+  proposal_risks:
+    flash_governance_window: 7200    # 2 hours in seconds
+    minimum_deliberation_time: 172800 # 48 hours in seconds
+    quorum_manipulation_threshold: 0.05 # 5% swing detection
+    vote_buying_correlation_threshold: 0.75
+    proposal_frequency_limit: 5      # Max proposals per week per entity
+    emergency_threshold_bypass: 0.95 # 95% supermajority for emergency
+
+  # Governance Token Risk Parameters
+  token_risks:
+    delegation_concentration_limit: 0.25 # 25% to single delegate
+    liquid_staking_risk_threshold: 0.40  # 40% in liquid staking
+    cross_chain_governance_risk: 0.15    # 15% tokens on other chains
+    locked_token_percentage: 0.60       # Minimum locked for stability
+    vesting_schedule_risk_days: 90      # Days until major unlock events
+
+protocol_upgrade_risks:
+  # Upgrade Coordination Assessment
+  coordination:
+    multi_protocol_dependency_count: 10  # Critical dependency threshold
+    upgrade_testing_minimum_days: 30     # Minimum testing period
+    community_consensus_threshold: 0.75  # 75% community approval
+    breaking_change_notice_days: 60      # Notice period for breaking changes
+    rollback_capability_requirement: true
+
+  # Emergency Procedures
+  emergency:
+    emergency_upgrade_threshold: 0.90    # 90% for emergency upgrades
+    emergency_response_time_hours: 24    # Max response time
+    security_council_size: 7             # Minimum security council size
+    emergency_pause_authority_limit: 72  # Hours for emergency pause
+
+  # Testing and Validation
+  testing:
+    testnet_validation_days: 14          # Minimum testnet validation
+    audit_requirement_threshold: 100000  # Lines of code requiring audit
+    formal_verification_critical: true   # Formal verification for critical
+    community_testing_incentive: 10000   # Algo reward for testing
+
+network_security:
+  # Consensus Participation
+  consensus:
+    minimum_participation_rate: 0.80     # 80% participation rate
+    geographic_distribution_countries: 25 # Minimum country distribution
+    entity_concentration_limit: 0.15     # 15% single entity limit
+    relay_node_minimum: 100             # Minimum relay nodes
+    participation_node_minimum: 1000    # Minimum participation nodes
+
+  # State Proof Security
+  state_proof:
+    adoption_threshold: 0.90             # 90% state proof adoption
+    verification_time_limit: 3600        # 1 hour verification time
+    challenge_period_blocks: 1000        # Challenge period in blocks
+    fraud_proof_incentive: 1000          # Algo reward for fraud proofs
+
+  # Infrastructure Dependencies
+  infrastructure:
+    cloud_provider_concentration: 0.30   # 30% single cloud provider limit
+    isp_concentration_limit: 0.25        # 25% single ISP limit
+    geographic_region_limit: 0.40        # 40% single region limit
+    dns_dependency_risk_threshold: 0.20  # 20% DNS provider concentration
+
+regulatory_compliance:
+  # Regulatory Pressure Monitoring
+  pressure_indicators:
+    enforcement_action_weight: 10        # Weight for enforcement actions
+    policy_proposal_weight: 5            # Weight for policy proposals
+    jurisdiction_ban_weight: 15          # Weight for jurisdiction bans
+    investigation_weight: 7              # Weight for investigations
+    guidance_update_weight: 3            # Weight for guidance updates
+
+  # Compliance Requirements
+  requirements:
+    kyc_pressure_threshold: 7            # Combined pressure score
+    aml_monitoring_requirement: 8        # AML monitoring threshold
+    reporting_requirement_threshold: 6   # Reporting threshold
+    license_requirement_pressure: 9      # License requirement pressure
+
+  # Jurisdictional Risk Assessment
+  jurisdictional:
+    high_risk_jurisdictions: ["CN", "BD", "BO", "MM", "NP"]
+    medium_risk_jurisdictions: ["IN", "RU", "TR", "NG", "PK"]
+    regulatory_clarity_score_min: 7      # Minimum clarity score
+    enforcement_predictability_min: 6    # Minimum predictability score
+
+systemic_ecosystem:
+  # Foundation Dependencies
+  foundation:
+    funding_runway_months_critical: 12   # Critical funding threshold
+    funding_runway_months_warning: 24    # Warning funding threshold
+    governance_control_limit: 0.25       # 25% foundation control limit
+    employee_concentration_risk: 0.40    # 40% employee token concentration
+    strategic_partner_dependency: 5      # Maximum strategic dependencies
+
+  # Developer Ecosystem
+  development:
+    core_developer_bus_factor: 5         # Minimum core developers
+    protocol_maintainer_minimum: 10      # Minimum protocol maintainers
+    github_contributor_minimum: 100      # Minimum GitHub contributors
+    development_grant_distribution: 0.20 # Max grants to single entity
+    sdk_maintenance_coverage: 0.95       # SDK maintenance coverage
+
+  # Ecosystem Health
+  ecosystem:
+    active_dapp_minimum: 50              # Minimum active dApps
+    tvl_concentration_limit: 0.30        # 30% TVL in single protocol
+    user_concentration_limit: 0.25       # 25% users in single app
+    validator_rewards_sustainability: 0.05 # 5% annual reward rate
+
+  # Competitive Threats
+  competitive:
+    market_share_decline_threshold: 0.10 # 10% market share decline
+    developer_migration_threshold: 0.15  # 15% developer migration
+    institutional_adoption_lag: 6        # Months behind competitors
+    technology_gap_severity: 3           # Technology gap severity scale
+
+monitoring:
+  # Real-time Monitoring
+  intervals:
+    governance_check_seconds: 300        # 5-minute governance checks
+    network_check_seconds: 60           # 1-minute network checks
+    regulatory_check_hours: 6           # 6-hour regulatory checks
+    systemic_check_hours: 1             # 1-hour systemic checks
+
+  # Alert Thresholds
+  alerts:
+    critical_risk_score: 8.0            # Critical alert threshold
+    high_risk_score: 6.0               # High alert threshold
+    moderate_risk_score: 4.0           # Moderate alert threshold
+    trend_deterioration_threshold: 0.20 # 20% trend deterioration
+
+  # Risk Scoring Weights
+  weights:
+    governance_weight: 0.25             # Governance risk weight
+    upgrade_weight: 0.20                # Upgrade risk weight
+    network_weight: 0.20                # Network security weight
+    regulatory_weight: 0.15             # Regulatory risk weight
+    systemic_weight: 0.20               # Systemic risk weight
+
+# MCP Integration Settings
+mcp_integration:
+  reader_port: 8002
+  writer_port: 8003
+  governance_api_endpoint: "https://governance.algorand.foundation/api"
+  network_api_endpoint: "https://api.algoexplorer.io"
+  regulatory_feed_endpoint: "https://api.coindesk.com/v1/regulatory"
+
+# API Rate Limits
+rate_limits:
+  governance_api_calls_per_minute: 30
+  network_api_calls_per_minute: 60
+  regulatory_api_calls_per_hour: 100
+  max_concurrent_requests: 10
+
+# Logging and Monitoring
+logging:
+  level: "INFO"
+  governance_events: true
+  risk_alerts: true
+  system_health: true
+  performance_metrics: true
+
+# Data Retention
+data_retention:
+  governance_events_days: 365
+  risk_scores_days: 90
+  alert_history_days: 180
+  monitoring_metrics_days: 30

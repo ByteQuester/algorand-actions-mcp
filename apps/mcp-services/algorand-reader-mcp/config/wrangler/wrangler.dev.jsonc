@@ -1,0 +1,53 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "algorand-remote-mcp-dev",
+  "main": "src/index.ts",
+  "workers_dev": true,
+  "preview_urls": false,
+  "compatibility_date": "2025-03-10",
+  "compatibility_flags": ["nodejs_compat"],
+  "migrations": [
+    {
+      "new_sqlite_classes": ["AlgorandRemoteMCP"],
+      "tag": "v1"
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "class_name": "AlgorandRemoteMCP",
+        "name": "AlgorandRemoteMCP"
+      }
+    ]
+  },
+  "r2_buckets": [
+    {
+      "binding": "PLAUSIBLE_AI",
+      "bucket_name": "plausibleai"
+    }
+  ],
+  "kv_namespaces": [
+    { "binding": "OAUTH_KV", "id": "dev" },
+    { "binding": "VAULT_ENTITIES", "id": "dev" },
+    { "binding": "PUBLIC_KEY_CACHE", "id": "dev" },
+    { "binding": "CODE_VERIFIER_KV", "id": "dev" },
+    { "binding": "ARC26_KV", "id": "dev" }
+  ],
+  "observability": {
+    "enabled": false
+  },
+  "vars": {
+    "ALGORAND_NETWORK": "mainnet",
+    "ALGORAND_ALGOD_API": "https://mainnet-api.algonode.cloud/v2",
+    "ALGORAND_ALGOD": "https://mainnet-api.algonode.cloud",
+    "ALGORAND_INDEXER_API": "https://mainnet-idx.algonode.cloud/v2",
+    "ALGORAND_INDEXER": "https://mainnet-idx.algonode.cloud",
+    "ALGORAND_ALGOD_PORT": "",
+    "ALGORAND_INDEXER_PORT": "",
+    "NFD_API_URL": "https://api.nf.domains",
+    "PERA_WALLET_API_URL": "https://mainnet.api.perawallet.app/v1/public",
+    "PERA_EXPLORER_URL": "https://explorer.perawallet.app",
+    "ITEMS_PER_PAGE": "10",
+    "READ_ONLY": "true"
+  }
+}

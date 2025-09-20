@@ -1,0 +1,205 @@
+# ASA Risk Assessment Configuration
+# Algorand Standard Asset risk analysis parameters
+
+risk_assessment:
+  # Volatility analysis weights (total: 1.0)
+  volatility_weights:
+    price_volatility: 0.35           # Price movement analysis
+    volume_volatility: 0.25          # Trading volume stability
+    market_depth: 0.25               # Order book depth
+    correlation_risk: 0.15           # Correlation with other assets
+
+  # Liquidity analysis weights (total: 1.0)
+  liquidity_weights:
+    trading_volume: 0.30             # 24h trading volume
+    market_makers: 0.25              # Number of active market makers
+    spread_analysis: 0.25            # Bid-ask spread consistency
+    pool_depth: 0.20                 # DEX liquidity pool depth
+
+  # Security analysis weights (total: 1.0)
+  security_weights:
+    smart_contract_audit: 0.30       # Contract audit status
+    creator_reputation: 0.25         # Asset creator verification
+    governance_model: 0.20           # Decentralization score
+    technical_parameters: 0.25       # Asset configuration safety
+
+# Volatility parameters
+volatility_analysis:
+  lookback_periods:
+    short_term: 7                    # Days for short-term volatility
+    medium_term: 30                  # Days for medium-term volatility
+    long_term: 90                    # Days for long-term volatility
+
+  volatility_thresholds:
+    very_low: 0.05                   # < 5% daily volatility
+    low: 0.15                        # < 15% daily volatility
+    medium: 0.30                     # < 30% daily volatility
+    high: 0.50                       # < 50% daily volatility
+    very_high: 1.0                   # >= 50% daily volatility
+
+  correlation_thresholds:
+    low_correlation: 0.3             # Independent movement
+    medium_correlation: 0.6          # Some correlation
+    high_correlation: 0.8            # Highly correlated
+
+# Liquidity parameters
+liquidity_analysis:
+  minimum_requirements:
+    daily_volume_usd: 10000          # Minimum $10k daily volume
+    market_makers: 3                 # Minimum 3 market makers
+    pool_depth_ratio: 0.1            # 10% of total supply in pools
+
+  volume_categories:
+    nano: 1000                       # < $1k daily
+    micro: 10000                     # < $10k daily
+    small: 100000                    # < $100k daily
+    medium: 1000000                  # < $1M daily
+    large: 10000000                  # >= $10M daily
+
+  spread_thresholds:
+    tight: 0.005                     # < 0.5% spread
+    normal: 0.02                     # < 2% spread
+    wide: 0.05                       # < 5% spread
+    very_wide: 0.1                   # >= 10% spread
+
+# Security parameters
+security_analysis:
+  audit_requirements:
+    required_auditors: ["certik", "halborn", "trail_of_bits"]
+    minimum_score: 85                # Minimum audit score
+    max_age_months: 12               # Audit must be < 12 months old
+
+  creator_verification:
+    verified_creators: ["algorand_inc", "algofi", "tinyman", "folks_finance"]
+    kyc_required: true
+    reputation_threshold: 0.8
+
+  technical_checks:
+    freeze_enabled: false            # Asset should not be freezable
+    clawback_enabled: false          # Asset should not have clawback
+    default_frozen: false            # Asset should not be frozen by default
+    unit_name_length: 8              # Maximum unit name length
+    asset_name_length: 32            # Maximum asset name length
+
+# DEX Integration
+dex_config:
+  supported_dexes:
+    tinyman:
+      api_url: "https://mainnet.analytics.tinyman.org"
+      pool_endpoint: "/api/v1/pools/"
+      price_endpoint: "/api/v1/assets/{asset_id}/price"
+
+    algofi:
+      api_url: "https://api.algofi.org"
+      market_endpoint: "/v1/market_data"
+
+    pact:
+      api_url: "https://api.pact.fi"
+      pools_endpoint: "/pools"
+
+    algodex:
+      api_url: "https://api.algodex.com"
+      orderbook_endpoint: "/v1/orderbook"
+
+# Risk scoring tiers
+risk_tiers:
+  aaa:  # Highest quality
+    min_score: 0.90
+    max_ltv: 0.85
+    rate_adjustment: -0.2            # 20 basis points reduction
+
+  aa:   # High quality
+    min_score: 0.80
+    max_ltv: 0.75
+    rate_adjustment: -0.1            # 10 basis points reduction
+
+  a:    # Good quality
+    min_score: 0.70
+    max_ltv: 0.65
+    rate_adjustment: 0.0             # No adjustment
+
+  bbb:  # Acceptable quality
+    min_score: 0.60
+    max_ltv: 0.55
+    rate_adjustment: 0.1             # 10 basis points increase
+
+  bb:   # Below investment grade
+    min_score: 0.50
+    max_ltv: 0.45
+    rate_adjustment: 0.25            # 25 basis points increase
+
+  b:    # Speculative
+    min_score: 0.40
+    max_ltv: 0.35
+    rate_adjustment: 0.5             # 50 basis points increase
+
+  ccc:  # Highly speculative
+    min_score: 0.30
+    max_ltv: 0.25
+    rate_adjustment: 1.0             # 100 basis points increase
+
+  cc:   # Very high risk
+    min_score: 0.20
+    max_ltv: 0.15
+    rate_adjustment: 2.0             # 200 basis points increase
+
+  c:    # Extremely high risk
+    min_score: 0.10
+    max_ltv: 0.10
+    rate_adjustment: 3.0             # 300 basis points increase
+
+  d:    # Default/Unacceptable
+    min_score: 0.0
+    max_ltv: 0.0
+    rate_adjustment: null            # No lending allowed
+
+# Algorand network configuration
+algorand_config:
+  indexer:
+    url: "https://mainnet-idx.algonode.cloud"
+    timeout: 30
+
+  node:
+    url: "https://mainnet-api.algonode.cloud"
+    timeout: 30
+
+# MCP integration
+mcp_config:
+  reader_port: 8002
+  writer_port: 8003
+  real_time_pricing: true
+  price_update_interval: 60         # seconds
+
+# Caching configuration
+cache_config:
+  price_data_ttl: 300               # 5 minutes
+  liquidity_data_ttl: 600           # 10 minutes
+  security_data_ttl: 3600           # 1 hour
+  redis_url: "redis://localhost:6379"
+
+# Data sources
+data_sources:
+  price_feeds:
+    - "tinyman"
+    - "algofi"
+    - "vestige"
+    - "pact"
+
+  market_data:
+    - "algorand_indexer"
+    - "algoexplorer"
+    - "vestige_api"
+
+# Monitoring and alerts
+monitoring:
+  price_change_threshold: 0.2       # 20% price change alert
+  volume_drop_threshold: 0.5        # 50% volume drop alert
+  liquidity_drain_threshold: 0.3    # 30% liquidity reduction alert
+
+# Logging configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "asa_risk_assessment.log"
+  max_bytes: 10485760               # 10MB
+  backup_count: 5

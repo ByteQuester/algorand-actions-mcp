@@ -1,0 +1,25 @@
+# Audit Trail & Compliance System Dependencies
+
+# Core dependencies (required)
+pydantic>=2.5.0
+uuid>=1.30  # Python built-in, but specified for clarity
+
+# Database dependencies (optional for basic usage, required for database operations)
+asyncpg>=0.29.0  # PostgreSQL async driver
+psycopg2-binary>=2.9.7  # Alternative PostgreSQL driver (for sync operations)
+
+# Additional dependencies for CLI and maintenance operations
+python-dotenv>=1.0.0  # Environment variable loading
+click>=8.1.0  # CLI framework (alternative to argparse)
+
+# Development and testing dependencies (optional)
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-postgresql>=5.0.0  # For testing with real PostgreSQL instances
+
+# Performance monitoring (optional)
+psutil>=5.9.0  # System resource monitoring
+memory-profiler>=0.60.0  # Memory usage tracking
+
+# Security dependencies (optional but recommended)
+cryptography>=41.0.0  # For checksum generation and optional encryption

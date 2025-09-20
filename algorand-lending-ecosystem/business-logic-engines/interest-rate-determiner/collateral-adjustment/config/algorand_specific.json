@@ -1,0 +1,191 @@
+{
+  "algorand_ecosystem": {
+    "native_asset": {
+      "symbol": "ALGO",
+      "risk_premium": 0.001,
+      "collateral_tier": "premium",
+      "liquidation_premium": 0.05,
+      "minimum_stake_amount": 1000,
+      "governance_participation_discount": -0.0005
+    },
+    "asa_categories": {
+      "verified_asa": {
+        "risk_premium": 0.002,
+        "collateral_tier": "standard",
+        "verification_requirements": [
+          "asset_verification",
+          "creator_verification",
+          "audit_report"
+        ]
+      },
+      "unverified_asa": {
+        "risk_premium": 0.005,
+        "collateral_tier": "high_risk",
+        "additional_monitoring": true
+      },
+      "stablecoins": {
+        "USDC": {
+          "risk_premium": 0.0005,
+          "collateral_tier": "premium",
+          "peg_monitoring": true,
+          "reserve_audit_required": true
+        },
+        "USDT": {
+          "risk_premium": 0.0008,
+          "collateral_tier": "premium",
+          "peg_monitoring": true
+        }
+      }
+    },
+    "defi_protocols": {
+      "algofi": {
+        "protocol_risk": 0.001,
+        "yield_farming_risk": 0.002,
+        "smart_contract_audit": "AA",
+        "tvl_threshold": 100000000
+      },
+      "pact": {
+        "protocol_risk": 0.0015,
+        "amm_risk": 0.001,
+        "smart_contract_audit": "A",
+        "liquidity_requirements": true
+      },
+      "folks_finance": {
+        "protocol_risk": 0.001,
+        "lending_protocol_risk": 0.0005,
+        "smart_contract_audit": "AA",
+        "insurance_coverage": true
+      }
+    },
+    "governance_tokens": {
+      "risk_adjustment": 0.003,
+      "voting_power_consideration": true,
+      "lock_up_periods": {
+        "3_months": -0.0005,
+        "6_months": -0.001,
+        "12_months": -0.0015
+      }
+    },
+    "nft_collateral": {
+      "enabled": false,
+      "risk_premium": 0.01,
+      "valuation_method": "floor_price",
+      "liquidation_discount": 0.3
+    }
+  },
+  "smart_contract_security": {
+    "audit_ratings": {
+      "AAA": {
+        "adjustment": -0.0005,
+        "requirements": [
+          "multiple_audits",
+          "formal_verification",
+          "bug_bounty_program"
+        ]
+      },
+      "AA": {
+        "adjustment": 0.0,
+        "requirements": [
+          "professional_audit",
+          "public_code_review"
+        ]
+      },
+      "A": {
+        "adjustment": 0.0005,
+        "requirements": [
+          "basic_audit"
+        ]
+      },
+      "UNRATED": {
+        "adjustment": 0.006,
+        "additional_risk": "experimental_contract"
+      }
+    },
+    "upgrade_patterns": {
+      "immutable": {
+        "security_bonus": -0.0002,
+        "risk_factor": "low"
+      },
+      "proxy_upgradeable": {
+        "security_penalty": 0.0003,
+        "risk_factor": "medium"
+      },
+      "admin_controlled": {
+        "security_penalty": 0.0005,
+        "risk_factor": "high"
+      }
+    }
+  },
+  "cross_chain_considerations": {
+    "ethereum_bridge": {
+      "bridge_risk": 0.002,
+      "monitoring_required": true,
+      "withdrawal_delays": true
+    },
+    "polygon_bridge": {
+      "bridge_risk": 0.0015,
+      "monitoring_required": true
+    },
+    "avalanche_bridge": {
+      "bridge_risk": 0.0018,
+      "monitoring_required": true
+    }
+  },
+  "market_conditions": {
+    "algo_price_correlation": {
+      "btc_correlation": 0.7,
+      "eth_correlation": 0.75,
+      "market_cap_impact": true
+    },
+    "ecosystem_health": {
+      "tvl_monitoring": true,
+      "transaction_volume_monitoring": true,
+      "developer_activity_monitoring": true
+    },
+    "volatility_factors": {
+      "market_cap_tier": {
+        "large_cap": 0.15,
+        "mid_cap": 0.25,
+        "small_cap": 0.40
+      },
+      "liquidity_tiers": {
+        "high_liquidity": 0.10,
+        "medium_liquidity": 0.20,
+        "low_liquidity": 0.35
+      }
+    }
+  },
+  "integration_endpoints": {
+    "algorand_indexer": {
+      "mainnet": "https://mainnet-idx.algonode.cloud",
+      "testnet": "https://testnet-idx.algonode.cloud",
+      "timeout": 30
+    },
+    "algorand_node": {
+      "mainnet": "https://mainnet-api.algonode.cloud",
+      "testnet": "https://testnet-api.algonode.cloud",
+      "timeout": 30
+    },
+    "vestige_api": {
+      "endpoint": "https://api.vestige.fi",
+      "enabled": true,
+      "timeout": 10
+    },
+    "tinyman_api": {
+      "endpoint": "https://api.tinyman.org",
+      "enabled": true,
+      "timeout": 10
+    }
+  },
+  "monitoring_parameters": {
+    "algo_price_deviation_threshold": 0.05,
+    "asa_liquidity_threshold": 10000,
+    "governance_period_monitoring": true,
+    "consensus_participation_monitoring": true,
+    "network_health_indicators": [
+      "block_time",
+      "transaction_throughput",
+      "network_participation"
+    ]
+  }
+}

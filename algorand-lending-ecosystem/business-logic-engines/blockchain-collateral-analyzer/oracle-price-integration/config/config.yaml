@@ -1,0 +1,180 @@
+# Oracle Price Integration Engine Configuration
+
+# MCP Service URLs
+mcp_services:
+  algorand_reader_url: "http://localhost:8002"
+  market_data_url: "http://localhost:8003"
+
+# Oracle provider configurations
+oracle_providers:
+  chainlink:
+    enabled: true
+    api_url: "https://api.chain.link"
+    api_key: null  # Set via environment variable
+    variance: 0.001  # Price variance for simulation
+    latency_seconds: 30
+    reliability_score: 0.95
+    timeout_seconds: 10
+    retry_attempts: 3
+
+  pyth:
+    enabled: true
+    api_url: "https://hermes.pyth.network"
+    api_key: null
+    variance: 0.002
+    latency_seconds: 5
+    reliability_score: 0.92
+    timeout_seconds: 8
+    retry_attempts: 3
+
+  algorand_native:
+    enabled: true
+    api_url: "https://mainnet-api.algonode.cloud"
+    api_key: null
+    variance: 0.0005
+    latency_seconds: 1
+    reliability_score: 0.98
+    timeout_seconds: 5
+    retry_attempts: 2
+
+  dia:
+    enabled: true
+    api_url: "https://api.diadata.org"
+    api_key: null
+    variance: 0.003
+    latency_seconds: 60
+    reliability_score: 0.85
+    timeout_seconds: 15
+    retry_attempts: 3
+
+# Price feed refresh intervals and timeouts
+refresh_intervals:
+  high_frequency_seconds: 5    # For critical assets like ALGO, BTC
+  medium_frequency_seconds: 30 # For common assets
+  low_frequency_seconds: 300   # For less traded assets
+  emergency_frequency_seconds: 1 # During high volatility periods
+
+# Data validation and outlier detection
+validation:
+  max_price_deviation_percent: 10.0  # Maximum allowed deviation from consensus
+  min_oracle_agreement_threshold: 0.8 # Minimum agreement for consensus
+  outlier_detection_method: "z_score"  # "z_score" or "iqr"
+  outlier_threshold: 2.5  # Z-score threshold for outlier detection
+  min_data_points: 2  # Minimum oracles required for consensus
+  confidence_threshold: 0.8  # Minimum confidence for price acceptance
+
+# Price aggregation methods
+aggregation:
+  method: "weighted_median"  # "mean", "median", "weighted_mean", "weighted_median"
+  weight_factors:
+    reliability_weight: 0.4
+    confidence_weight: 0.3
+    freshness_weight: 0.2
+    volume_weight: 0.1
+  outlier_removal: true
+
+# Oracle reputation scoring
+reputation:
+  tracking_window_hours: 168  # 7 days
+  accuracy_weight: 0.5
+  uptime_weight: 0.3
+  response_time_weight: 0.2
+  min_historical_data_points: 100
+  reputation_decay_factor: 0.95  # Daily decay for old performance
+
+# Emergency fallback prices and mechanisms
+fallback:
+  enabled: true
+  max_staleness_minutes: 60  # Use fallback if data older than this
+  emergency_prices:
+    ALGO: 0.25
+    USDC: 1.00
+    USDT: 1.00
+    BTC: 45000.0
+    ETH: 3000.0
+    goBTC: 45000.0
+    goETH: 3000.0
+
+  # Fallback data sources (in priority order)
+  fallback_sources:
+    - "cached_prices"
+    - "emergency_prices"
+    - "external_api_backup"
+
+# Staleness scoring configuration
+staleness:
+  excellent_threshold_seconds: 30    # Score: 1.0
+  good_threshold_seconds: 300        # Score: 0.9
+  acceptable_threshold_seconds: 900  # Score: 0.7
+  poor_threshold_seconds: 3600       # Score: 0.5
+  unacceptable_threshold_seconds: 7200 # Score: 0.0
+
+# Price manipulation detection
+manipulation_detection:
+  enabled: true
+  lookback_minutes: 60
+  volatility_threshold: 0.1  # 10% volatility triggers alert
+  price_range_threshold: 0.2  # 20% price range triggers alert
+  consensus_threshold: 0.8    # Minimum oracle consensus
+  min_oracle_coverage: 2      # Minimum oracles for valid assessment
+
+  # Risk scoring weights
+  risk_weights:
+    high_volatility: 0.3
+    large_price_swings: 0.4
+    poor_consensus: 0.3
+    insufficient_coverage: 0.2
+
+# Circuit breaker configuration
+circuit_breaker:
+  enabled: true
+  max_failures_per_minute: 5
+  failure_window_minutes: 5
+  recovery_time_minutes: 10
+  escalation_thresholds:
+    warning: 0.3    # 30% oracle failures
+    critical: 0.6   # 60% oracle failures
+    emergency: 0.8  # 80% oracle failures
+
+# Asset-specific configurations
+asset_configurations:
+  ALGO:
+    priority: "high"
+    refresh_interval_override: 5
+    confidence_threshold_override: 0.9
+    max_staleness_override: 30
+
+  USDC:
+    priority: "high"
+    refresh_interval_override: 30
+    confidence_threshold_override: 0.85
+    max_staleness_override: 300
+
+  BTC:
+    priority: "medium"
+    refresh_interval_override: 10
+    confidence_threshold_override: 0.85
+    max_staleness_override: 60
+
+# Caching configuration
+caching:
+  enabled: true
+  default_ttl_seconds: 30
+  max_cache_size: 1000
+  cleanup_interval_minutes: 10
+
+# Monitoring and alerting
+monitoring:
+  health_check_interval_seconds: 60
+  log_level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  metrics_enabled: true
+  alert_thresholds:
+    oracle_failure_rate: 0.2
+    consensus_failure_rate: 0.1
+    average_latency_ms: 5000
+
+# Database configuration
+database:
+  price_history_retention_days: 30
+  oracle_performance_retention_days: 90
+  cleanup_interval_hours: 24

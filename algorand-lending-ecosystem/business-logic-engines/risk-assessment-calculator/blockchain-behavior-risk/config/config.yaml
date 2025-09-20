@@ -1,0 +1,300 @@
+# Blockchain Behavior Risk Engine Configuration
+
+# Engine Settings
+engine:
+  name: "algorand-behavior-risk-engine"
+  version: "1.0.0"
+  description: "Algorand blockchain behavior risk assessment engine"
+
+  # MCP Server Configuration
+  mcp:
+    reader_port: 8002
+    writer_port: 8003
+    max_connections: 100
+    timeout_seconds: 30
+
+  # Analysis Configuration
+  analysis:
+    max_concurrent_wallets: 50
+    batch_size: 100
+    cache_ttl_minutes: 60
+    analysis_window_days: 30
+
+  # Performance Settings
+  performance:
+    worker_threads: 4
+    max_memory_mb: 2048
+    enable_caching: true
+    cache_size_mb: 512
+
+# Risk Assessment Parameters
+risk_assessment:
+  # Transaction Pattern Detection
+  transaction_patterns:
+    velocity_spike:
+      z_score_threshold: 2.5
+      window_hours: 24
+      min_transactions: 10
+
+    dormant_activation:
+      dormant_days_threshold: 30
+      activation_transactions: 5
+      activation_window_hours: 168  # 7 days
+
+    wash_trading:
+      min_round_trips: 3
+      balance_ratio_threshold: 0.8
+      time_correlation_threshold: 0.7
+
+    flash_loan_arbitrage:
+      same_block_transactions: 3
+      min_volume_threshold: 10000
+      profit_margin_threshold: 0.01
+
+  # Wallet Clustering Detection
+  wallet_clustering:
+    sybil_detection:
+      min_cluster_size: 3
+      behavioral_similarity_threshold: 0.8
+      temporal_correlation_threshold: 0.9
+      funding_correlation_threshold: 0.7
+
+    relationship_strength:
+      min_interactions: 2
+      volume_correlation_threshold: 0.6
+      timing_correlation_threshold: 0.5
+
+  # MEV Detection
+  mev_detection:
+    sandwich_attacks:
+      max_time_window_seconds: 30
+      min_position_advantage: 1
+      min_extracted_value: 100
+
+    front_running:
+      max_time_gap_seconds: 10
+      gas_price_advantage_threshold: 1.1
+      min_confidence: 0.7
+
+    arbitrage:
+      min_profit_threshold: 100
+      max_execution_blocks: 5
+      min_protocol_count: 2
+
+  # Bridge Risk Assessment
+  bridge_risk:
+    activity_monitoring:
+      volume_spike_threshold: 5.0  # 5x normal volume
+      frequency_spike_threshold: 3.0  # 3x normal frequency
+      unusual_pattern_threshold: 0.8
+
+    concentration_risk:
+      single_user_threshold: 0.2  # 20% of daily volume
+      time_concentration_threshold: 0.5  # 50% in 1 hour
+
+  # Anomaly Detection
+  anomaly_detection:
+    statistical:
+      z_score_threshold: 2.5
+      min_baseline_days: 14
+      confidence_threshold: 0.7
+
+    behavioral:
+      pattern_deviation_threshold: 0.5
+      consistency_threshold: 0.8
+
+    temporal:
+      seasonality_detection: true
+      trend_change_threshold: 0.3
+
+# Risk Scoring Configuration
+risk_scoring:
+  # Component Weights
+  weights:
+    transaction_behavior: 0.20
+    wallet_clustering: 0.15
+    defi_exposure: 0.15
+    liquidity_risk: 0.12
+    smart_contract_risk: 0.12
+    mev_exposure: 0.10
+    bridge_risk: 0.08
+    governance_risk: 0.05
+    asa_risk: 0.03
+
+  # Risk Level Thresholds
+  thresholds:
+    minimal: 0.15
+    low: 0.35
+    moderate: 0.60
+    high: 0.80
+
+  # Context Adjustments
+  context_multipliers:
+    bear_market: 1.15
+    bull_market: 0.95
+    high_volatility: 1.20
+    regulatory_uncertainty: 1.10
+
+# Alert Configuration
+alerts:
+  # Alert Thresholds
+  thresholds:
+    critical_risk_score: 0.85
+    high_risk_score: 0.70
+    moderate_risk_score: 0.50
+
+    high_confidence: 0.80
+    medium_confidence: 0.60
+
+  # Alert Types
+  types:
+    sybil_attack:
+      enabled: true
+      min_cluster_size: 5
+      min_confidence: 0.75
+
+    mev_exploitation:
+      enabled: true
+      min_extracted_value: 1000
+      min_confidence: 0.70
+
+    wash_trading:
+      enabled: true
+      min_volume: 50000
+      min_confidence: 0.80
+
+    bridge_anomaly:
+      enabled: true
+      volume_threshold: 100000
+      min_confidence: 0.75
+
+    flash_loan_attack:
+      enabled: true
+      min_profit: 5000
+      min_confidence: 0.85
+
+# Database Configuration
+database:
+  # PostgreSQL Settings
+  postgresql:
+    host: "${POSTGRES_HOST:localhost}"
+    port: "${POSTGRES_PORT:5432}"
+    database: "${POSTGRES_DB:algorand_risk}"
+    username: "${POSTGRES_USER:risk_user}"
+    password: "${POSTGRES_PASSWORD:changeme}"
+    pool_size: 10
+    max_overflow: 20
+
+  # Connection Settings
+  connection:
+    timeout_seconds: 30
+    retry_attempts: 3
+    retry_delay_seconds: 5
+
+  # Data Retention
+  retention:
+    risk_profiles_days: 365
+    transaction_patterns_days: 90
+    anomaly_detections_days: 180
+    alerts_days: 365
+    correlation_data_days: 90
+
+# Algorand Network Configuration
+algorand:
+  # Network Settings
+  network:
+    mainnet_endpoint: "https://mainnet-api.algonode.cloud"
+    testnet_endpoint: "https://testnet-api.algonode.cloud"
+    indexer_endpoint: "https://mainnet-idx.algonode.cloud"
+
+  # Rate Limiting
+  rate_limits:
+    requests_per_second: 10
+    burst_size: 20
+
+  # Transaction Filtering
+  transaction_filters:
+    min_amount: 0.001  # Minimum ALGO amount
+    max_age_days: 90
+    include_inner_transactions: true
+
+  # Asset Monitoring
+  asset_monitoring:
+    track_asa_transfers: true
+    track_app_calls: true
+    track_key_registrations: false
+
+# Monitoring and Logging
+monitoring:
+  # Metrics Collection
+  metrics:
+    enabled: true
+    collection_interval_seconds: 60
+    retention_days: 30
+
+  # Health Checks
+  health_checks:
+    enabled: true
+    interval_seconds: 30
+    timeout_seconds: 10
+
+  # Performance Monitoring
+  performance:
+    track_analysis_time: true
+    track_memory_usage: true
+    track_api_latency: true
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+  # File Logging
+  file:
+    enabled: true
+    path: "/var/log/blockchain-behavior-risk/"
+    max_size_mb: 100
+    backup_count: 5
+
+  # Console Logging
+  console:
+    enabled: true
+    level: "INFO"
+
+  # Structured Logging
+  structured:
+    enabled: true
+    include_trace_id: true
+
+# Security Configuration
+security:
+  # API Security
+  api:
+    enable_auth: true
+    require_https: true
+    max_request_size_mb: 10
+
+  # Data Security
+  data:
+    encrypt_sensitive_data: true
+    hash_wallet_addresses: false  # For analysis purposes
+    anonymize_user_data: true
+
+  # Access Control
+  access:
+    admin_roles: ["admin", "risk_manager"]
+    read_only_roles: ["analyst", "auditor"]
+
+# Development and Testing
+development:
+  # Debug Settings
+  debug:
+    enabled: false
+    verbose_logging: false
+    save_debug_data: false
+
+  # Testing
+  testing:
+    use_mock_data: false
+    test_data_path: "./test_data/"
+    enable_test_endpoints: false

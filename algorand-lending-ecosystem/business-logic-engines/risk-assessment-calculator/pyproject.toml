@@ -1,0 +1,183 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "algorand-risk-assessment-calculator"
+version = "1.0.0"
+description = "Comprehensive holistic risk assessment system for Algorand ecosystem"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Algorand Risk Assessment Team", email = "risk@algorand.com"},
+]
+keywords = [
+    "algorand", "blockchain", "risk-assessment", "defi", "cryptocurrency",
+    "financial-analysis", "risk-management", "smart-contracts", "governance"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Financial and Insurance Industry",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Office/Business :: Financial",
+    "Topic :: Security",
+]
+dependencies = [
+    "numpy>=1.21.0",
+    "pandas>=1.3.0",
+    "scipy>=1.7.0",
+    "scikit-learn>=1.0.0",
+    "aiohttp>=3.8.0",
+    "asyncio-mqtt>=0.10.0",
+    "pydantic>=1.8.0",
+    "click>=8.0.0",
+    "rich>=12.0.0",
+    "typer>=0.6.0",
+    "uvloop>=0.16.0",
+    "orjson>=3.6.0",
+    "redis>=4.0.0",
+    "py-algorand-sdk>=2.0.0",
+    "websockets>=10.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0",
+    "pytest-asyncio>=0.20",
+    "pytest-cov>=3.0",
+    "black>=22.0",
+    "isort>=5.0",
+    "flake8>=4.0",
+    "mypy>=0.900",
+]
+docs = [
+    "sphinx>=4.0",
+    "sphinx-rtd-theme>=1.0",
+    "sphinx-autodoc-typehints>=1.12",
+]
+monitoring = [
+    "prometheus-client>=0.14",
+    "grafana-api>=1.0",
+    "alertmanager-webhook>=0.3",
+]
+
+[project.urls]
+Homepage = "https://github.com/algorand/risk-assessment-calculator"
+Documentation = "https://algorand-risk-docs.readthedocs.io/"
+Repository = "https://github.com/algorand/risk-assessment-calculator"
+"Bug Tracker" = "https://github.com/algorand/risk-assessment-calculator/issues"
+
+[project.scripts]
+holistic-risk-assessor = "cli.holistic_assessor:main"
+blockchain-behavior-monitor = "cli.blockchain_monitor:main"
+defi-protocol-monitor = "cli.defi_monitor:main"
+smart-contract-analyzer = "cli.contract_analyzer:main"
+liquidity-cascade-monitor = "cli.cascade_monitor:main"
+governance-stability-tracker = "cli.governance_tracker:main"
+risk-alert-manager = "cli.alert_manager:main"
+risk-monitoring-dashboard = "cli.monitoring_dashboard:main"
+
+[tool.setuptools]
+packages = [
+    "blockchain_behavior_engine",
+    "defi_protocol_engine",
+    "liquidity_cascade_engine",
+    "governance_stability_engine",
+    "holistic_risk_orchestrator",
+    "cli",
+    "config",
+    "integration_tests",
+]
+
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py310', 'py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 100
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q --strict-markers --strict-config"
+testpaths = [
+    "tests",
+    "integration_tests",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "blockchain: marks tests that require blockchain connection",
+]
+
+[tool.coverage.run]
+source = [
+    "blockchain_behavior_engine",
+    "defi_protocol_engine",
+    "liquidity_cascade_engine",
+    "governance_stability_engine",
+    "holistic_risk_orchestrator",
+    "cli",
+]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/conftest.py",
+    "setup.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
