@@ -1,0 +1,21 @@
+# Minimal requirements for containerized deployment
+fastapi>=0.104.1
+uvicorn>=0.24.0
+pydantic>=2.5.0
+python-multipart>=0.0.6
+
+# Algorand SDK
+py-algorand-sdk>=2.0.0
+
+# Database
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.0
+
+# Environment & Config
+python-dotenv>=1.0.0
+
+# Logging
+structlog>=23.1.0
+
+# Basic dependencies
+requests>=2.31.0
